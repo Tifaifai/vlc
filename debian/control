@@ -10,15 +10,15 @@ Uploaders: Sam Hocevar (Debian packages) <sam+deb@zoy.org>,
 Build-Depends: debhelper (>= 6),
                dh-buildinfo,
                gettext,
+               pkg-config,
                quilt,
                nasm,
                yasm [amd64 kfreebsd-amd64],
                iceape-dev (>=  1.1.9-4),
                liba52-0.7.4-dev,
                libaa1-dev,
-               libarts1-dev (>= 1.4.2),
                libasound2-dev (>= 0.9.0beta10a) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
-               libass-dev (>= 0.9.5-2),
+               libass-dev,
                libaudiofile-dev,
                libavahi-client-dev,
                libavc1394-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
@@ -31,7 +31,6 @@ Build-Depends: debhelper (>= 6),
                libdvbpsi4-dev,
                libdvdnav-dev,
                libdvdread-dev (>= 0.9.5),
-               libesd0-dev,
                libfaad-dev,
                libflac-dev (>= 1.1.2-3),
                libfreetype6-dev,
@@ -83,13 +82,12 @@ Build-Depends: debhelper (>= 6),
                libxpm-dev,
                libxt-dev,
                libxv-dev,
-               pkg-config,
                qt4-dev-tools,
                zlib1g-dev
 Standards-Version: 3.8.0
 Homepage: http://www.videolan.org/vlc
-Vcs-Svn: svn://svn.debian.org/svn/pkg-multimedia/experimental/vlc/
-Vcs-Browser: http://svn.debian.org/wsvn/pkg-multimedia/experimental/vlc/
+Vcs-Svn: svn://svn.debian.org/svn/pkg-multimedia/videolan/vlc/
+Vcs-Browser: http://svn.debian.org/wsvn/pkg-multimedia/videolan/vlc/
 
 Package: vlc
 Section: graphics
@@ -118,10 +116,9 @@ Description: multimedia player and streamer
  VLC has support for on-the-fly transcoding of audio and video formats, either
  for broadcasting purposes or for movie format transformations. Support for
  most output methods is provided by this package, but features can be added
- by installing additional audio plugins (vlc-plugin-esd, vlc-plugin-sdl,
- vlc-plugin-arts) or video plugins (vlc-plugin-sdl, vlc-plugin-ggi,
- vlc-plugin-svgalib). There is also a web browser plugin in the 
- mozilla-plugin-vlc package.
+ by installing additional audio plugins (vlc-plugin-pulse, vlc-plugin-sdl)
+ or video plugins (vlc-plugin-sdl, vlc-plugin-ggi, vlc-plugin-svgalib). There 
+ is also a web browser plugin in the mozilla-plugin-vlc package.
 
 Package: vlc-dbg
 Section: graphics
@@ -161,15 +158,15 @@ Description: multimedia player and streamer (without X support)
  VLC has support for on-the-fly transcoding of audio and video formats, either
  for broadcasting purposes or for movie format transformations. Support for
  most output methods is provided by this package, but features can be added
- by installing additional audio plugins (vlc-plugin-esd, vlc-plugin-sdl,
- vlc-plugin-arts, vlc-plugin-jack) or video plugins (vlc-plugin-sdl, 
- vlc-plugin-ggi, vlc-plugin-svgalib). There is also a web browser plugin in 
+ by installing additional audio plugins (vlc-plugin-pulse, vlc-plugin-sdl, 
+ vlc-plugin-jack) or video plugins (vlc-plugin-sdl, vlc-plugin-ggi, 
+ vlc-plugin-svgalib). There is also a web browser plugin in 
  the mozilla-plugin-vlc package.
  .
  This package contains a version of VLC that does not require X and that is
  thus suitable for headless servers.
 
-Package: libvlccore0
+Package: libvlccore1
 Section: libs
 Architecture: any
 Depends: vlc-data,
@@ -187,8 +184,8 @@ Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends}
-Replaces: vlc (<< 0.8.6.c-6)
-Conflicts: vlc (<< 0.8.6.c-6)
+Replaces: vlc (<< 0.8.6.c-6), libvlc0, libvlc1
+Conflicts: vlc (<< 0.8.6.c-6), libvlc0, libvlc1
 Description: multimedia player and streamer library
  This package contains the shared library required by applications using VLC
  features.
@@ -200,8 +197,10 @@ Description: multimedia player and streamer library
 Package: libvlccore-dev
 Section: libdevel
 Architecture: any
-Depends: libvlccore0 (= ${binary:Version}), pkg-config, 
+Depends: libvlccore1 (= ${binary:Version}), pkg-config, 
          ${shlibs:Depends}, ${misc:Depends}
+Replaces: libvlccore0-dev, libvlccore1-dev
+Conflicts: libvlccore0-dev, libvlccore1-dev
 Description: development files for VLC
  This package contains headers and a static library required to build plugins
  for VLC.
@@ -215,23 +214,11 @@ Section: libdevel
 Architecture: any
 Depends: libvlc2 (= ${binary:Version}), libvlccore-dev, pkg-config, 
          ${shlibs:Depends}, ${misc:Depends}
-Replaces: libvlc0-dev
-Conflicts: libvlc0-dev
+Replaces: libvlc0-dev, libvlc2-dev
+Conflicts: libvlc0-dev, libvlc2-dev
 Description: development files for VLC
  This package contains headers and a static library required to build 
  standalone applications that use VLC features.
- .
- VLC is the VideoLAN project's media player. It plays MPEG, MPEG2, MPEG4,
- DivX, MOV, WMV, QuickTime, mp3, Ogg/Vorbis files, DVDs, VCDs, and multimedia
- streams from various network sources.
-
-Package: vlc-plugin-esd
-Architecture: any
-Depends: vlc-nox, ${shlibs:Depends}, ${misc:Depends}
-Description: Esound audio output plugin for VLC
- This plugin adds support for the Enlightened Sound Daemon to the VLC
- media player. To activate it, use the `--aout esd' flag or select the
- `esd' audio output plugin from the preferences menu.
  .
  VLC is the VideoLAN project's media player. It plays MPEG, MPEG2, MPEG4,
  DivX, MOV, WMV, QuickTime, mp3, Ogg/Vorbis files, DVDs, VCDs, and multimedia
@@ -257,18 +244,6 @@ Description: GGI video output plugin for VLC
  This is a GGI plugin for the VLC media player.  To activate it, use
  the `--vout ggi' flag or select the `ggi' video output plugin from the
  preferences menu.
- .
- VLC is the VideoLAN project's media player. It plays MPEG, MPEG2, MPEG4,
- DivX, MOV, WMV, QuickTime, mp3, Ogg/Vorbis files, DVDs, VCDs, and multimedia
- streams from various network sources.
-
-Package: vlc-plugin-arts
-Architecture: any
-Depends: vlc-nox, ${shlibs:Depends}, ${misc:Depends}
-Description: aRts audio output plugin for VLC
- This plugin adds support for the aRts Sound System to the VLC media
- player. To activate it, use the `--aout arts' flag or select the `arts'
- audio output plugin from the preferences menu.
  .
  VLC is the VideoLAN project's media player. It plays MPEG, MPEG2, MPEG4,
  DivX, MOV, WMV, QuickTime, mp3, Ogg/Vorbis files, DVDs, VCDs, and multimedia

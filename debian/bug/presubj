@@ -1,3 +1,7 @@
+This VLC package comes from http://nightlies.videolan.org. Bugs
+shouldn't be reported on the official Debian BTS but sent to the
+VideoLAN team. Reportbug will send this report to vlc-devel@videolan.org.
+
 Debugging and bug reporting advices:
 
 VLC media player is highly modular. So in case a feature is not working

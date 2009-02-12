@@ -6,9 +6,6 @@ DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_ARCH      ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
-VERSION = $(shell  dpkg-parsechangelog|sed -n 's/^Version: //p')
-DEBIAN_VERSION = $(shell echo $(VERSION)|sed -nr 's/[^:]+://; s/.*-([^-]+$$)/\1/p')
-
 ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 confflags := --build=$(DEB_BUILD_GNU_TYPE)
 else
@@ -23,18 +20,15 @@ NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 MAKEFLAGS += -j$(NUMJOBS)
 endif
 
-
-
 include /usr/share/quilt/quilt.make
 
 LDFLAGS = -Wl,--as-needed
 
 # configure flags
-confflags += --enable-maintaner-mode --enable-release --prefix=/usr
+confflags += --enable-maintaner-mode --enable-debug --prefix=/usr
 confflags += \
 	--enable-libtool \
 	--enable-fast-install \
-	--with-binary-version=$(DEBIAN_VERSION) \
 	--disable-update-check \
 	--disable-gnome \
 	--disable-gtk \
@@ -90,6 +84,7 @@ confflags += \
 	--enable-vcdx \
 	--enable-notify \
 	--enable-twolame \
+	--enable-x264 \
 	--enable-faad \
 	--disable-zvbi \
 	--enable-telx \
@@ -137,6 +132,9 @@ ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
 	./vlc -vvv --reset-plugins-cache --list --no-color  
 endif
 endif
+	# As it is the upstream packaging script, we might built from a git tree
+	# Make sure we have ChangeLog
+	$(MAKE) ChangeLog
 	touch $@
 
 clean: clean-real unpatch
@@ -176,6 +174,7 @@ install: build
 	rm -f debian/tmp/usr/share/vlc/skins2/fonts/FreeSansBold.ttf
 	ln -s /usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf debian/tmp/usr/share/vlc/skins2/fonts/FreeSans.ttf
 	ln -s /usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-Bold.ttf debian/tmp/usr/share/vlc/skins2/fonts/FreeSansBold.ttf
+	rm -rf debian/tmp/usr/share/man/man1
 	# Move stuff around
 	mkdir -p debian/tmp/$(PIXDIR)
 	mv debian/tmp/$(VIDDIR)/vlc48x48.png debian/tmp/$(PIXDIR)/vlc.png
@@ -224,7 +223,7 @@ binary-arch: build install
 	dh_installmenu -s
 	dh_installmime -s
 	dh_installman doc/vlc.1 -p vlc-nox
-	dh_installman debian/vlc-wrapper.1 -p vlc-nox
+	dh_installman doc/vlc-wrapper.1 -p vlc-nox
 	dh_installchangelogs ChangeLog -p vlc
 	dh_installchangelogs ChangeLog -p vlc-nox
 	dh_desktop
@@ -232,9 +231,9 @@ binary-arch: build install
 	dh_compress -s
 	dh_fixperms -s
 	dh_makeshlibs -plibvlc2 -V # -V is nasty, but I mean it
-	dh_makeshlibs -plibvlccore0 -V # -V is nasty, but I mean it
+	dh_makeshlibs -plibvlccore1 -V # -V is nasty, but I mean it
 	dh_installdeb -s
-	dh_shlibdeps -s -ldebian/libvlc2/usr/lib:debian/libvlccore0/usr/lib 
+	dh_shlibdeps -s -ldebian/libvlc2/usr/lib:debian/libvlccore1/usr/lib 
 	dh_gencontrol -s
 	dh_md5sums -s
 	dh_builddeb -s

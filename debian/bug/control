@@ -1,1 +1,2 @@
-report-with: vlc vlc-nox libvlc2 libvlccore0
+Send-To: vlc-devel@videolan.org
+report-with: vlc vlc-nox libvlc2 libvlccore1
