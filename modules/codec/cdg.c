@@ -80,14 +80,14 @@ static int Render( decoder_sys_t *p_cdg, picture_t *p_picture );
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_VCODEC );
-    set_description( N_("CDG video decoder") );
-    set_capability( "decoder", 1000 );
-    set_callbacks( Open, Close );
-    add_shortcut( "cdg" );
-vlc_module_end();
+vlc_module_begin ()
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_VCODEC )
+    set_description( N_("CDG video decoder") )
+    set_capability( "decoder", 1000 )
+    set_callbacks( Open, Close )
+    add_shortcut( "cdg" )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: probe the decoder and return score
@@ -101,14 +101,11 @@ static int Open( vlc_object_t *p_this )
         return VLC_EGENERIC;
 
     /* Allocate the memory needed to store the decoder's structure */
-    p_dec->p_sys = p_sys = malloc(sizeof(decoder_sys_t));
+    p_dec->p_sys = p_sys = calloc( 1, sizeof(decoder_sys_t) );
     if( !p_sys )
         return VLC_ENOMEM;
 
     /* Init */
-    memset( p_sys, 0, sizeof(*p_sys) );
-    p_sys->i_offseth = 0;
-    p_sys->i_offsetv = 0;
     p_sys->p_screen = p_sys->screen;
 
     /* Set output properties
@@ -153,7 +150,7 @@ static picture_t *Decode( decoder_t *p_dec, block_t **pp_block )
     }
 
     /* Get a new picture */
-    p_pic = p_dec->pf_vout_buffer_new( p_dec );
+    p_pic = decoder_NewPicture( p_dec );
     if( !p_pic )
         goto error;
 

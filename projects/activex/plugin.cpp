@@ -40,6 +40,7 @@
 
 #include "utils.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <winreg.h>
 #include <winuser.h>
@@ -535,7 +536,7 @@ HRESULT VLCPlugin::getVLC(libvlc_instance_t** pp_libvlc)
                     options[i_options++] = timeBuffer;
                 }
                 // add default target to playlist
-                libvlc_playlist_add_extended(_p_libvlc, psz_mrl, NULL, i_options, options, NULL);
+                libvlc_playlist_add_extended_untrusted(_p_libvlc, psz_mrl, NULL, i_options, options, NULL);
                 CoTaskMemFree(psz_mrl);
             }
         }
@@ -672,6 +673,8 @@ BOOL VLCPlugin::isInPlaceActive(void)
 HRESULT VLCPlugin::onActivateInPlace(LPMSG lpMesg, HWND hwndParent, LPCRECT lprcPosRect, LPCRECT lprcClipRect)
 {
     RECT clipRect = *lprcClipRect;
+    libvlc_exception_t ex;
+    libvlc_exception_init(&ex);
 
     /*
     ** record keeping of control geometry within container
@@ -726,10 +729,16 @@ HRESULT VLCPlugin::onActivateInPlace(LPMSG lpMesg, HWND hwndParent, LPCRECT lprc
         libvlc_video_set_parent(p_libvlc,
             reinterpret_cast<libvlc_drawable_t>(_inplacewnd), NULL);
 
-        if( _b_autoplay & (libvlc_playlist_items_count(p_libvlc, NULL) > 0) )
+        if( _b_autoplay )
         {
-            libvlc_playlist_play(p_libvlc, 0, 0, NULL, NULL);
-            fireOnPlayEvent();
+            libvlc_playlist_lock(p_libvlc);
+            unsigned count = libvlc_playlist_items_count(p_libvlc, &ex);
+            if( count > 0 )
+            {
+              libvlc_playlist_play(p_libvlc, 0, 0, NULL, NULL);
+              fireOnPlayEvent();
+            }
+            libvlc_playlist_unlock(p_libvlc);
         }
     }
 

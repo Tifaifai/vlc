@@ -2,7 +2,7 @@
  * subtitle.c: Demux for subtitle text files.
  *****************************************************************************
  * Copyright (C) 1999-2007 the VideoLAN team
- * $Id: c05753e88f52f358224224108ed4e7f760b5d630 $
+ * $Id$
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Derk-Jan Hartman <hartman at videolan dot org>
@@ -70,25 +70,25 @@ static const char *const ppsz_sub_type[] =
     "subviewer1"
 };
 
-vlc_module_begin();
-    set_shortname( N_("Subtitles"));
-    set_description( N_("Text subtitles parser") );
-    set_capability( "demux", 0 );
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_DEMUX );
+vlc_module_begin ()
+    set_shortname( N_("Subtitles"))
+    set_description( N_("Text subtitles parser") )
+    set_capability( "demux", 0 )
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_DEMUX )
     add_float( "sub-fps", 0.0, NULL,
                N_("Frames per second"),
-               SUB_FPS_LONGTEXT, true );
+               SUB_FPS_LONGTEXT, true )
     add_integer( "sub-delay", 0, NULL,
                N_("Subtitles delay"),
-               SUB_DELAY_LONGTEXT, true );
+               SUB_DELAY_LONGTEXT, true )
     add_string( "sub-type", "auto", NULL, N_("Subtitles format"),
-                SUB_TYPE_LONGTEXT, true );
-        change_string_list( ppsz_sub_type, NULL, NULL );
-    set_callbacks( Open, Close );
+                SUB_TYPE_LONGTEXT, true )
+        change_string_list( ppsz_sub_type, NULL, NULL )
+    set_callbacks( Open, Close )
 
-    add_shortcut( "subtitle" );
-vlc_module_end();
+    add_shortcut( "subtitle" )
+vlc_module_end ()
 
 /*****************************************************************************
  * Prototypes:
@@ -215,6 +215,9 @@ static const struct
     { "subviewer1", SUB_TYPE_SUBVIEW1,    "Subviewer 1", ParseSubViewer1 },
     { NULL,         SUB_TYPE_UNKNOWN,     "Unknown",     NULL }
 };
+/* When adding support for more formats, be sure to add their file extension
+ * to src/input/subtitles.c to enable auto-detection.
+ */
 
 static int Demux( demux_t * );
 static int Control( demux_t *, int, va_list );
@@ -439,7 +442,7 @@ static int Open ( vlc_object_t *p_this )
     /* Quit on unknown subtitles */
     if( p_sys->i_type == SUB_TYPE_UNKNOWN )
     {
-        msg_Err( p_demux, "failed to recognize subtitle type" );
+        msg_Warn( p_demux, "failed to recognize subtitle type" );
         free( p_sys );
         return VLC_EGENERIC;
     }
@@ -619,6 +622,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         case DEMUX_GET_ATTACHMENTS:
         case DEMUX_GET_TITLE_INFO:
         case DEMUX_HAS_UNSUPPORTED_META:
+        case DEMUX_CAN_RECORD:
             return VLC_EGENERIC;
 
         default:

@@ -53,14 +53,14 @@ static picture_t *DecodeBlock  ( decoder_t *, block_t ** );
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_VCODEC );
-    set_description( N_("PNG video decoder") );
-    set_capability( "decoder", 1000 );
-    set_callbacks( OpenDecoder, CloseDecoder );
-    add_shortcut( "png" );
-vlc_module_end();
+vlc_module_begin ()
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_VCODEC )
+    set_description( N_("PNG video decoder") )
+    set_capability( "decoder", 1000 )
+    set_callbacks( OpenDecoder, CloseDecoder )
+    add_shortcut( "png" )
+vlc_module_end ()
 
 /*****************************************************************************
  * OpenDecoder: probe the decoder and return score
@@ -139,6 +139,12 @@ static picture_t *DecodeBlock( decoder_t *p_dec, block_t **pp_block )
     p_block = *pp_block;
     p_sys->b_error = false;
 
+    if( p_block->i_flags & BLOCK_FLAG_DISCONTINUITY )
+    {
+        block_Release( p_block ); *pp_block = NULL;
+        return NULL;
+    }
+
     p_png = png_create_read_struct( PNG_LIBPNG_VER_STRING, 0, 0, 0 );
     if( p_png == NULL )
     {
@@ -206,7 +212,7 @@ static picture_t *DecodeBlock( decoder_t *p_dec, block_t **pp_block )
     }
 
     /* Get a new picture */
-    p_pic = p_dec->pf_vout_buffer_new( p_dec );
+    p_pic = decoder_NewPicture( p_dec );
     if( !p_pic ) goto error;
 
     /* Decode picture */

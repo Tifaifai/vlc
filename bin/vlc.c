@@ -2,7 +2,7 @@
  * vlc.c: the VLC player
  *****************************************************************************
  * Copyright (C) 1998-2008 the VideoLAN team
- * $Id: 7bc6cb33259bfcee1f40a7d76af3aadec7538b7c $
+ * $Id$
  *
  * Authors: Vincent Seguin <seguin@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -82,10 +82,6 @@ int main( int i_argc, const char *ppsz_argv[] )
 #   endif
 #endif
 
-#if defined (HAVE_GETEUID) && !defined (SYS_BEOS)
-    /* FIXME: rootwrap (); */
-#endif
-
     /* Synchronously intercepted POSIX signals.
      *
      * In a threaded program such as VLC, the only sane way to handle signals
@@ -106,8 +102,8 @@ int main( int i_argc, const char *ppsz_argv[] )
         SIGINT, SIGHUP, SIGQUIT, SIGTERM,
     /* Signals that cause a no-op:
      * - SIGPIPE might happen with sockets and would crash VLC. It MUST be
-     *   blocked by any LibVLC-dependent application, in addition to VLC.
-     * - SIGCHLD is comes after exec*() (such as httpd CGI support) and must
+     *   blocked by any LibVLC-dependent application, not just VLC.
+     * - SIGCHLD comes after exec*() (such as httpd CGI support) and must
      *   be dequeued to cleanup zombie processes.
      */
         SIGPIPE, SIGCHLD
@@ -120,6 +116,8 @@ int main( int i_argc, const char *ppsz_argv[] )
 
     /* Block all these signals */
     pthread_sigmask (SIG_BLOCK, &set, NULL);
+    sigdelset (&set, SIGPIPE);
+    sigdelset (&set, SIGCHLD);
 
     /* Note that FromLocale() can be used before libvlc is initialized */
     for (int i = 0; i < i_argc; i++)
@@ -137,7 +135,12 @@ int main( int i_argc, const char *ppsz_argv[] )
 
     if (vlc != NULL)
     {
-        libvlc_add_intf (vlc, "signals", &dummy);
+        libvlc_add_intf (vlc, "signals", &ex);
+        if (libvlc_exception_raised (&ex))
+        {
+            libvlc_exception_clear (&ex);
+            pthread_sigmask (SIG_UNBLOCK, &set, NULL);
+        }
         libvlc_add_intf (vlc, NULL, &ex);
         libvlc_playlist_play (vlc, -1, 0, NULL, &dummy);
         libvlc_wait (vlc);

@@ -89,14 +89,14 @@ static CFDataRef readFile(const char *);
  * Module descriptor
  ****************************************************************************/
 
-vlc_module_begin();
-    set_category( CAT_INTERFACE );
-    set_subcategory( SUBCAT_INTERFACE_CONTROL );
-    set_shortname( "Growl" );
-    set_description( N_("Growl Notification Plugin") );
-    set_capability( "interface", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+vlc_module_begin ()
+    set_category( CAT_INTERFACE )
+    set_subcategory( SUBCAT_INTERFACE_CONTROL )
+    set_shortname( "Growl" )
+    set_description( N_("Growl Notification Plugin") )
+    set_capability( "interface", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: initialize and create stuff
@@ -106,7 +106,7 @@ static int Open( vlc_object_t *p_this )
     intf_thread_t *p_intf = (intf_thread_t *)p_this;
     intf_sys_t    *p_sys;
 
-    p_sys = p_intf->p_sys = calloc( sizeof(intf_sys_t), 1);
+    p_sys = p_intf->p_sys = calloc( 1, sizeof(intf_sys_t) );
     if( !p_sys )
         return VLC_ENOMEM;
 
@@ -119,8 +119,8 @@ static int Open( vlc_object_t *p_this )
     snprintf (buf, sizeof (buf), "%s/vlc48x48.png", data_path);
     p_sys->default_icon = (CFDataRef) readFile( buf );
 
-    playlist_t *p_playlist = pl_Yield( p_intf );
-    var_AddCallback( p_playlist, "playlist-current", ItemChange, p_intf );
+    playlist_t *p_playlist = pl_Hold( p_intf );
+    var_AddCallback( p_playlist, "item-current", ItemChange, p_intf );
     pl_Release( p_intf );
 
     RegisterToGrowl( p_this );
@@ -140,8 +140,8 @@ static void Close( vlc_object_t *p_this )
     [p_sys->p_pool release];
     free( p_sys );
 
-    playlist_t *p_playlist = pl_Yield( p_this );
-    var_DelCallback( p_playlist, "playlist-current", ItemChange, p_this );
+    playlist_t *p_playlist = pl_Hold( p_this );
+    var_DelCallback( p_playlist, "item-current", ItemChange, p_this );
     pl_Release( p_this );
 }
 
@@ -159,13 +159,13 @@ static int ItemChange( vlc_object_t *p_this, const char *psz_var,
     char *psz_artist        = NULL;
     char *psz_album         = NULL;
     input_thread_t *p_input;
-    playlist_t *p_playlist = pl_Yield( p_this );
+    playlist_t *p_playlist = pl_Hold( p_this );
 
     p_input = p_playlist->p_input;
     pl_Release( p_this );
 
     if( !p_input ) return VLC_SUCCESS;
-    vlc_object_yield( p_input );
+    vlc_object_hold( p_input );
 
     char *psz_name = input_item_GetName( input_GetItem( p_input ) );
     if( p_input->b_dead || !psz_name )

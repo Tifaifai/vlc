@@ -76,14 +76,14 @@ static void Display   ( vout_thread_t *, picture_t * );
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_shortname( "Caca" );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VOUT );
-    set_description( N_("Color ASCII art video output") );
-    set_capability( "video output", 12 );
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+vlc_module_begin ()
+    set_shortname( "Caca" )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VOUT )
+    set_description( N_("Color ASCII art video output") )
+    set_capability( "video output", 12 )
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 /*****************************************************************************
  * vout_sys_t: libcaca video output method descriptor
@@ -366,18 +366,17 @@ static int Manage( vout_thread_t *p_vout )
             var_Set( p_vout, "mouse-moved", val );
             break;
         case CACA_EVENT_MOUSE_RELEASE:
-            val.b_bool = true;
-            var_Set( p_vout, "mouse-clicked", val );
+            var_SetBool( p_vout, "mouse-clicked", true );
             break;
         case CACA_EVENT_QUIT:
         {
-            p_playlist = pl_Yield( p_vout );
+            p_playlist = pl_Hold( p_vout );
             if( p_playlist )
             {
                 playlist_Stop( p_playlist );
                 pl_Release( p_vout );
             }
-            vlc_object_kill( p_vout->p_libvlc );
+            libvlc_Quit( p_vout->p_libvlc );
             break;
         }
 #endif

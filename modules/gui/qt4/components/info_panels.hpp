@@ -2,7 +2,7 @@
  * infopanels.hpp : Panels for the information dialogs
  ****************************************************************************
  * Copyright (C) 2006-2007 the VideoLAN team
- * $Id: 5a948e45e92113a3db5f723a103909cbeb787125 $
+ * $Id$
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Baptiste Kempf <jb@videolan.org>
@@ -34,7 +34,6 @@
 #include <vlc_meta.h>
 
 #include <QWidget>
-#include <QLabel>
 
 #include <limits.h>
 
@@ -56,7 +55,6 @@ class MetaPanel: public QWidget
     Q_OBJECT;
 public:
     MetaPanel( QWidget *, intf_thread_t * );
-    virtual ~MetaPanel();
     void saveMeta();
 
     bool isInEditMode();
@@ -100,7 +98,6 @@ class ExtraMetaPanel: public QWidget
     Q_OBJECT;
 public:
     ExtraMetaPanel( QWidget *, intf_thread_t * );
-    virtual  ~ExtraMetaPanel() {};
 private:
     intf_thread_t *p_intf;
     QTreeWidget *extraMetaTree;
@@ -114,7 +111,6 @@ class InputStatsPanel: public QWidget
     Q_OBJECT;
 public:
     InputStatsPanel( QWidget *, intf_thread_t * );
-    virtual ~InputStatsPanel();
 private:
     intf_thread_t *p_intf;
 
@@ -151,21 +147,12 @@ class InfoPanel: public QWidget
     Q_OBJECT;
 public:
     InfoPanel( QWidget *, intf_thread_t * );
-    virtual ~InfoPanel();
 private:
     intf_thread_t *p_intf;
     QTreeWidget *InfoTree;
 public slots:
     void update( input_item_t * );
     void clear();
-};
-class ArtCover : public QLabel
-{
-    Q_OBJECT
-    void mouseDoubleClickEvent( QMouseEvent *event )
-    {
-        fprintf(stderr, "**************************" );
-    }
 };
 
 #endif

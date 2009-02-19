@@ -107,8 +107,8 @@ cdio_log_handler (cdio_log_level_t level, const char message[])
     break;
   default:
     msg_Warn( p_vcd_access, "%s\n%s %d", message,
-            _("The above message had unknown log level"),
-            level);
+              "The above message had unknown log level",
+              level);
   }
   return;
 }
@@ -133,8 +133,8 @@ vcd_log_handler (vcd_log_level_t level, const char message[])
     break;
   default:
     msg_Warn( p_vcd_access, "%s\n%s %d", message,
-            _("The above message had unknown vcdimager log level"),
-            level);
+              "The above message had unknown vcdimager log level",
+              level);
   }
   return;
 }
@@ -874,10 +874,7 @@ VCDOpen ( vlc_object_t *p_this )
     p_vcdplayer = malloc( sizeof(vcdplayer_t) );
 
     if( p_vcdplayer == NULL )
-    {
-        LOG_ERR ("out of memory" );
         return VLC_ENOMEM;
-    }
 
     p_vcdplayer->i_debug = config_GetInt( p_this, MODULE_STRING "-debug" );
     p_access->p_sys = (access_sys_t *) p_vcdplayer;
@@ -1073,12 +1070,6 @@ static int VCDControl( access_t *p_access, int i_query, va_list args )
           }
 
         /* */
-        case ACCESS_GET_MTU:
-            pi_int = (int*)va_arg( args, int * );
-            *pi_int = (p_vcdplayer->i_blocks_per_read * M2F2_SECTOR_SIZE);
-            dbg_print( INPUT_DBG_EVENT, "GET MTU: %d", *pi_int );
-            break;
-
         case ACCESS_GET_PTS_DELAY:
         {
             int64_t *pi_64 = (int64_t*)va_arg( args, int64_t * );
@@ -1109,9 +1100,8 @@ static int VCDControl( access_t *p_access, int i_query, va_list args )
             dbg_print( INPUT_DBG_EVENT, "GET TITLE: i_titles %d",
                        p_vcdplayer->i_titles );
 
-            if( psz_mrl == NULL ) {
-               msg_Warn( p_access, "out of memory" );
-            } else {
+            if( psz_mrl  )
+            {
                snprintf(psz_mrl, psz_mrl_max, "%s%s",
                         VCD_MRL_PREFIX, p_vcdplayer->psz_source);
                VCDMetaInfo( p_access, psz_mrl );

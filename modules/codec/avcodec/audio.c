@@ -32,7 +32,6 @@
 #include <vlc_common.h>
 #include <vlc_aout.h>
 #include <vlc_codec.h>
-#include <vlc_input.h>
 
 /* ffmpeg header */
 #ifdef HAVE_LIBAVCODEC_AVCODEC_H
@@ -45,17 +44,23 @@
 
 #include "avcodec.h"
 
-static const unsigned int pi_channels_maps[7] =
+static const unsigned int pi_channels_maps[9] =
 {
     0,
-    AOUT_CHAN_CENTER,   AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT,
-    AOUT_CHAN_CENTER | AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT,
-    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_REARLEFT
-     | AOUT_CHAN_REARRIGHT,
-    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_CENTER
-     | AOUT_CHAN_REARLEFT | AOUT_CHAN_REARRIGHT,
-    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_CENTER
-     | AOUT_CHAN_REARLEFT | AOUT_CHAN_REARRIGHT | AOUT_CHAN_LFE
+    AOUT_CHAN_CENTER,
+    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT,
+    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_CENTER,
+    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_REARLEFT | AOUT_CHAN_REARRIGHT,
+    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_CENTER |
+        AOUT_CHAN_REARLEFT | AOUT_CHAN_REARRIGHT,
+    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_CENTER |
+        AOUT_CHAN_REARLEFT | AOUT_CHAN_REARRIGHT | AOUT_CHAN_LFE,
+    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_CENTER |
+        AOUT_CHAN_MIDDLELEFT | AOUT_CHAN_MIDDLERIGHT |
+        AOUT_CHAN_REARLEFT | AOUT_CHAN_REARRIGHT,
+    AOUT_CHAN_LEFT | AOUT_CHAN_RIGHT | AOUT_CHAN_CENTER |
+        AOUT_CHAN_MIDDLELEFT | AOUT_CHAN_MIDDLERIGHT |
+        AOUT_CHAN_REARLEFT | AOUT_CHAN_REARRIGHT | AOUT_CHAN_LFE,
 };
 
 /*****************************************************************************
@@ -82,9 +87,9 @@ struct decoder_sys_t
 
     /* */
     int     i_reject_count;
-
-    int i_input_rate;
 };
+
+static void SetupOutputCodec( decoder_t *p_dec );
 
 /*****************************************************************************
  * InitAudioDec: initialize audio decoder
@@ -97,8 +102,7 @@ int InitAudioDec( decoder_t *p_dec, AVCodecContext *p_context,
     decoder_sys_t *p_sys;
 
     /* Allocate the memory needed to store the decoder's structure */
-    if( ( p_dec->p_sys = p_sys =
-          (decoder_sys_t *)malloc(sizeof(decoder_sys_t)) ) == NULL )
+    if( ( p_dec->p_sys = p_sys = malloc(sizeof(*p_sys)) ) == NULL )
     {
         return VLC_ENOMEM;
     }
@@ -107,6 +111,7 @@ int InitAudioDec( decoder_t *p_dec, AVCodecContext *p_context,
     p_sys->p_codec = p_codec;
     p_sys->i_codec_id = i_codec_id;
     p_sys->psz_namecodec = psz_namecodec;
+    p_sys->b_delayed_open = false;
 
     /* ***** Fill p_context with init values ***** */
     p_sys->p_context->sample_rate = p_dec->fmt_in.audio.i_rate;
@@ -183,23 +188,17 @@ int InitAudioDec( decoder_t *p_dec, AVCodecContext *p_context,
     }
 
     /* ***** Open the codec ***** */
-    vlc_mutex_t *lock = var_AcquireMutex( "avcodec" );
-    if( lock == NULL )
-    {
-        free( p_sys->p_context->extradata );
-        free( p_sys );
-        return VLC_ENOMEM;
-    }
+    vlc_mutex_lock( &avcodec_lock );
 
-    if (avcodec_open( p_sys->p_context, p_sys->p_codec ) < 0)
+    if( avcodec_open( p_sys->p_context, p_sys->p_codec ) < 0 )
     {
-        vlc_mutex_unlock( lock );
+        vlc_mutex_unlock( &avcodec_lock );
         msg_Err( p_dec, "cannot open codec (%s)", p_sys->psz_namecodec );
         free( p_sys->p_context->extradata );
         free( p_sys );
         return VLC_EGENERIC;
     }
-    vlc_mutex_unlock( lock );
+    vlc_mutex_unlock( &avcodec_lock );
 
     msg_Dbg( p_dec, "ffmpeg codec (%s) started", p_sys->psz_namecodec );
 
@@ -207,7 +206,6 @@ int InitAudioDec( decoder_t *p_dec, AVCodecContext *p_context,
     p_sys->p_samples = NULL;
     p_sys->i_samples = 0;
     p_sys->i_reject_count = 0;
-    p_sys->i_input_rate = INPUT_RATE_DEFAULT;
 
     aout_DateSet( &p_sys->end_date, 0 );
     if( p_dec->fmt_in.audio.i_rate )
@@ -215,8 +213,8 @@ int InitAudioDec( decoder_t *p_dec, AVCodecContext *p_context,
 
     /* Set output properties */
     p_dec->fmt_out.i_cat = AUDIO_ES;
-    p_dec->fmt_out.i_codec = AOUT_FMT_S16_NE;
-    p_dec->fmt_out.audio.i_bitspersample = 16;
+
+    SetupOutputCodec( p_dec );
 
     return VLC_SUCCESS;
 }
@@ -233,15 +231,11 @@ static aout_buffer_t *SplitBuffer( decoder_t *p_dec )
 
     if( i_samples == 0 ) return NULL;
 
-    if( ( p_buffer = p_dec->pf_aout_buffer_new( p_dec, i_samples ) ) == NULL )
-    {
-        msg_Err( p_dec, "cannot get aout buffer" );
+    if( ( p_buffer = decoder_NewAudioBuffer( p_dec, i_samples ) ) == NULL )
         return NULL;
-    }
 
     p_buffer->start_date = aout_DateGet( &p_sys->end_date );
-    p_buffer->end_date = aout_DateIncrement( &p_sys->end_date,
-                                             i_samples * p_sys->i_input_rate / INPUT_RATE_DEFAULT );
+    p_buffer->end_date = aout_DateIncrement( &p_sys->end_date, i_samples );
 
     memcpy( p_buffer->p_buffer, p_sys->p_samples, p_buffer->i_nb_bytes );
 
@@ -265,13 +259,12 @@ aout_buffer_t * DecodeAudio ( decoder_t *p_dec, block_t **pp_block )
 
     p_block = *pp_block;
 
-    if( p_block->i_rate > 0 )
-        p_sys->i_input_rate = p_block->i_rate;
-
     if( p_block->i_flags & (BLOCK_FLAG_DISCONTINUITY|BLOCK_FLAG_CORRUPTED) )
     {
         block_Release( p_block );
         avcodec_flush_buffers( p_sys->p_context );
+        p_sys->i_samples = 0;
+        aout_DateSet( &p_sys->end_date, 0 );
 
         if( p_sys->i_codec_id == CODEC_ID_MP2 || p_sys->i_codec_id == CODEC_ID_MP3 )
             p_sys->i_reject_count = 3;
@@ -338,7 +331,7 @@ aout_buffer_t * DecodeAudio ( decoder_t *p_dec, block_t **pp_block )
     p_block->i_buffer -= i_used;
     p_block->p_buffer += i_used;
 
-    if( p_sys->p_context->channels <= 0 || p_sys->p_context->channels > 6 ||
+    if( p_sys->p_context->channels <= 0 || p_sys->p_context->channels > 8 ||
         p_sys->p_context->sample_rate <= 0 )
     {
         msg_Warn( p_dec, "invalid audio properties channels count %d, sample rate %d",
@@ -354,6 +347,7 @@ aout_buffer_t * DecodeAudio ( decoder_t *p_dec, block_t **pp_block )
     }
 
     /* **** Set audio output parameters **** */
+    SetupOutputCodec( p_dec );
     p_dec->fmt_out.audio.i_rate     = p_sys->p_context->sample_rate;
     p_dec->fmt_out.audio.i_channels = p_sys->p_context->channels;
     p_dec->fmt_out.audio.i_original_channels =
@@ -368,7 +362,7 @@ aout_buffer_t * DecodeAudio ( decoder_t *p_dec, block_t **pp_block )
     p_block->i_pts = 0;
 
     /* **** Now we can output these samples **** */
-    p_sys->i_samples = i_output / sizeof(int16_t) / p_sys->p_context->channels;
+    p_sys->i_samples = i_output / (p_dec->fmt_out.audio.i_bitspersample / 8) / p_sys->p_context->channels;
     p_sys->p_samples = p_sys->p_output;
 
     /* Silent unwanted samples */
@@ -391,4 +385,43 @@ void EndAudioDec( decoder_t *p_dec )
     decoder_sys_t *p_sys = p_dec->p_sys;
 
     free( p_sys->p_output );
+}
+
+/*****************************************************************************
+ *
+ *****************************************************************************/
+static void SetupOutputCodec( decoder_t *p_dec )
+{
+    decoder_sys_t *p_sys = p_dec->p_sys;
+
+#if defined(AV_VERSION_INT) && LIBAVCODEC_VERSION_INT >= AV_VERSION_INT( 51, 65, 0 )
+    switch( p_sys->p_context->sample_fmt )
+    {
+    case SAMPLE_FMT_U8:
+        p_dec->fmt_out.i_codec = VLC_FOURCC('u','8',' ',' ');
+        p_dec->fmt_out.audio.i_bitspersample = 8;
+        break;
+    case SAMPLE_FMT_S32:
+        p_dec->fmt_out.i_codec = AOUT_FMT_S32_NE;
+        p_dec->fmt_out.audio.i_bitspersample = 32;
+        break;
+    case SAMPLE_FMT_FLT:
+        p_dec->fmt_out.i_codec = VLC_FOURCC('f','l','3','2');
+        p_dec->fmt_out.audio.i_bitspersample = 32;
+        break;
+    case SAMPLE_FMT_DBL:
+        p_dec->fmt_out.i_codec = VLC_FOURCC('f','l','6','4');
+        p_dec->fmt_out.audio.i_bitspersample = 64;
+        break;
+
+    case SAMPLE_FMT_S16:
+    default:
+        p_dec->fmt_out.i_codec = AOUT_FMT_S16_NE;
+        p_dec->fmt_out.audio.i_bitspersample = 16;
+        break;
+    }
+#else
+    p_dec->fmt_out.i_codec = AOUT_FMT_S16_NE;
+    p_dec->fmt_out.audio.i_bitspersample = 16;
+#endif
 }

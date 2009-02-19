@@ -2,7 +2,7 @@
  * subsdec.c : text subtitles decoder
  *****************************************************************************
  * Copyright (C) 2000-2006 the VideoLAN team
- * $Id: fa2118054895545a3903f3acacc06aeafc08ff91 $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *          Samuel Hocevar <sam@zoy.org>
@@ -43,7 +43,7 @@ static void CloseDecoder  ( vlc_object_t * );
 static subpicture_t   *DecodeBlock   ( decoder_t *, block_t ** );
 static subpicture_t   *ParseText     ( decoder_t *, block_t * );
 static char           *StripTags      ( char * );
-static char           *CreateHtmlSubtitle ( char * );
+static char           *CreateHtmlSubtitle( int *pi_align, char * );
 
 
 /*****************************************************************************
@@ -113,25 +113,25 @@ static const char *const ppsz_justification_text[] = {
  "VLC partly implements this, but you can choose to disable all formatting.")
 
 
-vlc_module_begin();
-    set_shortname( N_("Subtitles"));
-    set_description( N_("Text subtitles decoder") );
-    set_capability( "decoder", 50 );
-    set_callbacks( OpenDecoder, CloseDecoder );
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_SCODEC );
+vlc_module_begin ()
+    set_shortname( N_("Subtitles"))
+    set_description( N_("Text subtitles decoder") )
+    set_capability( "decoder", 50 )
+    set_callbacks( OpenDecoder, CloseDecoder )
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_SCODEC )
 
     add_integer( "subsdec-align", 0, NULL, ALIGN_TEXT, ALIGN_LONGTEXT,
-                 false );
-        change_integer_list( pi_justification, ppsz_justification_text, NULL );
+                 false )
+        change_integer_list( pi_justification, ppsz_justification_text, NULL )
     add_string( "subsdec-encoding", DEFAULT_NAME, NULL,
-                ENCODING_TEXT, ENCODING_LONGTEXT, false );
-        change_string_list( ppsz_encodings, 0, 0 );
+                ENCODING_TEXT, ENCODING_LONGTEXT, false )
+        change_string_list( ppsz_encodings, 0, 0 )
     add_bool( "subsdec-autodetect-utf8", true, NULL,
-              AUTODETECT_UTF8_TEXT, AUTODETECT_UTF8_LONGTEXT, false );
+              AUTODETECT_UTF8_TEXT, AUTODETECT_UTF8_LONGTEXT, false )
     add_bool( "subsdec-formatted", true, NULL, FORMAT_TEXT, FORMAT_LONGTEXT,
-                 false );
-vlc_module_end();
+                 false )
+vlc_module_end ()
 
 /*****************************************************************************
  * OpenDecoder: probe the decoder and return score
@@ -156,14 +156,15 @@ static int OpenDecoder( vlc_object_t *p_this )
     }
 
     p_dec->pf_decode_sub = DecodeBlock;
+    p_dec->fmt_out.i_cat = SPU_ES;
+    p_dec->fmt_out.i_codec = 0;
 
     /* Allocate the memory needed to store the decoder's structure */
-    p_dec->p_sys = p_sys = malloc( sizeof( *p_sys ) );
+    p_dec->p_sys = p_sys = calloc( 1, sizeof( *p_sys ) );
     if( p_sys == NULL )
         return VLC_ENOMEM;
 
     /* init of p_sys */
-    memset( p_sys, 0, sizeof( *p_sys ) );
     p_sys->i_align = 0;
     p_sys->iconv_handle = (vlc_iconv_t)-1;
     p_sys->b_autodetect_utf8 = false;
@@ -264,8 +265,6 @@ static subpicture_t *DecodeBlock( decoder_t *p_dec, block_t **pp_block )
         block_Release( p_block );
         return NULL;
     }
-    if( p_block->i_rate != 0 )
-        p_block->i_length = p_block->i_length * p_block->i_rate / INPUT_RATE_DEFAULT;
 
     p_spu = ParseText( p_dec, p_block );
 
@@ -404,7 +403,7 @@ static subpicture_t *ParseText( decoder_t *p_dec, block_t *p_block )
     }
 
     /* Create the subpicture unit */
-    p_spu = p_dec->pf_spu_buffer_new( p_dec );
+    p_spu = decoder_NewSubpicture( p_dec );
     if( !p_spu )
     {
         msg_Warn( p_dec, "can't get spu buffer" );
@@ -412,20 +411,18 @@ static subpicture_t *ParseText( decoder_t *p_dec, block_t *p_block )
         return NULL;
     }
 
-    p_spu->b_pausable = true;
-
     /* Create a new subpicture region */
     memset( &fmt, 0, sizeof(video_format_t) );
     fmt.i_chroma = VLC_FOURCC('T','E','X','T');
     fmt.i_aspect = 0;
     fmt.i_width = fmt.i_height = 0;
     fmt.i_x_offset = fmt.i_y_offset = 0;
-    p_spu->p_region = p_spu->pf_create_region( VLC_OBJECT(p_dec), &fmt );
+    p_spu->p_region = subpicture_region_New( &fmt );
     if( !p_spu->p_region )
     {
         msg_Err( p_dec, "cannot allocate SPU region" );
         free( psz_subtitle );
-        p_dec->pf_spu_buffer_del( p_dec, p_spu );
+        decoder_DeleteSubpicture( p_dec, p_spu );
         return NULL;
     }
 
@@ -434,15 +431,15 @@ static subpicture_t *ParseText( decoder_t *p_dec, block_t *p_block )
     {
         /* Normal text subs, easy markup */
         p_spu->p_region->i_align = SUBPICTURE_ALIGN_BOTTOM | p_sys->i_align;
-        p_spu->i_x = p_sys->i_align ? 20 : 0;
-        p_spu->i_y = 10;
+        p_spu->p_region->i_x = p_sys->i_align ? 20 : 0;
+        p_spu->p_region->i_y = 10;
 
         /* Remove formatting from string */
 
         p_spu->p_region->psz_text = StripTags( psz_subtitle );
         if( var_CreateGetBool( p_dec, "subsdec-formatted" ) )
         {
-            p_spu->p_region->psz_html = CreateHtmlSubtitle( psz_subtitle );
+            p_spu->p_region->psz_html = CreateHtmlSubtitle( &p_spu->p_region->i_align, psz_subtitle );
         }
 
         p_spu->i_start = p_block->i_pts;
@@ -453,8 +450,7 @@ static subpicture_t *ParseText( decoder_t *p_dec, block_t *p_block )
     else
     {
         /* Decode SSA/USF strings */
-        if( p_dec->fmt_in.i_codec == VLC_FOURCC('s','s','a',' ') )
-            ParseSSAString( p_dec, psz_subtitle, p_spu );
+        ParseSSAString( p_dec, psz_subtitle, p_spu );
 
         p_spu->i_start = p_block->i_pts;
         p_spu->i_stop = p_block->i_pts + p_block->i_length;
@@ -600,12 +596,13 @@ static void HtmlCopy( char **ppsz_html, char **ppsz_subtitle, const char *psz_te
     *ppsz_subtitle += strlen(psz_text);
 }
 
-static char *CreateHtmlSubtitle( char *psz_subtitle )
+static char *CreateHtmlSubtitle( int *pi_align, char *psz_subtitle )
 {
     char   *psz_tag = malloc( ( strlen( psz_subtitle ) / 3 ) + 1 );
     if( !psz_tag ) return NULL;
     size_t  i_buf_size     = strlen( psz_subtitle ) + 100;
     char   *psz_html_start = malloc( i_buf_size );
+    bool b_has_align = false;
 
     psz_tag[ 0 ] = '\0';
 
@@ -620,6 +617,7 @@ static char *CreateHtmlSubtitle( char *psz_subtitle )
     strcpy( psz_html, "<text>" );
     psz_html += 6;
 
+    /* */
     while( *psz_subtitle )
     {
         if( *psz_subtitle == '\n' )
@@ -710,6 +708,7 @@ static char *CreateHtmlSubtitle( char *psz_subtitle )
             else if( !strncmp( psz_subtitle, "</", 2 ))
             {
                 bool   b_match     = false;
+                bool   b_ignore    = false;
                 int    i_len       = strlen( psz_tag ) - 1;
                 char  *psz_lastTag = NULL;
 
@@ -736,9 +735,16 @@ static char *CreateHtmlSubtitle( char *psz_subtitle )
                         b_match = !strncasecmp( psz_subtitle, "</font>", 7 );
                         i_len   = 7;
                         break;
+                    case 'I':
+                        i_len = strcspn( psz_subtitle, ">" );
+                        b_match = psz_subtitle[i_len] == '>';
+                        b_ignore = true;
+                        if( b_match )
+                            i_len++;
+                        break;
                     }
                 }
-                if( ! b_match )
+                if( !b_match )
                 {
                     /* Not well formed -- kill everything */
                     free( psz_html_start );
@@ -746,13 +752,66 @@ static char *CreateHtmlSubtitle( char *psz_subtitle )
                     break;
                 }
                 *psz_lastTag = '\0';
-                strncpy( psz_html, psz_subtitle, i_len );
-                psz_html += i_len;
+                if( !b_ignore )
+                    HtmlNPut( &psz_html, psz_subtitle, i_len );
+
                 psz_subtitle += i_len;
+            }
+            else if( ( psz_subtitle[1] < 'a' || psz_subtitle[1] > 'z' ) &&
+                     ( psz_subtitle[1] < 'A' || psz_subtitle[1] > 'Z' ) )
+            {
+                /* We have a single < */
+                HtmlPut( &psz_html, "&lt;" );
+                psz_subtitle++;
             }
             else
             {
-                psz_subtitle += strcspn( psz_subtitle, ">" );
+                /* We have an unknown tag or a single < */
+
+                /* Search for the next tag or end of tag or end of string */
+                char *psz_stop = psz_subtitle + 1 + strcspn( &psz_subtitle[1], "<>" );
+                char *psz_closing = strstr( psz_subtitle, "/>" );
+
+                if( psz_closing && psz_closing < psz_stop )
+                {
+                    /* We have a self closed tag, remove it */
+                    psz_subtitle = &psz_closing[2];
+                }
+                else if( *psz_stop == '>' )
+                {
+                    char psz_match[256];
+
+                    snprintf( psz_match, sizeof(psz_match), "</%s", &psz_subtitle[1] );
+                    psz_match[strcspn( psz_match, " \t>" )] = '\0';
+
+                    if( strstr( psz_subtitle, psz_match ) )
+                    {
+                        /* We have the closing tag, ignore it TODO */
+                        psz_subtitle = &psz_stop[1];
+                        strcat( psz_tag, "I" );
+                    }
+                    else
+                    {
+                        int i_len = psz_stop + 1 - psz_subtitle;
+
+                        /* Copy the whole data */
+                        for( ; i_len > 0; i_len--, psz_subtitle++ )
+                        {
+                            if( *psz_subtitle == '<' )
+                                HtmlPut( &psz_html, "&lt;" );
+                            else if( *psz_subtitle == '>' )
+                                HtmlPut( &psz_html, "&gt;" );
+                            else
+                                *psz_html++ = *psz_subtitle;
+                        }
+                    }
+                }
+                else
+                {
+                    /* We have a single < */
+                    HtmlPut( &psz_html, "&lt;" );
+                    psz_subtitle++;
+                }
             }
         }
         else if( *psz_subtitle == '&' )
@@ -774,6 +833,30 @@ static char *CreateHtmlSubtitle( char *psz_subtitle )
                 HtmlPut( &psz_html, "&amp;" );
                 psz_subtitle++;
             }
+        }
+        else if( *psz_subtitle == '>' )
+        {
+            HtmlPut( &psz_html, "&gt;" );
+            psz_subtitle++;
+        }
+        else if( psz_subtitle[0] == '{' && psz_subtitle[1] == '\\' &&
+                 strchr( psz_subtitle, '}' ) )
+        {
+            /* Check for forced alignment */
+            if( !b_has_align &&
+                !strncmp( psz_subtitle, "{\\an", 4 ) && psz_subtitle[4] >= '1' && psz_subtitle[4] <= '9' && psz_subtitle[5] == '}' )
+            {
+                static const int pi_vertical[3] = { SUBPICTURE_ALIGN_BOTTOM, 0, SUBPICTURE_ALIGN_TOP };
+                static const int pi_horizontal[3] = { SUBPICTURE_ALIGN_LEFT, 0, SUBPICTURE_ALIGN_RIGHT };
+                const int i_id = psz_subtitle[4] - '1';
+
+                b_has_align = true;
+                *pi_align = pi_vertical[i_id/3] | pi_horizontal[i_id%3];
+            }
+            /* TODO fr -> rotation */
+
+            /* Hide {\stupidity} */
+            psz_subtitle = strchr( psz_subtitle, '}' ) + 1;
         }
         else
         {

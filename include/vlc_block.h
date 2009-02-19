@@ -2,7 +2,7 @@
  * vlc_block.h: Data blocks management functions
  *****************************************************************************
  * Copyright (C) 2003 the VideoLAN team
- * $Id: 4cca0acd2dc6843cabf0b9bcea3362856ee8b278 $
+ * $Id$
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *
@@ -79,6 +79,9 @@ typedef struct block_sys_t block_sys_t;
 /** This block is corrupted and/or there is data loss  */
 #define BLOCK_FLAG_CORRUPTED     0x1000
 
+#define BLOCK_FLAG_TYPE_MASK \
+    (BLOCK_FLAG_TYPE_I|BLOCK_FLAG_TYPE_P|BLOCK_FLAG_TYPE_B|BLOCK_FLAG_TYPE_PB)
+
 /* These are for input core private usage only */
 #define BLOCK_FLAG_CORE_PRIVATE_MASK  0x00ff0000
 #define BLOCK_FLAG_CORE_PRIVATE_SHIFT 16
@@ -127,11 +130,12 @@ struct block_t
  * - block_Duplicate : create a copy of a block.
  ****************************************************************************/
 VLC_EXPORT( void,      block_Init,    ( block_t *, void *, size_t ) );
-VLC_EXPORT( block_t *, block_Alloc,   ( size_t ) );
-VLC_EXPORT( block_t *, block_Realloc, ( block_t *, ssize_t i_pre, size_t i_body ) );
+VLC_EXPORT( block_t *, block_Alloc,   ( size_t ) LIBVLC_USED );
+VLC_EXPORT( block_t *, block_Realloc, ( block_t *, ssize_t i_pre, size_t i_body ) LIBVLC_USED );
 
 #define block_New( dummy, size ) block_Alloc(size)
 
+LIBVLC_USED
 static inline block_t *block_Duplicate( block_t *p_block )
 {
     block_t *p_dup = block_Alloc( p_block->i_buffer );
@@ -154,8 +158,14 @@ static inline void block_Release( block_t *p_block )
     p_block->pf_release( p_block );
 }
 
-VLC_EXPORT( block_t *, block_mmap_Alloc, (void *addr, size_t length) );
-VLC_EXPORT( block_t *, block_File, (int fd) );
+VLC_EXPORT( block_t *, block_mmap_Alloc, (void *addr, size_t length) LIBVLC_USED );
+VLC_EXPORT( block_t *, block_File, (int fd) LIBVLC_USED );
+
+static inline void block_Cleanup (void *block)
+{
+    block_Release ((block_t *)block);
+}
+#define block_cleanup_push( block ) vlc_cleanup_push (block_Cleanup, block)
 
 /****************************************************************************
  * Chains of blocks functions helper
@@ -222,20 +232,39 @@ static size_t block_ChainExtract( block_t *p_list, void *p_data, size_t i_max )
     return i_total;
 }
 
+static inline void block_ChainProperties( block_t *p_list, int *pi_count, size_t *pi_size, mtime_t *pi_length )
+{
+    size_t i_size = 0;
+    mtime_t i_length = 0;
+    int i_count = 0;
+
+    while( p_list )
+    {
+        i_size += p_list->i_buffer;
+        i_length += p_list->i_length;
+        i_count++;
+
+        p_list = p_list->p_next;
+    }
+
+    if( pi_size )
+        *pi_size = i_size;
+    if( pi_length )
+        *pi_length = i_length;
+    if( pi_count )
+        *pi_count = i_count;
+}
+
 static inline block_t *block_ChainGather( block_t *p_list )
 {
     size_t  i_total = 0;
     mtime_t i_length = 0;
-    block_t *b, *g;
+    block_t *g;
 
     if( p_list->p_next == NULL )
         return p_list;  /* Already gathered */
 
-    for( b = p_list; b != NULL; b = b->p_next )
-    {
-        i_total += b->i_buffer;
-        i_length += b->i_length;
-    }
+    block_ChainProperties( p_list, NULL, &i_total, &i_length );
 
     g = block_Alloc( i_total );
     block_ChainExtract( p_list, g->p_buffer, g->i_buffer );
@@ -262,19 +291,22 @@ static inline block_t *block_ChainGather( block_t *p_list )
  *      needed), be carefull, you can use it ONLY if you are sure to be the
  *      only one getting data from the fifo.
  * - block_FifoCount : how many packets are waiting in the fifo
- * - block_FifoSize : how many cumulated bytes are waiting in the fifo
  * - block_FifoWake : wake ups a thread with block_FifoGet() = NULL
  *   (this is used to wakeup a thread when there is no data to queue)
+ *
+ * block_FifoGet and block_FifoShow are cancellation points.
  ****************************************************************************/
 
-VLC_EXPORT( block_fifo_t *, block_FifoNew,      ( void ) );
+VLC_EXPORT( block_fifo_t *, block_FifoNew,      ( void ) LIBVLC_USED );
 VLC_EXPORT( void,           block_FifoRelease,  ( block_fifo_t * ) );
+/* TODO: do we need to export this? */
+void block_FifoPace (block_fifo_t *fifo, size_t max_depth, size_t max_size);
 VLC_EXPORT( void,           block_FifoEmpty,    ( block_fifo_t * ) );
 VLC_EXPORT( size_t,         block_FifoPut,      ( block_fifo_t *, block_t * ) );
 VLC_EXPORT( void,           block_FifoWake,     ( block_fifo_t * ) );
-VLC_EXPORT( block_t *,      block_FifoGet,      ( block_fifo_t * ) );
+VLC_EXPORT( block_t *,      block_FifoGet,      ( block_fifo_t * ) LIBVLC_USED );
 VLC_EXPORT( block_t *,      block_FifoShow,     ( block_fifo_t * ) );
-VLC_EXPORT( size_t,         block_FifoSize,     ( const block_fifo_t *p_fifo ) );
-VLC_EXPORT( size_t,         block_FifoCount,    ( const block_fifo_t *p_fifo ) );
+size_t block_FifoSize( const block_fifo_t *p_fifo ) LIBVLC_USED;
+VLC_EXPORT( size_t,         block_FifoCount,    ( const block_fifo_t *p_fifo ) LIBVLC_USED );
 
 #endif /* VLC_BLOCK_H */

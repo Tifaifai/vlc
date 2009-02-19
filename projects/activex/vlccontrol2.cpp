@@ -27,6 +27,7 @@
 
 #include "utils.h"
 
+#include <stdio.h>
 #include <shlwapi.h>
 #include <wininet.h>
 #include <tchar.h>
@@ -1526,7 +1527,9 @@ STDMETHODIMP VLCPlaylistItems::get_count(long* count)
         libvlc_exception_t ex;
         libvlc_exception_init(&ex);
 
+        libvlc_playlist_lock(p_libvlc);
         *count = libvlc_playlist_items_count(p_libvlc, &ex);
+        libvlc_playlist_unlock(p_libvlc);
         if( libvlc_exception_raised(&ex) )
         {
             _p_instance->setErrorInfo(IID_IVLCPlaylistItems,
@@ -1676,7 +1679,9 @@ STDMETHODIMP VLCPlaylist::get_itemCount(long* count)
         libvlc_exception_t ex;
         libvlc_exception_init(&ex);
 
+        libvlc_playlist_lock(p_libvlc);
         *count = libvlc_playlist_items_count(p_libvlc, &ex);
+        libvlc_playlist_unlock(p_libvlc);
         if( libvlc_exception_raised(&ex) )
         {
             _p_instance->setErrorInfo(IID_IVLCPlaylist,

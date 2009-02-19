@@ -27,19 +27,14 @@
 
 void CmdSnapshot::execute()
 {
-    vout_thread_t *pVout;
-
     if( getIntf()->p_sys->p_input == NULL )
-    {
         return;
-    }
 
-    pVout = (vout_thread_t *)vlc_object_find( getIntf()->p_sys->p_input,
-                                              VLC_OBJECT_VOUT, FIND_CHILD );
+    vout_thread_t *pVout = input_GetVout( getIntf()->p_sys->p_input );
     if( pVout )
     {
         // Take a snapshot
-        vout_Control( pVout, VOUT_SNAPSHOT );
+        var_TriggerCallback( pVout, "video-snapshot" );
         vlc_object_release( pVout );
     }
 }

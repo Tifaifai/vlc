@@ -2,7 +2,7 @@
  * audioscrobbler.c : audioscrobbler submission plugin
  *****************************************************************************
  * Copyright © 2006-2008 the VideoLAN team
- * $Id: 711fec7c961649406c9e47b5ad780f1f3659ac24 $
+ * $Id$
  *
  * Author: Rafaël Carré <funman at videolanorg>
  *
@@ -43,11 +43,9 @@
 #include <vlc_interface.h>
 #include <vlc_meta.h>
 #include <vlc_md5.h>
-#include <vlc_block.h>
 #include <vlc_stream.h>
 #include <vlc_url.h>
 #include <vlc_network.h>
-#include <vlc_interface.h>
 #include <vlc_playlist.h>
 
 /*****************************************************************************
@@ -75,6 +73,7 @@ struct intf_sys_t
     int                     i_songs;            /**< number of songs        */
 
     vlc_mutex_t             lock;               /**< p_sys mutex            */
+    vlc_cond_t              wait;               /**< song to submit event   */
 
     /* data about audioscrobbler session */
     mtime_t                 next_exchange;      /**< when can we send data  */
@@ -153,18 +152,18 @@ static void HandleInterval  ( mtime_t *, unsigned int * );
                         "%s\r\n"                                            \
                         "\r\n"
 
-vlc_module_begin();
-    set_category( CAT_INTERFACE );
-    set_subcategory( SUBCAT_INTERFACE_CONTROL );
-    set_shortname( N_( "Audioscrobbler" ) );
-    set_description( N_("Submission of played songs to last.fm") );
+vlc_module_begin ()
+    set_category( CAT_INTERFACE )
+    set_subcategory( SUBCAT_INTERFACE_CONTROL )
+    set_shortname( N_( "Audioscrobbler" ) )
+    set_description( N_("Submission of played songs to last.fm") )
     add_string( "lastfm-username", "", NULL,
-                USERNAME_TEXT, USERNAME_LONGTEXT, false );
+                USERNAME_TEXT, USERNAME_LONGTEXT, false )
     add_password( "lastfm-password", "", NULL,
-                PASSWORD_TEXT, PASSWORD_LONGTEXT, false );
-    set_capability( "interface", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+                PASSWORD_TEXT, PASSWORD_LONGTEXT, false )
+    set_capability( "interface", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: initialize and create stuff
@@ -181,10 +180,11 @@ static int Open( vlc_object_t *p_this )
     p_intf->p_sys = p_sys;
 
     vlc_mutex_init( &p_sys->lock );
+    vlc_cond_init( &p_sys->wait );
 
-    p_playlist = pl_Yield( p_intf );
+    p_playlist = pl_Hold( p_intf );
     PL_LOCK;
-    var_AddCallback( p_playlist, "playlist-current", ItemChange, p_intf );
+    var_AddCallback( p_playlist, "item-current", ItemChange, p_intf );
     PL_UNLOCK;
     pl_Release( p_intf );
 
@@ -203,31 +203,24 @@ static void Close( vlc_object_t *p_this )
     intf_thread_t               *p_intf = ( intf_thread_t* ) p_this;
     intf_sys_t                  *p_sys  = p_intf->p_sys;
 
-    p_playlist = pl_Yield( p_intf );
+    p_playlist = pl_Hold( p_intf );
     if( p_playlist )
     {
-        PL_LOCK;
 
-        var_DelCallback( p_playlist, "playlist-current", ItemChange, p_intf );
+        var_DelCallback( p_playlist, "item-current", ItemChange, p_intf );
 
-        p_input = p_playlist->p_input;
+        p_input = playlist_CurrentInput( p_playlist );
         if ( p_input )
         {
-            vlc_object_yield( p_input );
-
             if( p_sys->b_state_cb )
-                var_DelCallback( p_input, "state", PlayingChange, p_intf );
+                var_DelCallback( p_input, "intf-event", PlayingChange, p_intf );
 
             vlc_object_release( p_input );
         }
 
-        PL_UNLOCK;
         pl_Release( p_intf );
     }
 
-    p_intf->b_dead = true;
-    /* we lock the mutex in case p_sys is being accessed from a callback */
-    vlc_mutex_lock ( &p_sys->lock );
     int i;
     for( i = 0; i < p_sys->i_songs; i++ )
         DeleteSong( &p_sys->p_queue[i] );
@@ -237,7 +230,7 @@ static void Close( vlc_object_t *p_this )
     free( p_sys->psz_nowp_host );
     free( p_sys->psz_nowp_file );
 #endif
-    vlc_mutex_unlock ( &p_sys->lock );
+    vlc_cond_destroy( &p_sys->wait );
     vlc_mutex_destroy( &p_sys->lock );
     free( p_sys );
 }
@@ -254,6 +247,7 @@ static void Run( intf_thread_t *p_intf )
     uint8_t                 p_buffer[1024];
     char                    *p_buffer_pos;
     int                     i_post_socket;
+    int                     canc = vlc_savecancel();
 
     intf_sys_t *p_sys = p_intf->p_sys;
 
@@ -262,21 +256,21 @@ static void Run( intf_thread_t *p_intf )
     {
         bool b_wait = false;
 
-        vlc_object_lock( p_intf );
-        if( !vlc_object_alive( p_intf ) )
-        {
-            vlc_object_unlock( p_intf );
-            msg_Dbg( p_intf, "audioscrobbler is dying");
-            return;
-        }
+
+        vlc_restorecancel( canc );
+        vlc_mutex_lock( &p_sys->lock );
+        mutex_cleanup_push( &p_sys->lock );
+
         if( mdate() < p_sys->next_exchange )
             /* wait until we can resubmit, i.e.  */
-            b_wait = vlc_object_timedwait( p_intf, p_sys->next_exchange ) == 0;
+            b_wait = vlc_cond_timedwait( &p_sys->wait, &p_sys->lock,
+                                          p_sys->next_exchange ) == 0;
         else
             /* wait for data to submit */
             /* we are signaled each time there is a song to submit */
-            vlc_object_wait( p_intf );
-        vlc_object_unlock( p_intf );
+            vlc_cond_wait( &p_sys->wait, &p_sys->lock );
+        vlc_cleanup_run();
+        canc = vlc_savecancel();
 
         if( b_wait )
             continue; /* holding on until next_exchange */
@@ -456,6 +450,7 @@ static void Run( intf_thread_t *p_intf )
             continue;
         }
     }
+    vlc_restorecancel( canc );
 }
 
 /*****************************************************************************
@@ -466,23 +461,30 @@ static int PlayingChange( vlc_object_t *p_this, const char *psz_var,
 {
     intf_thread_t   *p_intf = ( intf_thread_t* ) p_data;
     intf_sys_t      *p_sys  = p_intf->p_sys;
+    input_thread_t  *p_input = ( input_thread_t* )p_this;
+    vlc_value_t     state_value;
 
     VLC_UNUSED( p_this ); VLC_UNUSED( psz_var );
 
-    if( p_intf->b_dead )
-        return VLC_SUCCESS;
+    if( newval.i_int != INPUT_EVENT_STATE ) return VLC_SUCCESS;
 
-    if( p_sys->b_meta_read == false && newval.i_int >= PLAYING_S )
+    state_value.i_int = 0;
+
+    var_Get( p_input, "state", &state_value );
+
+
+    if( p_sys->b_meta_read == false && state_value.i_int >= PLAYING_S )
     {
         ReadMetaData( p_intf );
         return VLC_SUCCESS;
     }
 
-    if( newval.i_int >= END_S )
+
+    if( state_value.i_int >= END_S )
         AddToQueue( p_intf );
-    else if( oldval.i_int == PLAYING_S && newval.i_int == PAUSE_S )
+    else if( state_value.i_int == PAUSE_S )
         p_sys->time_pause = mdate();
-    else if( oldval.i_int == PAUSE_S && newval.i_int == PLAYING_S )
+    else if( p_sys->time_pause > 0 && state_value.i_int == PLAYING_S )
         p_sys->time_total_pauses += ( mdate() - p_sys->time_pause );
 
     return VLC_SUCCESS;
@@ -504,26 +506,19 @@ static int ItemChange( vlc_object_t *p_this, const char *psz_var,
     VLC_UNUSED( p_this ); VLC_UNUSED( psz_var );
     VLC_UNUSED( oldval ); VLC_UNUSED( newval );
 
-    if( p_intf->b_dead )
-        return VLC_SUCCESS;
-
     p_sys->b_state_cb       = false;
     p_sys->b_meta_read      = false;
     p_sys->b_submit         = false;
 
-    p_playlist = pl_Yield( p_intf );
-    PL_LOCK;
-    p_input = p_playlist->p_input;
+    p_playlist = pl_Hold( p_intf );
+    p_input = playlist_CurrentInput( p_playlist );
 
     if( !p_input || p_input->b_dead )
     {
-        PL_UNLOCK;
         pl_Release( p_intf );
         return VLC_SUCCESS;
     }
 
-    vlc_object_yield( p_input );
-    PL_UNLOCK;
     pl_Release( p_intf );
 
     p_item = input_GetItem( p_input );
@@ -545,7 +540,7 @@ static int ItemChange( vlc_object_t *p_this, const char *psz_var,
     time( &p_sys->p_current_song.date );        /* to be sent to last.fm */
     p_sys->p_current_song.i_start = mdate();    /* only used locally */
 
-    var_AddCallback( p_input, "state", PlayingChange, p_intf );
+    var_AddCallback( p_input, "intf-event", PlayingChange, p_intf );
     p_sys->b_state_cb = true;
 
     if( input_item_IsPreparsed( p_item ) )
@@ -630,7 +625,7 @@ static void AddToQueue ( intf_thread_t *p_this )
     p_sys->i_songs++;
 
     /* signal the main loop we have something to submit */
-    vlc_object_signal( VLC_OBJECT( p_this ) );
+    vlc_cond_signal( &p_sys->wait );
 
 end:
     DeleteSong( &p_sys->p_current_song );
@@ -926,18 +921,14 @@ static int ReadMetaData( intf_thread_t *p_this )
 
     intf_sys_t          *p_sys = p_this->p_sys;
 
-    p_playlist = pl_Yield( p_this );
-    PL_LOCK;
-    p_input = p_playlist->p_input;
+    p_playlist = pl_Hold( p_this );
+    p_input = playlist_CurrentInput( p_playlist );
     if( !p_input )
     {
-        PL_UNLOCK;
         pl_Release( p_this );
         return( VLC_SUCCESS );
     }
 
-    vlc_object_yield( p_input );
-    PL_UNLOCK;
     pl_Release( p_this );
 
     p_item = input_GetItem( p_input );

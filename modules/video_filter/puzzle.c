@@ -71,22 +71,22 @@ static int PuzzleCallback( vlc_object_t *, char const *,
 
 #define CFG_PREFIX "puzzle-"
 
-vlc_module_begin();
-    set_description( N_("Puzzle interactive game video filter") );
-    set_shortname( N_( "Puzzle" ));
-    set_capability( "video filter", 0 );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VFILTER );
+vlc_module_begin ()
+    set_description( N_("Puzzle interactive game video filter") )
+    set_shortname( N_( "Puzzle" ))
+    set_capability( "video filter", 0 )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VFILTER )
 
     add_integer_with_range( CFG_PREFIX "rows", 4, 1, 128, NULL,
-                            ROWS_TEXT, ROWS_LONGTEXT, false );
+                            ROWS_TEXT, ROWS_LONGTEXT, false )
     add_integer_with_range( CFG_PREFIX "cols", 4, 1, 128, NULL,
-                            COLS_TEXT, COLS_LONGTEXT, false );
+                            COLS_TEXT, COLS_LONGTEXT, false )
     add_bool( CFG_PREFIX "black-slot", 0, NULL,
-              BLACKSLOT_TEXT, BLACKSLOT_LONGTEXT, false );
+              BLACKSLOT_TEXT, BLACKSLOT_LONGTEXT, false )
 
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "rows", "cols", "black-slot", NULL
@@ -366,7 +366,7 @@ static void Render( vout_thread_t *p_vout, picture_t *p_pic )
         msleep( VOUT_OUTMEM_SLEEP );
     }
 
-    vout_DatePicture( p_vout->p_sys->p_vout, p_outpic, p_pic->date );
+    p_outpic->date = p_pic->date;
 
     for( i_plane = 0; i_plane < p_outpic->i_planes; i_plane++ )
     {

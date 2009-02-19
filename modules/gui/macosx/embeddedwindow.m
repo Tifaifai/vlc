@@ -2,7 +2,7 @@
  * embeddedwindow.m: MacOS X interface module
  *****************************************************************************
  * Copyright (C) 2005-2008 the VideoLAN team
- * $Id: 4a5cc69031af138de2791db21c64e44a22b02e47 $
+ * $Id$
  *
  * Authors: Benjamin Pracht <bigben at videolan dot org>
  *          Felix Paul Kühne <fkuehne at videolan dot org>
@@ -157,7 +157,7 @@
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    playlist_t * p_playlist = pl_Yield( VLCIntf );
+    playlist_t * p_playlist = pl_Hold( VLCIntf );
 
     playlist_Stop( p_playlist );
     vlc_object_release( p_playlist );
@@ -368,7 +368,7 @@
 
 - (void)hasBecomeFullscreen
 {
-    [o_fullscreen_window makeFirstResponder: [[[VLCMain sharedInstance] getControls] getVoutView]];
+    [o_fullscreen_window makeFirstResponder: [[[VLCMain sharedInstance] getControls] voutView]];
 
     [o_fullscreen_window makeKeyWindow];
     [o_fullscreen_window setAcceptsMouseMovedEvents: TRUE];

@@ -2,7 +2,7 @@
  * preferences.hpp : Preferences
  *****************************************************************************
  * Copyright (C) 2006-2007 the VideoLAN team
- * $Id: 44260ff7f789fb86c1fbedf8c0326a9d0d721051 $
+ * $Id$
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *
@@ -57,8 +57,6 @@ public:
     void showModulePrefs( char* );
 #endif
 
-protected:
-    virtual void closeEvent( QCloseEvent *e ){ instance = NULL; close(); }
 private:
     PrefsDialog( QWidget *, intf_thread_t * );
     QGridLayout *main_layout;
@@ -83,6 +81,8 @@ private:
 
     static PrefsDialog *instance;
 
+    bool b_small;
+
 private slots:
     void setAdvanced();
     void setSmall();
@@ -93,6 +93,7 @@ private slots:
     void save();
     void cancel();
     void reset();
+    void close() { save(); };
 };
 
 #endif

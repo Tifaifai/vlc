@@ -2,7 +2,7 @@
  * voutgl.m: MacOS X OpenGL provider
  *****************************************************************************
  * Copyright (C) 2001-2004, 2007 the VideoLAN team
- * $Id: fff52ee28559bbe1afe0be8bb68564075dc69fc7 $
+ * $Id$
  *
  * Authors: Colin Delacroix <colin@zoy.org>
  *          Florian G. Pflug <fgp@phlo.org>
@@ -110,10 +110,7 @@ int OpenVideoGL  ( vlc_object_t * p_this )
 
     p_vout->p_sys = malloc( sizeof( vout_sys_t ) );
     if( p_vout->p_sys == NULL )
-    {
-        msg_Err( p_vout, "out of memory" );
         return( 1 );
-    }
 
     memset( p_vout->p_sys, 0, sizeof( vout_sys_t ) );
 
@@ -278,10 +275,8 @@ static int Control( vout_thread_t *p_vout, int i_query, va_list args )
             [p_vout->p_sys->o_vout_view setOnTop: b_arg];
             return VLC_SUCCESS;
 
-        case VOUT_CLOSE:
-        case VOUT_REPARENT:
         default:
-            return vout_vaControlDefault( p_vout, i_query, args );
+            return VLC_EGENERIC;
     }
 }
 
@@ -320,8 +315,8 @@ static void Unlock( vout_thread_t * p_vout )
 
     /* Spawn the window */
     id old_vout = p_vout->p_sys->o_vout_view;
-    p_vout->p_sys->o_vout_view = [[VLCVoutView getVoutView: p_vout
-                        subView: p_vout->p_sys->o_glview frame: nil] retain];
+    p_vout->p_sys->o_vout_view = [[VLCVoutView voutView: p_vout
+                                                subView: p_vout->p_sys->o_glview frame: nil] retain];
     [old_vout release];
 }
 
@@ -348,16 +343,16 @@ static void Unlock( vout_thread_t * p_vout )
     if( p_vout->p_sys->b_saved_frame )
     {
         id old_vout = p_vout->p_sys->o_vout_view;
-        p_vout->p_sys->o_vout_view = [[VLCVoutView getVoutView: p_vout
-                                                      subView: o_glview
-                                                        frame: &p_vout->p_sys->s_frame] retain];
+        p_vout->p_sys->o_vout_view = [[VLCVoutView voutView: p_vout
+                                                    subView: o_glview
+                                                      frame: &p_vout->p_sys->s_frame] retain];
         [old_vout release];
     }
     else
     {
         id old_vout = p_vout->p_sys->o_vout_view;
-        p_vout->p_sys->o_vout_view = [[VLCVoutView getVoutView: p_vout
-                                                      subView: o_glview frame: nil] retain];
+        p_vout->p_sys->o_vout_view = [[VLCVoutView voutView: p_vout
+                                                    subView: o_glview frame: nil] retain];
         [old_vout release];
     }
 #undef o_glview
@@ -796,7 +791,7 @@ static int aglControl( vout_thread_t *p_vout, int i_query, va_list args )
         }
 
         default:
-            return vout_vaControlDefault( p_vout, i_query, args );
+            return VLC_EGENERIC;
     }
 }
 
@@ -959,8 +954,7 @@ static pascal OSStatus WindowEventHandler(EventHandlerCallRef nextHandler, Event
                         {
                             vlc_value_t val;
 
-                            val.b_bool = true;
-                            var_Set( p_vout, "mouse-clicked", val );
+                            var_SetBool( p_vout, "mouse-clicked", true );
 
                             var_Get( p_vout, "mouse-button-down", &val );
                             val.i_int &= ~1;

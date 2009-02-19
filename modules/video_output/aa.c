@@ -54,15 +54,15 @@ static void SetPalette     ( vout_thread_t *, uint16_t *, uint16_t *, uint16_t *
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_shortname( N_("ASCII Art"));
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VOUT );
-    set_description( N_("ASCII-art video output") );
-    set_capability( "video output", 10 );
-    add_shortcut( "aalib" );
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+vlc_module_begin ()
+    set_shortname( N_("ASCII Art"))
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VOUT )
+    set_description( N_("ASCII-art video output") )
+    set_capability( "video output", 10 )
+    add_shortcut( "aalib" )
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 /*****************************************************************************
  * vout_sys_t: aa video output method descriptor
@@ -201,15 +201,7 @@ static int Manage( vout_thread_t *p_vout )
     case AA_MOUSE:
         aa_getmouse( p_vout->p_sys->aa_context, &x, &y, &b );
         if ( b & AA_BUTTON3 )
-        {
-            intf_thread_t *p_intf;
-            p_intf = vlc_object_find( p_vout, VLC_OBJECT_INTF, FIND_ANYWHERE );
-            if( p_intf )
-            {
-                p_intf->b_menu_change = 1;
-                vlc_object_release( p_intf );
-            }
-        }
+            var_SetBool( p_vout->p_libvlc, "intf-popupmenu", true );
         break;
     case AA_RESIZE:
         p_vout->i_changes |= VOUT_SIZE_CHANGE;

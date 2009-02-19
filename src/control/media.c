@@ -216,7 +216,7 @@ static void preparse_if_needed( libvlc_media_t *p_md )
     {
         playlist_PreparseEnqueue(
                 libvlc_priv (p_md->p_libvlc_instance->p_libvlc_int)->p_playlist,
-                p_md->p_input_item );
+                p_md->p_input_item, pl_Unlocked );
         p_md->b_preparsed = true;
     }
 }
@@ -346,9 +346,23 @@ void libvlc_media_add_option(
                                    libvlc_exception_t *p_e )
 {
     VLC_UNUSED(p_e);
-    input_item_AddOpt( p_md->p_input_item, ppsz_option,
-                      VLC_INPUT_OPTION_UNIQUE|VLC_INPUT_OPTION_TRUSTED );
+    input_item_AddOption( p_md->p_input_item, ppsz_option,
+                          VLC_INPUT_OPTION_UNIQUE|VLC_INPUT_OPTION_TRUSTED );
 }
+
+/**************************************************************************
+ * Same as libvlc_media_add_option but with untrusted source.
+ **************************************************************************/
+void libvlc_media_add_option_untrusted(
+                                   libvlc_media_t * p_md,
+                                   const char * ppsz_option,
+                                   libvlc_exception_t *p_e )
+{
+    VLC_UNUSED(p_e);
+    input_item_AddOption( p_md->p_input_item, ppsz_option,
+                          VLC_INPUT_OPTION_UNIQUE );
+}
+
 
 /**************************************************************************
  * Delete a media descriptor object
@@ -436,7 +450,7 @@ char * libvlc_media_get_meta( libvlc_media_t *p_md,
     {
         playlist_AskForArtEnqueue(
                 libvlc_priv(p_md->p_libvlc_instance->p_libvlc_int)->p_playlist,
-                p_md->p_input_item );
+                p_md->p_input_item, pl_Unlocked );
     }
 
     /* Should be integrated in core */

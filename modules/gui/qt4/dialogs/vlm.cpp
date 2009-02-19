@@ -2,7 +2,7 @@
  * vlm.cpp : VLM Management
  ****************************************************************************
  * Copyright © 2008 the VideoLAN team
- * $Id: 5b4724d58b7a983eec0171c5f801d0f798fe3825 $
+ * $Id$
  *
  * Authors: Jean-Baptiste Kempf <jb@videolan.org>
  *          Jean-François Massol <jf.massol -at- gmail.com>
@@ -129,10 +129,10 @@ VLMDialog::VLMDialog( QWidget *parent, intf_thread_t *_p_intf ) : QVLCDialog( pa
         new QSpacerItem( 10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
     vlmItemLayout->addItem( spacer );
 
-    QPushButton *importButton = new QPushButton( qtr( "Import" ) );
+    QPushButton *importButton = new QPushButton( qtr( "I&mport" ) );
     ui.buttonBox->addButton( importButton, QDialogButtonBox::ActionRole );
 
-    QPushButton *exportButton = new QPushButton( qtr( "Export" ) );
+    QPushButton *exportButton = new QPushButton( qtr( "E&xport" ) );
     ui.buttonBox->addButton( exportButton, QDialogButtonBox::ActionRole );
 
     QPushButton *closeButton = new QPushButton( qtr( "&Close" ) );
@@ -157,12 +157,14 @@ VLMDialog::VLMDialog( QWidget *parent, intf_thread_t *_p_intf ) : QVLCDialog( pa
     BUTTONACT( ui.saveButton, saveModifications() );
     BUTTONACT( ui.inputButton, selectInput() );
     BUTTONACT( ui.outputButton, selectOutput() );
+    //readSettings( "VLM", QSize( 700, 500 ) );
 }
 
 VLMDialog::~VLMDialog()
 {
     delete vlmWrapper;
 
+    //writeSettings( "VLM" );
    /* TODO :you have to destroy vlm here to close
     * but we shouldn't destroy vlm here in case somebody else wants it */
     if( p_vlm )
@@ -218,6 +220,7 @@ void VLMDialog::addVLMItem()
     int repeatnum = scherepeatnumber->value();
     int repeatdays = repeatDays->value();
     VLMAWidget * vlmAwidget;
+    outputText.remove( ":sout=" );
 
     switch( type )
     {
@@ -261,20 +264,35 @@ void VLMDialog::addVLMItem()
 /* TODO : VOD are not exported to the file */
 bool VLMDialog::exportVLMConf()
 {
-    QString saveVLMConfFileName = QFileDialog::getSaveFileName(
-            this, qtr( "Choose a filename to save the VLM configuration..." ),
-            qfu( config_GetHomeDir() ),
-            qtr( "VLM conf (*.vlm) ;; All (*.*)" ) );
+    QFileDialog* qfd = new QFileDialog( this, qtr( "Save VLM configuration as..." ),
+                                        qfu( config_GetHomeDir() ),
+                                        qtr( "VLM conf (*.vlm);;All (*)" ) );
+    qfd->setFileMode( QFileDialog::AnyFile );
+    qfd->setAcceptMode( QFileDialog::AcceptSave );
+    qfd->setConfirmOverwrite( true );
 
-    if( !saveVLMConfFileName.isEmpty() )
+    bool exported = false;
+    if( qfd->exec() == QDialog::Accepted )
     {
-        vlm_message_t *message;
-        QString command = "save \"" + saveVLMConfFileName + "\"";
-        vlm_ExecuteCommand( p_vlm , qtu( command ) , &message );
-        vlm_MessageDelete( message );
-        return true;
+        QString saveVLMConfFileName = qfd->selectedFiles().first();
+        QString filter = qfd->selectedFilter();
+
+        // If *.vlm is selected, add .vlm at the end if needed
+        if( filter.contains( "VLM" ) && !saveVLMConfFileName.contains( ".vlm" ) )
+            saveVLMConfFileName.append( ".vlm" );
+
+        if( !saveVLMConfFileName.isEmpty() )
+        {
+            vlm_message_t *message;
+            QString command = "save \"" + saveVLMConfFileName + "\"";
+            vlm_ExecuteCommand( p_vlm , qtu( command ) , &message );
+            vlm_MessageDelete( message );
+            exported = true;
+        }
     }
-    return false;
+
+    delete qfd;
+    return exported;
 }
 
 void VLMDialog::mediasPopulator()
@@ -332,9 +350,9 @@ void VLMDialog::mediasPopulator()
 bool VLMDialog::importVLMConf()
 {
     QString openVLMConfFileName = QFileDialog::getOpenFileName(
-            this, qtr( "Open a VLM Configuration File" ),
+            this, qtr( "Open VLM configuration..." ),
             qfu( config_GetHomeDir() ),
-            qtr( "VLM conf (*.vlm) ;; All (*.*)" ) );
+            qtr( "VLM conf (*.vlm);;All (*)" ) );
 
     if( !openVLMConfFileName.isEmpty() )
     {
@@ -434,7 +452,7 @@ void VLMDialog::saveModifications()
     if( vlmObj )
     {
         vlmObj->input = ui.inputLedit->text();
-        vlmObj->output = ui.outputLedit->text();
+        vlmObj->output = ui.outputLedit->text().remove( ":sout=" );
         vlmObj->setChecked( ui.enableCheck->isChecked() );
         vlmObj->b_enabled = ui.enableCheck->isChecked();
         switch( vlmObj->type )
@@ -559,7 +577,7 @@ void VLMBroadcast::update()
 
 void VLMBroadcast::togglePlayPause()
 {
-    if( b_playing = true )
+    if( b_playing )
     {
         VLMWrapper::ControlBroadcast( name, ControlBroadcastPause );
         playButton->setIcon( QIcon( QPixmap( ":/pause_16px" ) ) );
@@ -694,6 +712,8 @@ void VLMWrapper::EnableItem( const QString name, bool b_enable )
 {
     vlm_message_t *message;
     QString command = "setup \"" + name + ( b_enable ? " enable" : " disable" );
+    vlm_ExecuteCommand( p_vlm, qtu( command ), &message );
+    vlm_MessageDelete( message );
 }
 
 void VLMWrapper::ControlBroadcast( const QString name, int BroadcastStatus,
@@ -701,7 +721,7 @@ void VLMWrapper::ControlBroadcast( const QString name, int BroadcastStatus,
 {
     vlm_message_t *message;
 
-    QString command = "control \"" + name;
+    QString command = "control \"" + name + "\"";
     switch( BroadcastStatus )
     {
     case ControlBroadcastPlay:
@@ -814,12 +834,35 @@ void VLMWrapper::EditSchedule( const QString name, const QString input,
         _schetime.toString( "hh:mm:ss" ) + "\"";
     vlm_ExecuteCommand( p_vlm, qtu( command ), &message );
     vlm_MessageDelete( message );
+
     if( _scherepeatnumber > 0 )
     {
        command = "setup \"" + name + "\" repeat \"" + _scherepeatnumber + "\"";
        vlm_ExecuteCommand( p_vlm, qtu( command ), &message );
        vlm_MessageDelete( message );
     }
+
+    if( _repeatDays > 0 )
+    {
+       command = "setup \"" + name + "\" period \"" + _repeatDays + "\"";
+       vlm_ExecuteCommand( p_vlm, qtu( command ), &message );
+       vlm_MessageDelete( message );
+    }
+}
+
+void VLMDialog::toggleVisible()
+{
+    QList<VLMAWidget *>::iterator it;
+    for( it = vlmItems.begin(); it != vlmItems.end(); it++ )
+    {
+        VLMAWidget *item =  *it;
+        delete item;
+        item = NULL;
+    }
+    vlmItems.clear();
+    ui.vlmListItem->clear();
+    mediasPopulator();
+    QVLCDialog::toggleVisible();
 }
 
 

@@ -48,19 +48,19 @@ static void Close( vlc_object_t * );
     "Caching value for RTSP streams. This " \
     "value should be set in milliseconds." )
 
-vlc_module_begin();
-    set_description( N_("Real RTSP") );
-    set_shortname( N_("Real RTSP") );
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_ACCESS );
+vlc_module_begin ()
+    set_description( N_("Real RTSP") )
+    set_shortname( N_("Real RTSP") )
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_ACCESS )
     add_integer( "realrtsp-caching", 3000, NULL,
-                 CACHING_TEXT, CACHING_LONGTEXT, true );
-    set_capability( "access", 10 );
-    set_callbacks( Open, Close );
-    add_shortcut( "realrtsp" );
-    add_shortcut( "rtsp" );
-    add_shortcut( "pnm" );
-vlc_module_end();
+                 CACHING_TEXT, CACHING_LONGTEXT, true )
+    set_capability( "access", 10 )
+    set_callbacks( Open, Close )
+    add_shortcut( "realrtsp" )
+    add_shortcut( "rtsp" )
+    add_shortcut( "pnm" )
+vlc_module_end ()
 
 
 /*****************************************************************************
@@ -155,7 +155,7 @@ static int Open( vlc_object_t *p_this )
 {
     access_t *p_access = (access_t *)p_this;
     access_sys_t *p_sys;
-    char *psz_server = 0;
+    char* psz_server = NULL;
     int i_result;
 
     if( !p_access->psz_access || (
@@ -177,9 +177,16 @@ static int Open( vlc_object_t *p_this )
     p_access->info.i_title = 0;
     p_access->info.i_seekpoint = 0;
     p_access->p_sys = p_sys = malloc( sizeof( access_sys_t ) );
+    if( !p_sys )
+        return VLC_ENOMEM;
     p_sys->p_rtsp = malloc( sizeof( rtsp_client_t) );
+    if( !p_sys->p_rtsp )
+    {
+        free( p_sys );
+        return VLC_ENOMEM;
+    }
 
-    p_sys->p_header = 0;
+    p_sys->p_header = NULL;
     p_sys->p_rtsp->p_userdata = p_access;
     p_sys->p_rtsp->pf_connect = RtspConnect;
     p_sys->p_rtsp->pf_disconnect = RtspDisconnect;
@@ -192,7 +199,7 @@ static int Open( vlc_object_t *p_this )
     {
         msg_Dbg( p_access, "could not connect to: %s", p_access->psz_path );
         free( p_sys->p_rtsp );
-        p_sys->p_rtsp = 0;
+        p_sys->p_rtsp = NULL;
         goto error;
     }
 
@@ -284,12 +291,12 @@ static block_t *BlockRead( access_t *p_access )
     if( p_sys->p_header )
     {
         p_block = p_sys->p_header;
-        p_sys->p_header = 0;
+        p_sys->p_header = NULL;
         return p_block;
     }
 
     i_size = real_get_rdt_chunk_header( p_access->p_sys->p_rtsp, &pheader );
-    if( i_size <= 0 ) return 0;
+    if( i_size <= 0 ) return NULL;
 
     p_block = block_New( p_access, i_size );
     p_block->i_buffer = real_get_rdt_chunk( p_access->p_sys->p_rtsp, &pheader,
@@ -332,12 +339,6 @@ static int Control( access_t *p_access, int i_query, va_list args )
         case ACCESS_CAN_CONTROL_PACE:
             pb_bool = (bool*)va_arg( args, bool* );
             *pb_bool = true;//p_sys->b_pace_control;
-            break;
-
-        /* */
-        case ACCESS_GET_MTU:
-            pi_int = (int*)va_arg( args, int * );
-            *pi_int = 0;
             break;
 
         case ACCESS_GET_PTS_DELAY:

@@ -2,7 +2,7 @@
  * loadsave.c : Playlist loading / saving functions
  *****************************************************************************
  * Copyright (C) 1999-2004 the VideoLAN team
- * $Id: 3bb3b2abee92f8065db92c1285308266b4a10aca $
+ * $Id$
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *
@@ -70,7 +70,7 @@ int playlist_Export( playlist_t * p_playlist, const char *psz_filename ,
 
     /* And call the module ! All work is done now */
     int i_ret;
-    p_module = module_Need( p_playlist, "playlist export", psz_type, true);
+    p_module = module_need( p_playlist, "playlist export", psz_type, true);
     if( !p_module )
     {
         msg_Warn( p_playlist, "exporting playlist failed" );
@@ -78,7 +78,7 @@ int playlist_Export( playlist_t * p_playlist, const char *psz_filename ,
     }
     else
     {
-        module_Unneed( p_playlist , p_module );
+        module_unneed( p_playlist , p_module );
         i_ret = VLC_SUCCESS;
     }
 
@@ -90,6 +90,24 @@ int playlist_Export( playlist_t * p_playlist, const char *psz_filename ,
     vlc_object_unlock( p_playlist );
 
     return i_ret;
+}
+
+int playlist_Import( playlist_t *p_playlist, const char *psz_file )
+{
+    input_item_t *p_input;
+    char *psz_uri;
+    const char *const psz_option = "meta-file";
+
+    if( asprintf( &psz_uri, "file/://%s", psz_file ) < 0 )
+        return VLC_EGENERIC;
+
+    p_input = input_item_NewExt( p_playlist, psz_uri, psz_file,
+                                 1, &psz_option, VLC_INPUT_OPTION_TRUSTED, -1 );
+    free( psz_uri );
+
+    playlist_AddInput( p_playlist, p_input, PLAYLIST_APPEND, PLAYLIST_END,
+                       true, false );
+    return input_Read( p_playlist, p_input, true );
 }
 
 /*****************************************************************************
@@ -144,8 +162,8 @@ int playlist_MLLoad( playlist_t *p_playlist )
     const char *const psz_option = "meta-file";
     /* that option has to be cleaned in input_item_subitem_added() */
     /* vlc_gc_decref() in the same function */
-    p_input = input_item_NewExt( p_playlist, psz_uri,
-                                _("Media Library"), 1, &psz_option, -1 );
+    p_input = input_item_NewExt( p_playlist, psz_uri, _("Media Library"),
+                                 1, &psz_option, VLC_INPUT_OPTION_TRUSTED, -1 );
     if( p_input == NULL )
         goto error;
 
@@ -164,7 +182,7 @@ int playlist_MLLoad( playlist_t *p_playlist )
     vlc_event_attach( &p_input->event_manager, vlc_InputItemSubItemAdded,
                         input_item_subitem_added, p_playlist );
 
-    p_playlist->b_doing_ml = true;
+    pl_priv(p_playlist)->b_doing_ml = true;
     PL_UNLOCK;
 
     stats_TimerStart( p_playlist, "ML Load", STATS_TIMER_ML_LOAD );
@@ -172,7 +190,7 @@ int playlist_MLLoad( playlist_t *p_playlist )
     stats_TimerStop( p_playlist,STATS_TIMER_ML_LOAD );
 
     PL_LOCK;
-    p_playlist->b_doing_ml = false;
+    pl_priv(p_playlist)->b_doing_ml = false;
     PL_UNLOCK;
 
     vlc_event_detach( &p_input->event_manager, vlc_InputItemSubItemAdded,

@@ -2,7 +2,7 @@
  * http.c: HTTP input module
  *****************************************************************************
  * Copyright (C) 2001-2008 the VideoLAN team
- * $Id: 66e32ffac17e8cd717aca74bfc2aa4c929809bf4 $
+ * $Id$
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Christophe Massiot <massiot@via.ecp.fr>
@@ -53,8 +53,8 @@
 
 #include <assert.h>
 
-#ifdef HAVE_PROXY_H
-#    include "proxy.h"
+#ifdef HAVE_LIBPROXY
+#    include <proxy.h>
 #endif
 /*****************************************************************************
  * Module descriptor
@@ -93,37 +93,37 @@ static void Close( vlc_object_t * );
     "types of HTTP streams." )
 
 #define FORWARD_COOKIES_TEXT N_("Forward Cookies")
-#define FORWARD_COOKIES_LONGTEXT N_("Forward Cookies Across http redirections ")
+#define FORWARD_COOKIES_LONGTEXT N_("Forward Cookies across http redirections ")
 
-vlc_module_begin();
-    set_description( N_("HTTP input") );
-    set_capability( "access", 0 );
-    set_shortname( N_( "HTTP(S)" ) );
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_ACCESS );
+vlc_module_begin ()
+    set_description( N_("HTTP input") )
+    set_capability( "access", 0 )
+    set_shortname( N_( "HTTP(S)" ) )
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_ACCESS )
 
     add_string( "http-proxy", NULL, NULL, PROXY_TEXT, PROXY_LONGTEXT,
-                false );
+                false )
     add_password( "http-proxy-pwd", NULL, NULL,
-                  PROXY_PASS_TEXT, PROXY_PASS_LONGTEXT, false );
+                  PROXY_PASS_TEXT, PROXY_PASS_LONGTEXT, false )
     add_integer( "http-caching", 4 * DEFAULT_PTS_DELAY / 1000, NULL,
-                 CACHING_TEXT, CACHING_LONGTEXT, true );
+                 CACHING_TEXT, CACHING_LONGTEXT, true )
     add_string( "http-user-agent", COPYRIGHT_MESSAGE , NULL, AGENT_TEXT,
-                AGENT_LONGTEXT, true );
+                AGENT_LONGTEXT, true )
     add_bool( "http-reconnect", 0, NULL, RECONNECT_TEXT,
-              RECONNECT_LONGTEXT, true );
+              RECONNECT_LONGTEXT, true )
     add_bool( "http-continuous", 0, NULL, CONTINUOUS_TEXT,
-              CONTINUOUS_LONGTEXT, true );
-    add_bool( "http-forward-cookies", 0, NULL, FORWARD_COOKIES_TEXT,
-              FORWARD_COOKIES_LONGTEXT, true );
-    add_obsolete_string("http-user");
-    add_obsolete_string("http-pwd");
-    add_shortcut( "http" );
-    add_shortcut( "https" );
-    add_shortcut( "unsv" );
-    add_shortcut( "itpc" ); /* iTunes Podcast */
-    set_callbacks( Open, Close );
-vlc_module_end();
+              CONTINUOUS_LONGTEXT, true )
+    add_bool( "http-forward-cookies", true, NULL, FORWARD_COOKIES_TEXT,
+              FORWARD_COOKIES_LONGTEXT, true )
+    add_obsolete_string("http-user")
+    add_obsolete_string("http-pwd")
+    add_shortcut( "http" )
+    add_shortcut( "https" )
+    add_shortcut( "unsv" )
+    add_shortcut( "itpc" ) /* iTunes Podcast */
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Local prototypes
@@ -326,7 +326,7 @@ static int OpenWithCookies( vlc_object_t *p_this, vlc_array_t *cookies )
         vlc_UrlParse( &p_sys->proxy, psz, 0 );
         free( psz );
     }
-#ifdef HAVE_PROXY_H
+#ifdef HAVE_LIBPROXY
     else
     {
         pxProxyFactory *pf = px_proxy_factory_new();
@@ -440,6 +440,7 @@ connect:
         if( p_sys->url.psz_username && p_sys->url.psz_password &&
             p_sys->auth.psz_nonce && p_sys->auth.i_nonce == 0 )
         {
+            Disconnect( p_access );
             goto connect;
         }
         snprintf( psz_msg, 250,
@@ -457,6 +458,7 @@ connect:
             if( psz_password ) p_sys->url.psz_password = strdup( psz_password );
             free( psz_login );
             free( psz_password );
+            Disconnect( p_access );
             goto connect;
         }
         else
@@ -640,7 +642,7 @@ static ssize_t Read( access_t *p_access, uint8_t *p_buffer, size_t i_len )
     access_sys_t *p_sys = p_access->p_sys;
     int i_read;
 
-    if( p_sys->fd < 0 )
+    if( p_sys->fd == -1 )
     {
         p_access->info.b_eof = true;
         return 0;
@@ -911,10 +913,9 @@ static int Seek( access_t *p_access, int64_t i_pos )
 static int Control( access_t *p_access, int i_query, va_list args )
 {
     access_sys_t *p_sys = p_access->p_sys;
-    bool   *pb_bool;
-    int          *pi_int;
-    int64_t      *pi_64;
-    vlc_meta_t   *p_meta;
+    bool       *pb_bool;
+    int64_t    *pi_64;
+    vlc_meta_t *p_meta;
 
     switch( i_query )
     {
@@ -939,11 +940,6 @@ static int Control( access_t *p_access, int i_query, va_list args )
             break;
 
         /* */
-        case ACCESS_GET_MTU:
-            pi_int = (int*)va_arg( args, int * );
-            *pi_int = 0;
-            break;
-
         case ACCESS_GET_PTS_DELAY:
             pi_64 = (int64_t*)va_arg( args, int64_t * );
             *pi_64 = (int64_t)var_GetInteger( p_access, "http-caching" ) * 1000;
@@ -1019,8 +1015,8 @@ static int Connect( access_t *p_access, int64_t i_tell )
     p_access->info.i_pos  = i_tell;
     p_access->info.b_eof  = false;
 
-
     /* Open connection */
+    assert( p_sys->fd == -1 ); /* No open sockets (leaking fds is BAD) */
     p_sys->fd = net_ConnectTCP( p_access, srv.psz_host, srv.i_port );
     if( p_sys->fd == -1 )
     {
@@ -1708,7 +1704,7 @@ static void AuthParseHeader( access_t *p_access, const char *psz_header,
         const char *psz_end = strchr( psz_header, ' ' );
         if( psz_end )
             msg_Warn( p_access, "Unknown authentication scheme: '%*s'",
-                      psz_end - psz_header, psz_header );
+                      (int)(psz_end - psz_header), psz_header );
         else
             msg_Warn( p_access, "Unknown authentication scheme: '%s'",
                       psz_header );

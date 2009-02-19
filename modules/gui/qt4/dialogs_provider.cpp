@@ -2,7 +2,7 @@
  * dialogs_provider.cpp : Dialog Provider
  *****************************************************************************
  * Copyright (C) 2006-2008 the VideoLAN team
- * $Id: 0182f352b8915ea4ca0a39b205f3adab9aa85a37 $
+ * $Id$
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Baptiste Kempf <jb@videolan.org>
@@ -21,22 +21,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include <QEvent>
-#include <QApplication>
-#include <QSignalMapper>
-#include <QFileDialog>
+#include <vlc_intf_strings.h>
 
-#include <vlc_common.h>
 #include "qt4.hpp"
 #include "dialogs_provider.hpp"
-#include "main_interface.hpp"
+#include "input_manager.hpp" /* Load Subtitles */
 #include "menus.hpp"
-#include <vlc_intf_strings.h>
-#include "input_manager.hpp"
+#include "recents.hpp"
+#include "util/qt_dirs.hpp"
 
 /* The dialogs */
 #include "dialogs/playlist.hpp"
@@ -48,9 +45,19 @@
 #include "dialogs/vlm.hpp"
 #include "dialogs/sout.hpp"
 #include "dialogs/open.hpp"
+#include "dialogs/openurl.hpp"
 #include "dialogs/help.hpp"
 #include "dialogs/gototime.hpp"
 #include "dialogs/podcast_configuration.hpp"
+#include "dialogs/toolbar.hpp"
+#include "dialogs/plugins.hpp"
+#include "dialogs/interaction.hpp"
+
+#include <QEvent>
+#include <QApplication>
+#include <QSignalMapper>
+#include <QFileDialog>
+
 
 DialogsProvider* DialogsProvider::instance = NULL;
 
@@ -58,9 +65,8 @@ DialogsProvider::DialogsProvider( intf_thread_t *_p_intf ) :
                                   QObject( NULL ), p_intf( _p_intf )
 {
     b_isDying = false;
-    fixed_timer = new QTimer( this );
-    fixed_timer->start( 150 /* milliseconds */ );
 
+    /* Various signal mappers for the menus */
     menusMapper = new QSignalMapper();
     CONNECT( menusMapper, mapped(QObject *), this, menuAction( QObject *) );
 
@@ -74,7 +80,6 @@ DialogsProvider::DialogsProvider( intf_thread_t *_p_intf ) :
 
 DialogsProvider::~DialogsProvider()
 {
-    msg_Dbg( p_intf, "Destroying the Dialog Provider" );
     PlaylistDialog::killInstance();
     MediaInfoDialog::killInstance();
     MessagesDialog::killInstance();
@@ -84,8 +89,8 @@ DialogsProvider::~DialogsProvider()
 #ifdef UPDATE_CHECK
     UpdateDialog::killInstance();
 #endif
+    ToolbarEditDialog::killInstance();
 
-    fixed_timer->stop();
     delete menusMapper;
     delete menusUpdateMapper;
     delete SDMapper;
@@ -93,17 +98,13 @@ DialogsProvider::~DialogsProvider()
 
 void DialogsProvider::quit()
 {
-    /* Stop the playlist */
-    playlist_Stop( THEPL );
     b_isDying = true;
-    vlc_object_kill( p_intf->p_libvlc );
-    QApplication::closeAllWindows();
-    QApplication::quit();
+    libvlc_Quit( p_intf->p_libvlc );
 }
 
 void DialogsProvider::customEvent( QEvent *event )
 {
-    if( event->type() == DialogEvent_Type )
+    if( event->type() == (int)DialogEvent_Type )
     {
         DialogEvent *de = static_cast<DialogEvent*>(event);
         switch( de->i_dialog )
@@ -150,7 +151,7 @@ void DialogsProvider::customEvent( QEvent *event )
            QVLCMenu::MiscPopupMenu( p_intf ); break;
         case INTF_DIALOG_WIZARD:
         case INTF_DIALOG_STREAMWIZARD:
-            openThenStreamingDialogs(); break;
+            openAndStreamingDialogs(); break;
 #ifdef UPDATE_CHECK
         case INTF_DIALOG_UPDATEVLC:
             updateDialog(); break;
@@ -235,20 +236,18 @@ void DialogsProvider::podcastConfigureDialog()
     PodcastConfigDialog::getInstance( p_intf )->toggleVisible();
 }
 
-
-/****************************************************************************
- * All the open/add stuff
- * Open Dialog first - Simple Open then
- ****************************************************************************/
-
-void DialogsProvider::openDialog( int i_tab )
+void DialogsProvider::toolbarDialog()
 {
-    OpenDialog::getInstance( p_intf->p_sys->p_mi , p_intf )->showTab( i_tab );
+    ToolbarEditDialog::getInstance( p_intf )->toggleVisible();
 }
-void DialogsProvider::openDialog()
+
+void DialogsProvider::pluginDialog()
 {
-    openDialog( OPEN_FILE_TAB );
+    PluginDialog *diag = new PluginDialog( p_intf );
+    diag->show();
 }
+
+/* Generic open file */
 void DialogsProvider::openFileGenericDialog( intf_dialog_args_t *p_arg )
 {
     if( p_arg == NULL )
@@ -292,7 +291,7 @@ void DialogsProvider::openFileGenericDialog( intf_dialog_args_t *p_arg )
         p_arg->i_results = files.count();
         p_arg->psz_results = (char **)malloc( p_arg->i_results * sizeof( char * ) );
         i = 0;
-        foreach( QString file, files )
+        foreach( const QString &file, files )
             p_arg->psz_results[i++] = strdup( qtu( toNativeSepNoSlash( file ) ) );
     }
 
@@ -311,7 +310,19 @@ void DialogsProvider::openFileGenericDialog( intf_dialog_args_t *p_arg )
     free( p_arg->psz_extensions );
     free( p_arg );
 }
+/****************************************************************************
+ * All the open/add stuff
+ * Open Dialog first - Simple Open then
+ ****************************************************************************/
 
+void DialogsProvider::openDialog( int i_tab )
+{
+    OpenDialog::getInstance( p_intf->p_sys->p_mi , p_intf )->showTab( i_tab );
+}
+void DialogsProvider::openDialog()
+{
+    openDialog( OPEN_FILE_TAB );
+}
 void DialogsProvider::openFileDialog()
 {
     openDialog( OPEN_FILE_TAB );
@@ -332,8 +343,8 @@ void DialogsProvider::openCaptureDialog()
 /* Same as the open one, but force the enqueue */
 void DialogsProvider::PLAppendDialog()
 {
-    OpenDialog::getInstance( p_intf->p_sys->p_mi, p_intf, false, OPEN_AND_ENQUEUE)
-                            ->showTab( OPEN_FILE_TAB );
+    OpenDialog::getInstance( p_intf->p_sys->p_mi, p_intf, false,
+                             OPEN_AND_ENQUEUE )->showTab( OPEN_FILE_TAB );
 }
 
 void DialogsProvider::MLAppendDialog()
@@ -384,7 +395,7 @@ void DialogsProvider::addFromSimple( bool pl, bool go)
 {
     QStringList files = DialogsProvider::showSimpleOpen();
     int i = 0;
-    foreach( QString file, files )
+    foreach( const QString &file, files )
     {
         playlist_Add( THEPL, qtu( toNativeSeparators( file ) ), NULL,
                       go ? ( PLAYLIST_APPEND | ( i ? 0 : PLAYLIST_GO ) |
@@ -392,6 +403,8 @@ void DialogsProvider::addFromSimple( bool pl, bool go)
                          : ( PLAYLIST_APPEND | PLAYLIST_PREPARSE ),
                       PLAYLIST_END,
                       pl ? true : false, false );
+        RecentsMRL::getInstance( p_intf )->addRecent(
+                toNativeSeparators( file ) );
         i++;
     }
 }
@@ -411,6 +424,30 @@ void DialogsProvider::simpleMLAppendDialog()
     addFromSimple( false, false );
 }
 
+/* Url & Clipboard */
+/**
+ * Open a MRL.
+ * If the clipboard contains URLs, the first is automatically 'preselected'.
+ **/
+void DialogsProvider::openUrlDialog()
+{
+    OpenUrlDialog *oud = OpenUrlDialog::getInstance( p_intf->p_sys->p_mi,
+                                                     p_intf );
+    if( oud->exec() == QDialog::Accepted )
+    {
+        QString url = oud->url();
+        if( !url.isEmpty() )
+        {
+            playlist_Add( THEPL, qtu( url ),
+                          NULL, !oud->shouldEnqueue() ?
+                                  ( PLAYLIST_APPEND | PLAYLIST_GO )
+                                : ( PLAYLIST_APPEND | PLAYLIST_PREPARSE ),
+                          PLAYLIST_END, true, false );
+            RecentsMRL::getInstance( p_intf )->addRecent( url );
+        }
+    }
+}
+
 /* Directory */
 /**
  * Open a directory,
@@ -423,20 +460,15 @@ static void openDirectory( intf_thread_t *p_intf, bool pl, bool go )
 
     if (!dir.isEmpty() )
     {
-        QString dir2 ;
-        if( dir.endsWith( "VIDEO_TS", Qt::CaseInsensitive ) )
-            dir2 = "dvd://" + dir;
-        else
-            dir2 = "directory://" + dir;
-
-        msg_Dbg( p_intf, "Directory opening: %s", qtu( dir2 ) );
-        input_item_t *p_input = input_item_NewExt( THEPL, qtu( dir2 ),
-                              NULL, 0, NULL, -1 );
+        QString mrl = dir.endsWith( "VIDEO_TS", Qt::CaseInsensitive ) ?
+            "dvd://" : "directory://" + toNativeSeparators( dir );
+        input_item_t *p_input = input_item_New( THEPL, qtu( mrl ), NULL );
 
         /* FIXME: playlist_AddInput() can fail */
         playlist_AddInput( THEPL, p_input,
                        go ? ( PLAYLIST_APPEND | PLAYLIST_GO ) : PLAYLIST_APPEND,
                        PLAYLIST_END, pl, pl_Unlocked );
+        RecentsMRL::getInstance( p_intf )->addRecent( mrl );
         if( !go )
             input_Read( THEPL, p_input, true );
         vlc_gc_decref( p_input );
@@ -463,9 +495,9 @@ void DialogsProvider::MLAppendDir()
  ****************/
 void DialogsProvider::openAPlaylist()
 {
-    QStringList files = showSimpleOpen( qtr( "Open playlist file" ),
+    QStringList files = showSimpleOpen( qtr( "Open playlist..." ),
                                         EXT_FILTER_PLAYLIST );
-    foreach( QString file, files )
+    foreach( const QString &file, files )
     {
         playlist_Import( THEPL, qtu( toNativeSeparators( file ) ) );
     }
@@ -474,10 +506,11 @@ void DialogsProvider::openAPlaylist()
 void DialogsProvider::saveAPlaylist()
 {
     QFileDialog *qfd = new QFileDialog( NULL,
-                                   qtr( "Choose a filename to save playlist" ),
+                                   qtr( "Save playlist as..." ),
                                    qfu( p_intf->p_sys->psz_filepath ),
                                    qtr( "XSPF playlist (*.xspf);; " ) +
-                                   qtr( "M3U playlist (*.m3u);; Any (*.*) " ) );
+                                   qtr( "M3U playlist (*.m3u);; " ) +
+                                   qtr( "HTML playlist (*.html)" ) );
     qfd->setFileMode( QFileDialog::AnyFile );
     qfd->setAcceptMode( QFileDialog::AcceptSave );
     qfd->setConfirmOverwrite( true );
@@ -487,24 +520,36 @@ void DialogsProvider::saveAPlaylist()
         if( qfd->selectedFiles().count() > 0 )
         {
             static const char psz_xspf[] = "export-xspf",
-                              psz_m3u[] = "export-m3u";
+                              psz_m3u[] = "export-m3u",
+                              psz_html[] = "export-html";
             const char *psz_module;
 
             QString file = qfd->selectedFiles().first();
             QString filter = qfd->selectedFilter();
 
-            if( file.contains( ".xsp" ) ||
-                ( filter.contains( ".xspf" ) && !file.contains( ".m3u" ) ) )
+            if( file.contains( ".xsp" ) || filter.contains( "XSPF" ) )
             {
                 psz_module = psz_xspf;
                 if( !file.contains( ".xsp" ) )
                     file.append( ".xspf" );
             }
-            else
+            else if( file.contains( ".m3u" )  || filter.contains( "M3U" ) )
             {
                 psz_module = psz_m3u;
                 if( !file.contains( ".m3u" ) )
                     file.append( ".m3u" );
+            }
+            else if( file.contains(".html" ) || filter.contains( "HTML" ) )
+            {
+                psz_module = psz_html;
+                if( !file.contains( "html" ) )
+                    file.append( ".html" );
+            }
+            else
+            {
+                msg_Err( p_intf, "Impossible to recognise the file type" );
+                delete qfd;
+                return;
             }
 
             playlist_Export( THEPL, qtu( toNativeSeparators( file ) ),
@@ -513,7 +558,6 @@ void DialogsProvider::saveAPlaylist()
     }
     delete qfd;
 }
-
 
 /****************************************************************************
  * Sout emulation
@@ -526,43 +570,70 @@ void DialogsProvider::streamingDialog( QWidget *parent, QString mrl,
 
     if( s->exec() == QDialog::Accepted )
     {
-        msg_Dbg( p_intf, "Sout mrl %s", qta( s->getMrl() ) );
-        /* Just do it */
-        int i_len = strlen( qtu( s->getMrl() ) ) + 10;
-        char *psz_option = (char*)malloc( i_len );
-        snprintf( psz_option, i_len - 1, "%s", qtu( s->getMrl() ) );
+        const char *psz_option = qtu( s->getMrl() );
 
-        playlist_AddExt( THEPL, qtu( mrl ), "Streaming",
+        msg_Dbg( p_intf, "Sout mrl %s", psz_option );
+        playlist_AddExt( THEPL, qtu( mrl ), _("Streaming"),
                          PLAYLIST_APPEND | PLAYLIST_GO, PLAYLIST_END,
-                        -1, &psz_option, 1, true, pl_Unlocked );
+                        -1, 1, &psz_option, VLC_INPUT_OPTION_TRUSTED, true, pl_Unlocked );
+        RecentsMRL::getInstance( p_intf )->addRecent( mrl );
     }
 }
 
-void DialogsProvider::openThenStreamingDialogs()
+void DialogsProvider::openAndStreamingDialogs()
 {
     OpenDialog::getInstance( p_intf->p_sys->p_mi, p_intf, false, OPEN_AND_STREAM )
                                 ->showTab( OPEN_FILE_TAB );
 }
 
-void DialogsProvider::openThenTranscodingDialogs()
+void DialogsProvider::openAndTranscodingDialogs()
 {
     OpenDialog::getInstance( p_intf->p_sys->p_mi , p_intf, false, OPEN_AND_SAVE )
                                 ->showTab( OPEN_FILE_TAB );
 }
 
+void DialogsProvider::loadSubtitlesFile()
+{
+    input_thread_t *p_input = THEMIM->getInput();
+    if( !p_input ) return;
+
+    input_item_t *p_item = input_GetItem( p_input );
+    if( !p_item ) return;
+
+    char *path = input_item_GetURI( p_item );
+    if( !path ) path = strdup( "" );
+
+    char *sep = strrchr( path, DIR_SEP_CHAR );
+    if( sep ) *sep = '\0';
+
+    QStringList qsl = showSimpleOpen( qtr( "Open subtitles..." ),
+                                      EXT_FILTER_SUBTITLE,
+                                      path );
+    free( path );
+    foreach( const QString &qsFile, qsl )
+    {
+        if( input_AddSubtitle( p_input, qtu( toNativeSeparators( qsFile ) ),
+                    true ) )
+            msg_Warn( p_intf, "unable to load subtitles from '%s'",
+                      qtu( qsFile ) );
+    }
+}
+
+
 /****************************************************************************
- * Menus / Interaction
+ * Menus
  ****************************************************************************/
 
 void DialogsProvider::menuAction( QObject *data )
 {
-    QVLCMenu::DoAction( p_intf, data );
+    QVLCMenu::DoAction( data );
 }
 
 void DialogsProvider::menuUpdateAction( QObject *data )
 {
-    MenuFunc * f = qobject_cast<MenuFunc *>(data);
-    f->doFunc( p_intf );
+    MenuFunc *func = qobject_cast<MenuFunc *>(data);
+    assert( func );
+    func->doFunc( p_intf );
 }
 
 void DialogsProvider::SDMenuAction( QString data )
@@ -575,6 +646,20 @@ void DialogsProvider::SDMenuAction( QString data )
     free( psz_sd );
 }
 
+/**
+ * Play the MRL contained in the Recently played menu.
+ **/
+void DialogsProvider::playMRL( const QString &mrl )
+{
+    playlist_Add( THEPL, qtu( mrl ) , NULL,
+           PLAYLIST_APPEND | PLAYLIST_GO , PLAYLIST_END, true, false );
+
+    RecentsMRL::getInstance( p_intf )->addRecent( mrl );
+}
+
+/*************************************
+ * Interactions
+ *************************************/
 void DialogsProvider::doInteraction( intf_dialog_args_t *p_arg )
 {
     InteractionDialog *qdialog;
@@ -620,30 +705,3 @@ void DialogsProvider::doInteraction( intf_dialog_args_t *p_arg )
     }
 }
 
-void DialogsProvider::loadSubtitlesFile()
-{
-    input_thread_t *p_input = THEMIM->getInput();
-    if( !p_input )
-        return;
-    input_item_t *p_item = input_GetItem( p_input );
-    if( !p_item )
-        return;
-    char *path = input_item_GetURI( p_item );
-    if( !path )
-        path = strdup( "" );
-    char *sep = strrchr( path, DIR_SEP_CHAR );
-    if( sep )
-        *sep = '\0';
-    QStringList qsl = showSimpleOpen( qtr( "Open subtitles file" ),
-                                      EXT_FILTER_SUBTITLE,
-                                      path );
-    free( path );
-    QString qsFile;
-    foreach( qsFile, qsl )
-    {
-        if( !input_AddSubtitles( p_input, qtu( toNativeSeparators( qsFile ) ),
-                    true ) )
-            msg_Warn( p_intf, "unable to load subtitles from '%s'",
-                      qtu( qsFile ) );
-    }
-}

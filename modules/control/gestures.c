@@ -2,7 +2,7 @@
  * gestures.c: control vlc with mouse gestures
  *****************************************************************************
  * Copyright (C) 2004 the VideoLAN team
- * $Id: df9f8079e1620183e660a5f3f1aac66d70f06b9d $
+ * $Id$
  *
  * Authors: Sigmund Augdal Helberg <dnumgis@videolan.org>
  *
@@ -91,20 +91,20 @@ static const char *const button_list[] = { "left", "middle", "right" };
 static const char *const button_list_text[] =
                                    { N_("Left"), N_("Middle"), N_("Right") };
 
-vlc_module_begin();
-    set_shortname( N_("Gestures"));
-    set_category( CAT_INTERFACE );
-    set_subcategory( SUBCAT_INTERFACE_CONTROL );
+vlc_module_begin ()
+    set_shortname( N_("Gestures"))
+    set_category( CAT_INTERFACE )
+    set_subcategory( SUBCAT_INTERFACE_CONTROL )
     add_integer( "gestures-threshold", 30, NULL,
-                 THRESHOLD_TEXT, THRESHOLD_LONGTEXT, true );
+                 THRESHOLD_TEXT, THRESHOLD_LONGTEXT, true )
     add_string( "gestures-button", "right", NULL,
-                BUTTON_TEXT, BUTTON_LONGTEXT, false );
-        change_string_list( button_list, button_list_text, 0 );
-    set_description( N_("Mouse gestures control interface") );
+                BUTTON_TEXT, BUTTON_LONGTEXT, false )
+        change_string_list( button_list, button_list_text, 0 )
+    set_description( N_("Mouse gestures control interface") )
 
-    set_capability( "interface", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+    set_capability( "interface", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * OpenIntf: initialize interface
@@ -139,15 +139,7 @@ static int gesture( int i_pattern, int i_num )
  *****************************************************************************/
 static input_thread_t * input_from_playlist ( playlist_t *p_playlist )
 {
-    input_thread_t * p_input;
-
-    PL_LOCK;
-    p_input = p_playlist->p_input;
-    if( p_input )
-        vlc_object_yield( p_input );
-    PL_UNLOCK;
-
-    return p_input;
+    return playlist_CurrentInput( p_playlist );
 }
 
 /*****************************************************************************
@@ -168,6 +160,7 @@ void Close ( vlc_object_t *p_this )
 static void RunIntf( intf_thread_t *p_intf )
 {
     playlist_t * p_playlist = NULL;
+    int canc = vlc_savecancel();
 
     vlc_mutex_lock( &p_intf->change_lock );
     p_intf->p_sys->p_vout = NULL;
@@ -181,7 +174,7 @@ static void RunIntf( intf_thread_t *p_intf )
     msg_Dbg( p_intf, "interface thread initialized" );
 
     /* Main loop */
-    while( !intf_ShouldDie( p_intf ) )
+    while( vlc_object_alive( p_intf ) )
     {
         vlc_mutex_lock( &p_intf->change_lock );
 
@@ -226,7 +219,7 @@ static void RunIntf( intf_thread_t *p_intf )
             case GESTURE(RIGHT,LEFT,NONE,NONE):
                 {
                     input_thread_t * p_input;
-                    p_playlist = pl_Yield( p_intf );
+                    p_playlist = pl_Hold( p_intf );
 
                     p_input = input_from_playlist( p_playlist );
                     vlc_object_release( p_playlist );
@@ -253,13 +246,13 @@ static void RunIntf( intf_thread_t *p_intf )
                 }
                 break;
             case GESTURE(LEFT,DOWN,NONE,NONE):
-                p_playlist = pl_Yield( p_intf );
+                p_playlist = pl_Hold( p_intf );
 
                 playlist_Prev( p_playlist );
                 vlc_object_release( p_playlist );
                 break;
             case GESTURE(RIGHT,DOWN,NONE,NONE):
-                p_playlist = pl_Yield( p_intf );
+                p_playlist = pl_Hold( p_intf );
 
                 playlist_Next( p_playlist );
                 vlc_object_release( p_playlist );
@@ -292,7 +285,7 @@ static void RunIntf( intf_thread_t *p_intf )
                    vlc_value_t val, list, list2;
                    int i_count, i;
 
-                    p_playlist = pl_Yield( p_intf );
+                    p_playlist = pl_Hold( p_intf );
 
                     p_input = input_from_playlist( p_playlist );
 
@@ -347,7 +340,7 @@ static void RunIntf( intf_thread_t *p_intf )
                     vlc_value_t val, list, list2;
                     int i_count, i;
 
-                    p_playlist = pl_Yield( p_intf );
+                    p_playlist = pl_Hold( p_intf );
 
                     p_input = input_from_playlist( p_playlist );
                     vlc_object_release( p_playlist );
@@ -403,7 +396,7 @@ static void RunIntf( intf_thread_t *p_intf )
                 break;
             case GESTURE(DOWN,LEFT,NONE,NONE):
                 /* FIXME: Should close the vout!"*/
-                vlc_object_kill( p_intf->p_libvlc );
+                libvlc_Quit( p_intf->p_libvlc );
                 break;
             case GESTURE(DOWN,LEFT,UP,RIGHT):
             case GESTURE(UP,RIGHT,DOWN,LEFT):
@@ -450,6 +443,7 @@ static void RunIntf( intf_thread_t *p_intf )
     }
 
     EndThread( p_intf );
+    vlc_restorecancel( canc );
 }
 
 /*****************************************************************************
@@ -459,7 +453,7 @@ static int InitThread( intf_thread_t * p_intf )
 {
     char *psz_button;
     /* we might need some locking here */
-    if( !intf_ShouldDie( p_intf ) )
+    if( vlc_object_alive( p_intf ) )
     {
         /* p_intf->change_lock locking strategy:
          * - Every access to p_intf->p_sys are locked threw p_intf->change_lock

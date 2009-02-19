@@ -176,29 +176,29 @@ static uint8_t flac_crc8( const uint8_t *data, unsigned len );
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
+vlc_module_begin ()
 
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_ACODEC );
-    add_shortcut( "flac" );
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_ACODEC )
+    add_shortcut( "flac" )
 
 #ifdef USE_LIBFLAC
-    set_description( N_("Flac audio decoder") );
-    set_capability( "decoder", 100 );
-    set_callbacks( OpenDecoder, CloseDecoder );
+    set_description( N_("Flac audio decoder") )
+    set_capability( "decoder", 100 )
+    set_callbacks( OpenDecoder, CloseDecoder )
 
-    add_submodule();
-    set_description( N_("Flac audio encoder") );
-    set_capability( "encoder", 100 );
-    set_callbacks( OpenEncoder, CloseEncoder );
+    add_submodule ()
+    set_description( N_("Flac audio encoder") )
+    set_capability( "encoder", 100 )
+    set_callbacks( OpenEncoder, CloseEncoder )
 
-    add_submodule();
+    add_submodule ()
 #endif
-    set_description( N_("Flac audio packetizer") );
-    set_capability( "packetizer", 100 );
-    set_callbacks( OpenPacketizer, CloseDecoder );
+    set_description( N_("Flac audio packetizer") )
+    set_capability( "packetizer", 100 )
+    set_callbacks( OpenPacketizer, CloseDecoder )
 
-vlc_module_end();
+vlc_module_end ()
 
 /*****************************************************************************
  * OpenDecoder: probe the decoder and return score
@@ -214,8 +214,7 @@ static int OpenDecoder( vlc_object_t *p_this )
     }
 
     /* Allocate the memory needed to store the decoder's structure */
-    if( ( p_dec->p_sys = p_sys =
-          (decoder_sys_t *)malloc(sizeof(decoder_sys_t)) ) == NULL )
+    if( ( p_dec->p_sys = p_sys = malloc(sizeof(*p_sys)) ) == NULL )
         return VLC_ENOMEM;
 
     /* Misc init */
@@ -386,9 +385,9 @@ static block_t *PacketizeBlock( decoder_t *p_dec, block_t **pp_block )
         if( (*pp_block)->i_flags&BLOCK_FLAG_CORRUPTED )
         {
             p_sys->i_state = STATE_NOSYNC;
-            block_BytestreamFlush( &p_sys->bytestream );
+            block_BytestreamEmpty( &p_sys->bytestream );
         }
-//        aout_DateSet( &p_sys->end_date, 0 );
+        aout_DateSet( &p_sys->end_date, 0 );
         block_Release( *pp_block );
         return NULL;
     }
@@ -621,7 +620,7 @@ DecoderWriteCallback( const FLAC__StreamDecoder *decoder,
     decoder_sys_t *p_sys = p_dec->p_sys;
 
     p_sys->p_aout_buffer =
-        p_dec->pf_aout_buffer_new( p_dec, frame->header.blocksize );
+        decoder_NewAudioBuffer( p_dec, frame->header.blocksize );
 
     if( p_sys->p_aout_buffer == NULL )
         return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
@@ -860,7 +859,8 @@ static int SyncInfo( decoder_t *p_dec, uint8_t *p_buf,
 {
     decoder_sys_t *p_sys = p_dec->p_sys;
     int i_header, i_temp, i_read;
-    int i_blocksize = 0, i_blocksize_hint = 0, i_sample_rate_hint = 0;
+    unsigned i_blocksize = 0;
+    int i_blocksize_hint = 0, i_sample_rate_hint = 0;
     uint64_t i_sample_number = 0;
 
     bool b_variable_blocksize = ( p_sys->b_stream_info &&

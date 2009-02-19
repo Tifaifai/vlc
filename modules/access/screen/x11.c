@@ -2,7 +2,7 @@
  * x11.c: Screen capture module.
  *****************************************************************************
  * Copyright (C) 2004 the VideoLAN team
- * $Id: f576096785f298fc9ddbfb3003da9e6b25507401 $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *
@@ -40,11 +40,13 @@ int screen_InitCapture( demux_t *p_demux )
 {
     demux_sys_t *p_sys = p_demux->p_sys;
     Display *p_display;
+    char *psz_display = var_CreateGetNonEmptyString( p_demux, "x11-display" );
     XWindowAttributes win_info;
     int i_chroma;
 
     /* Open the display */
-    p_display = XOpenDisplay( NULL );
+    p_display = XOpenDisplay( psz_display );
+    free( psz_display );
     if( !p_display )
     {
         msg_Err( p_demux, "cannot open display" );
@@ -82,9 +84,12 @@ int screen_InitCapture( demux_t *p_demux )
     }
 
     es_format_Init( &p_sys->fmt, VIDEO_ES, i_chroma );
+    p_sys->fmt.video.i_visible_width =
     p_sys->fmt.video.i_width  = win_info.width;
+    p_sys->fmt.video.i_visible_height =
     p_sys->fmt.video.i_height = win_info.height;
     p_sys->fmt.video.i_bits_per_pixel = win_info.depth;
+    p_sys->fmt.video.i_chroma = i_chroma;
 
 #if 0
     win_info.visual->red_mask;
@@ -102,6 +107,12 @@ int screen_CloseCapture( demux_t *p_demux )
     Display *p_display = (Display *)p_sys->p_data;
 
     XCloseDisplay( p_display );
+    if( p_sys->p_blend )
+    {
+        module_unneed( p_sys->p_blend, p_sys->p_blend->p_module );
+        vlc_object_detach( p_sys->p_blend );
+        vlc_object_release( p_sys->p_blend );
+    }
     return VLC_SUCCESS;
 }
 
@@ -112,25 +123,19 @@ block_t *screen_Capture( demux_t *p_demux )
     block_t *p_block;
     XImage *image;
     int i_size;
+    int root_x = 0, root_y = 0;
 
-    if( p_sys->b_follow_mouse )
+    if( p_sys->b_follow_mouse || p_sys->p_mouse )
     {
         Window root = DefaultRootWindow( p_display ), child;
-        int root_x, root_y;
         int win_x, win_y;
         unsigned int mask;
         if( XQueryPointer( p_display, root,
             &root, &child, &root_x, &root_y, &win_x, &win_y,
             &mask ) )
         {
-            root_x -= p_sys->i_width/2;
-            if( root_x < 0 ) root_x = 0;
-            p_sys->i_left = __MIN( (unsigned int)root_x,
-                                   p_sys->i_screen_width - p_sys->i_width );
-            root_y -= p_sys->i_height/2;
-            if( root_y < 0 ) root_y = 0;
-            p_sys->i_top = __MIN( (unsigned int)root_y,
-                                  p_sys->i_screen_height - p_sys->i_height );
+            if( p_sys->b_follow_mouse )
+                FollowMouse( p_sys, root_x, root_y );
         }
         else
             msg_Dbg( p_demux, "XQueryPointer() failed" );
@@ -157,6 +162,10 @@ block_t *screen_Capture( demux_t *p_demux )
     }
 
     vlc_memcpy( p_block->p_buffer, image->data, i_size );
+
+    if( p_sys->p_mouse )
+        RenderCursor( p_demux, root_x, root_y,
+                      p_block->p_buffer );
 
     XDestroyImage( image );
 

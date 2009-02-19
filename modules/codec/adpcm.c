@@ -44,13 +44,13 @@ static void CloseDecoder( vlc_object_t * );
 
 static aout_buffer_t *DecodeBlock( decoder_t *, block_t ** );
 
-vlc_module_begin();
-    set_description( N_("ADPCM audio decoder") );
-    set_capability( "decoder", 50 );
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_ACODEC );
-    set_callbacks( OpenDecoder, CloseDecoder );
-vlc_module_end();
+vlc_module_begin ()
+    set_description( N_("ADPCM audio decoder") )
+    set_capability( "decoder", 50 )
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_ACODEC )
+    set_callbacks( OpenDecoder, CloseDecoder )
+vlc_module_end ()
 
 /*****************************************************************************
  * Local prototypes
@@ -292,7 +292,7 @@ static aout_buffer_t *DecodeBlock( decoder_t *p_dec, block_t **pp_block )
     {
         aout_buffer_t *p_out;
 
-        p_out = p_dec->pf_aout_buffer_new( p_dec, p_sys->i_samplesperblock );
+        p_out = decoder_NewAudioBuffer( p_dec, p_sys->i_samplesperblock );
         if( p_out == NULL )
         {
             block_Release( p_block );

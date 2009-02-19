@@ -2,7 +2,7 @@
  * vlm.c: VLM interface plugin
  *****************************************************************************
  * Copyright (C) 2000-2005 the VideoLAN team
- * $Id: 0d8bc10e61e9a0d6301e3871ddb264adb31b8d5f $
+ * $Id$
  *
  * Authors: Simon Latapie <garf@videolan.org>
  *          Laurent Aimar <fenrir@videolan.org>
@@ -138,9 +138,20 @@ static const char *FindCommandEnd( const char *psz_sent )
 static int Unescape( char *out, const char *in )
 {
     char c, quote = 0;
+    bool param = false;
 
     while( (c = *in++) != '\0' )
     {
+        // Don't escape the end of the string if we find a '#'
+        // that's the begining of a vlc command
+        // TODO: find a better solution
+        if( c == '#' || param )
+        {
+            param = true;
+            *out++ = c;
+            continue;
+        }
+
         if( !quote )
         {
             if (strchr(quotes,c))   // opening quote
@@ -336,7 +347,7 @@ static int ExecuteHelp( vlm_message_t **pp_status )
     MessageAddChild( "play [input_number]" );
     MessageAddChild( "pause" );
     MessageAddChild( "stop" );
-    MessageAddChild( "seek [+-](percentage) | [+-](seconds)s | [+-](miliseconds)ms" );
+    MessageAddChild( "seek [+-](percentage) | [+-](seconds)s | [+-](milliseconds)ms" );
 
     return VLC_SUCCESS;
 }
@@ -1356,7 +1367,7 @@ static vlm_message_t *vlm_ShowMedia( vlm_media_sys_t *p_media )
             APPEND_INPUT_INFO( "rate", "%d", Integer );
             APPEND_INPUT_INFO( "title", "%d", Integer );
             APPEND_INPUT_INFO( "chapter", "%d", Integer );
-            APPEND_INPUT_INFO( "seekable", "%d", Bool );
+            APPEND_INPUT_INFO( "can-seek", "%d", Bool );
         }
 #undef APPEND_INPUT_INFO
         if( asprintf( &psz_tmp, "%d", p_instance->i_index + 1 ) != -1 )

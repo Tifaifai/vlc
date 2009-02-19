@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>629</width>
-    <height>576</height>
+    <width>701</width>
+    <height>604</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -90,7 +90,7 @@
        </widget>
       </item>
       <item row="1" column="2" >
-       <widget class="QLabel" name="label" >
+       <widget class="QLabel" name="displayLabel" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
@@ -119,14 +119,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="4" colspan="2" >
-       <widget class="QCheckBox" name="systrayBox" >
-        <property name="text" >
-         <string>_("Systray icon")</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2" colspan="4" >
+      <item row="3" column="2" colspan="2" >
        <widget class="QCheckBox" name="fsController" >
         <property name="text" >
          <string>_("Show a controller in fullscreen")</string>
@@ -152,7 +145,7 @@
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="text" >
-         <string>_("This is VLC's skinnable interface. You can download skins at &lt;a href="http://www.videolan.org/vlc/skins.php">http://www.videolan.org/vlc/skins.php&lt;/a> to customize your player.")</string>
+         <string/>
         </property>
         <property name="textFormat" >
          <enum>Qt::RichText</enum>
@@ -175,7 +168,7 @@
        </widget>
       </item>
       <item row="6" column="0" colspan="2" >
-       <widget class="QLabel" name="label_4" >
+       <widget class="QLabel" name="skinFileLabel" >
         <property name="text" >
          <string>_("Skin file")</string>
         </property>
@@ -217,6 +210,20 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="4" colspan="2" >
+       <widget class="QCheckBox" name="systrayBox" >
+        <property name="text" >
+         <string>_("Systray icon")</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4" colspan="2" >
+       <widget class="QCheckBox" name="resizingBox" >
+        <property name="text" >
+         <string>_("Resize interface to video size")</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -243,7 +250,7 @@
       <item row="0" column="1" colspan="2" >
        <widget class="QCheckBox" name="EnqueueOneInterfaceMode" >
         <property name="text" >
-         <string>_("Enqueue files in playlist when in one instance mode")</string>
+         <string>_("Enqueue files when in one instance mode")</string>
         </property>
        </widget>
       </item>
@@ -276,9 +283,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="2" >
-       <widget class="QComboBox" name="artFetcher" />
-      </item>
       <item row="1" column="0" >
        <widget class="QCheckBox" name="updatesBox" >
         <property name="text" >
@@ -295,6 +299,43 @@
          <string> days</string>
         </property>
        </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QCheckBox" name="saveRecentlyPlayed" >
+        <property name="text" >
+         <string>_("Save recently played items")</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2" >
+       <widget class="QComboBox" name="artFetcher" />
+      </item>
+      <item row="2" column="1" colspan="2" >
+       <layout class="QHBoxLayout" name="horizontalLayout" >
+        <item>
+         <widget class="QLabel" name="filterLabel" >
+          <property name="text" >
+           <string>_("Filter")</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="recentlyPlayedFilters" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip" >
+           <string>_("Separate words by | (without space)")</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

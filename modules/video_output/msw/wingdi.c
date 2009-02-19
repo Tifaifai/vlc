@@ -2,7 +2,7 @@
  * wingdi.c : Win32 / WinCE GDI video output plugin for vlc
  *****************************************************************************
  * Copyright (C) 2002 the VideoLAN team
- * $Id: b8b519441c8bb3ebefeeb7d4421a329084e4a047 $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *          Samuel Hocevar <sam@zoy.org>
@@ -117,35 +117,27 @@ static void SetPalette( vout_thread_t *, uint16_t *, uint16_t *, uint16_t * );
 
 static void InitBuffers        ( vout_thread_t * );
 
-#ifdef MODULE_NAME_IS_wingapi
-#   define GXOpenDisplay p_vout->p_sys->GXOpenDisplay
-#   define GXCloseDisplay p_vout->p_sys->GXCloseDisplay
-#   define GXBeginDraw p_vout->p_sys->GXBeginDraw
-#   define GXEndDraw p_vout->p_sys->GXEndDraw
-#   define GXGetDisplayProperties p_vout->p_sys->GXGetDisplayProperties
-#   define GXSuspend p_vout->p_sys->GXSuspend
-#   define GXResume p_vout->p_sys->GXResume
-#endif
+
 
 #define DX_POSITION_CHANGE 0x1000
 
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VOUT );
+vlc_module_begin ()
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VOUT )
 #ifdef MODULE_NAME_IS_wingapi
-    set_shortname( "Windows GAPI" );
-    set_description( N_("Windows GAPI video output") );
-    set_capability( "video output", 20 );
+    set_shortname( "Windows GAPI" )
+    set_description( N_("Windows GAPI video output") )
+    set_capability( "video output", 20 )
 #else
-    set_shortname( "Windows GDI" );
-    set_description( N_("Windows GDI video output") );
-    set_capability( "video output", 10 );
+    set_shortname( "Windows GDI" )
+    set_description( N_("Windows GDI video output") )
+    set_capability( "video output", 10 )
 #endif
-    set_callbacks( OpenVideo, CloseVideo );
-vlc_module_end();
+    set_callbacks( OpenVideo, CloseVideo )
+vlc_module_end ()
 
 /*****************************************************************************
  * OpenVideo: activate GDI video thread output method
@@ -250,14 +242,18 @@ static int OpenVideo ( vlc_object_t *p_this )
     p_vout->p_sys->p_event =
         vlc_object_create( p_vout, sizeof(event_thread_t) );
     p_vout->p_sys->p_event->p_vout = p_vout;
-    if( vlc_thread_create( p_vout->p_sys->p_event, "VLC Vout Events Thread",
-                           EventThread, 0, 1 ) )
+    p_vout->p_sys->p_event->window_ready = CreateEvent( NULL, TRUE, FALSE, NULL );
+    if( vlc_thread_create( p_vout->p_sys->p_event, "Vout Events Thread",
+                           EventThread, 0 ) )
     {
         msg_Err( p_vout, "cannot create Vout EventThread" );
+        CloseHandle( p_vout->p_sys->p_event->window_ready );
         vlc_object_release( p_vout->p_sys->p_event );
         p_vout->p_sys->p_event = NULL;
         goto error;
     }
+    WaitForSingleObject( p_vout->p_sys->p_event->window_ready, INFINITE );
+    CloseHandle( p_vout->p_sys->p_event->window_ready );
 
     if( p_vout->p_sys->p_event->b_error )
     {
@@ -360,11 +356,8 @@ static void CloseVideo ( vlc_object_t *p_this )
     FreeLibrary( p_vout->p_sys->gapi_dll );
 #endif
 
-    if( p_vout->p_sys )
-    {
-        free( p_vout->p_sys );
-        p_vout->p_sys = NULL;
-    }
+    free( p_vout->p_sys );
+    p_vout->p_sys = NULL;
 }
 
 /*****************************************************************************
@@ -527,6 +520,28 @@ static int Manage( vout_thread_t *p_vout )
     else
     {
         vlc_mutex_unlock( &p_vout->p_sys->lock );
+    }
+
+    /* autoscale toggle */
+    if( p_vout->i_changes & VOUT_SCALE_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_SCALE_CHANGE;
+
+        p_vout->b_autoscale = var_GetBool( p_vout, "autoscale" );
+        p_vout->i_zoom = (int) ZOOM_FP_FACTOR;
+
+        UpdateRects( p_vout, true );
+    }
+
+    /* scaling factor */
+    if( p_vout->i_changes & VOUT_ZOOM_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_ZOOM_CHANGE;
+
+        p_vout->b_autoscale = false;
+        p_vout->i_zoom =
+            (int)( ZOOM_FP_FACTOR * var_GetFloat( p_vout, "scale" ) );
+        UpdateRects( p_vout, true );
     }
 
     /* Check for cropping / aspect changes */

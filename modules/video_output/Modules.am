@@ -7,6 +7,7 @@ LIBTOOL=@LIBTOOL@ --tag=CC
 SOURCES_aa = aa.c
 SOURCES_caca = caca.c
 SOURCES_fb = fb.c
+SOURCES_omapfb = omapfb.c
 SOURCES_ggi = ggi.c
 SOURCES_vout_sdl = sdl.c
 SOURCES_svgalib = svgalib.c
@@ -15,7 +16,45 @@ SOURCES_hd1000v = hd1000v.cpp
 SOURCES_snapshot = snapshot.c
 SOURCES_opengl = opengl.c
 SOURCES_opengllayer = opengllayer.m
-SOURCES_image = image.c
 SOURCES_directfb = directfb.c
 SOURCES_vmem = vmem.c
+SOURCES_yuv = yuv.c
 
+# TODO: move to configure.ac once/if xcb plugin gets more functional
+XCB_LIBS = -lxcb
+XCB_SHM_LIBS = -lxcb-shm
+XCB_AUX_LIBS = -lxcb-aux
+XCB_IMAGE_LIBS = -lxcb-image
+XCB_KEYSYMS_LIBS = -lxcb-keysyms
+
+libxcb_plugin_la_SOURCES = \
+	xcb/xcb_vlc.h \
+	xcb/xcb.c \
+	xcb/events.c
+libxcb_plugin_la_CFLAGS = $(AM_CFLAGS) \
+	$(XCB_CFLAGS) $(XCB_SHM) \
+	$(XPROTO_CFLAGS) \
+	$(XCB_AUX_CFLAGS) $(XCB_IMAGE_CFLAGS)
+libxcb_plugin_la_LIBADD = $(AM_LIBADD) \
+	$(XCB_LIBS) $(XCB_SHM) \
+	$(XPROTO_LIBS) \
+	$(XCB_AUX_LIBS) $(XCB_IMAGE_LIBS)
+libxcb_plugin_la_DEPENDENCIES =
+
+libxcb_window_plugin_la_SOURCES = xcb/window.c xcb/keys.c
+libxcb_window_plugin_la_CFLAGS = $(AM_CFLAGS) \
+	$(XCB_CFLAGS) \
+	$(XCB_AUX_CFLAGS) $(XCB_KEYSYMS_CFLAGS)
+libxcb_window_plugin_la_LIBADD = $(AM_LIBADD) \
+	$(XCB_LIBS) \
+	$(XCB_AUX_LIBS) $(XCB_KEYSYMS_LIBS)
+libxcb_window_plugin_la_DEPENDENCIES =
+
+EXTRA_LTLIBRARIES += libxcb_plugin.la libxcb_window_plugin.la
+
+# XXX: do we need yet another modules/ subdirectory?
+libdrawable_plugin_la_SOURCES = drawable.c
+libdrawable_plugin_la_CFLAGS = $(AM_CFLAGS)
+libdrawable_plugin_la_LIBADD = $(AM_LIBADD)
+libdrawable_plugin_la_DEPENDENCIES =
+libvlc_LTLIBRARIES += libdrawable_plugin.la

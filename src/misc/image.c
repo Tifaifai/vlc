@@ -39,11 +39,13 @@
 
 #include <vlc_common.h>
 #include <vlc_codec.h>
+#include <vlc_meta.h>
 #include <vlc_filter.h>
 #include <vlc_es.h>
 #include <vlc_image.h>
 #include <vlc_stream.h>
 #include <vlc_charset.h>
+#include <vlc_sout.h>
 #include <libvlc.h>
 
 static picture_t *ImageRead( image_handler_t *, block_t *,
@@ -69,7 +71,7 @@ static filter_t *CreateFilter( vlc_object_t *, es_format_t *,
                                video_format_t *, const char * );
 static void DeleteFilter( filter_t * );
 
-static vlc_fourcc_t Ext2Fourcc( const char * );
+vlc_fourcc_t image_Ext2Fourcc( const char * );
 /*static const char *Fourcc2Ext( vlc_fourcc_t );*/
 
 /**
@@ -78,9 +80,10 @@ static vlc_fourcc_t Ext2Fourcc( const char * );
  */
 image_handler_t *__image_HandlerCreate( vlc_object_t *p_this )
 {
-    image_handler_t *p_image = malloc( sizeof(image_handler_t) );
+    image_handler_t *p_image = calloc( 1, sizeof(image_handler_t) );
+    if( !p_image )
+        return NULL;
 
-    memset( p_image, 0, sizeof(image_handler_t) );
     p_image->p_parent = p_this;
 
     p_image->pf_read = ImageRead;
@@ -237,7 +240,7 @@ static picture_t *ImageReadUrl( image_handler_t *p_image, const char *psz_url,
     if( !p_fmt_in->i_chroma )
     {
         /* Try to guess format from file name */
-        p_fmt_in->i_chroma = Ext2Fourcc( psz_url );
+        p_fmt_in->i_chroma = image_Ext2Fourcc( psz_url );
     }
 
     p_pic = ImageRead( p_image, p_block, p_fmt_in, p_fmt_out );
@@ -316,7 +319,7 @@ static block_t *ImageWrite( image_handler_t *p_image, picture_t *p_pic,
             p_image->p_filter->fmt_out.video = p_image->p_enc->fmt_in.video;
         }
 
-        picture_Yield( p_pic );
+        picture_Hold( p_pic );
 
         p_tmp_pic =
             p_image->p_filter->pf_video_filter( p_image->p_filter, p_pic );
@@ -349,7 +352,7 @@ static int ImageWriteUrl( image_handler_t *p_image, picture_t *p_pic,
     if( !p_fmt_out->i_chroma )
     {
         /* Try to guess format from file name */
-        p_fmt_out->i_chroma = Ext2Fourcc( psz_url );
+        p_fmt_out->i_chroma = image_Ext2Fourcc( psz_url );
     }
 
     file = utf8_fopen( psz_url, "wb" );
@@ -446,7 +449,7 @@ static picture_t *ImageConvert( image_handler_t *p_image, picture_t *p_pic,
         p_image->p_filter->fmt_out.video = *p_fmt_out;
     }
 
-    picture_Yield( p_pic );
+    picture_Hold( p_pic );
 
     p_pif = p_image->p_filter->pf_video_filter( p_image->p_filter, p_pic );
 
@@ -457,7 +460,8 @@ static picture_t *ImageConvert( image_handler_t *p_image, picture_t *p_pic,
         /* Duplicate image */
         picture_Release( p_pif ); /* XXX: Better fix must be possible */
         p_pif = p_image->p_filter->pf_vout_buffer_new( p_image->p_filter );
-        if( p_pif ) vout_CopyPicture( p_image->p_parent, p_pif, p_pic );
+        if( p_pif )
+            picture_Copy( p_pif, p_pic );
     }
 
     return p_pif;
@@ -493,7 +497,7 @@ static picture_t *ImageFilter( image_handler_t *p_image, picture_t *p_pic,
         p_image->p_filter->fmt_out.video = *p_fmt;
     }
 
-    picture_Yield( p_pic );
+    picture_Hold( p_pic );
 
     return p_image->p_filter->pf_video_filter( p_image->p_filter, p_pic );
 }
@@ -530,7 +534,7 @@ static const struct
     { 0, NULL }
 };
 
-static vlc_fourcc_t Ext2Fourcc( const char *psz_name )
+vlc_fourcc_t image_Ext2Fourcc( const char *psz_name )
 {
     int i;
 
@@ -587,7 +591,7 @@ static void video_del_buffer( decoder_t *p_dec, picture_t *p_pic )
 static void video_link_picture( decoder_t *p_dec, picture_t *p_pic )
 {
     (void)p_dec;
-    picture_Yield( p_pic );
+    picture_Hold( p_pic );
 }
 
 static void video_unlink_picture( decoder_t *p_dec, picture_t *p_pic )
@@ -618,7 +622,7 @@ static decoder_t *CreateDecoder( vlc_object_t *p_this, video_format_t *fmt )
     vlc_object_attach( p_dec, p_this );
 
     /* Find a suitable decoder module */
-    p_dec->p_module = module_Need( p_dec, "decoder", "$codec", 0 );
+    p_dec->p_module = module_need( p_dec, "decoder", "$codec", false );
     if( !p_dec->p_module )
     {
         msg_Err( p_dec, "no suitable decoder module for fourcc `%4.4s'.\n"
@@ -636,10 +640,13 @@ static void DeleteDecoder( decoder_t * p_dec )
 {
     vlc_object_detach( p_dec );
 
-    if( p_dec->p_module ) module_Unneed( p_dec, p_dec->p_module );
+    if( p_dec->p_module ) module_unneed( p_dec, p_dec->p_module );
 
     es_format_Clean( &p_dec->fmt_in );
     es_format_Clean( &p_dec->fmt_out );
+
+    if( p_dec->p_description )
+        vlc_meta_Delete( p_dec->p_description );
 
     vlc_object_release( p_dec );
     p_dec = NULL;
@@ -650,7 +657,7 @@ static encoder_t *CreateEncoder( vlc_object_t *p_this, video_format_t *fmt_in,
 {
     encoder_t *p_enc;
 
-    p_enc = vlc_object_create( p_this, VLC_OBJECT_ENCODER );
+    p_enc = sout_EncoderCreate( p_this );
     if( p_enc == NULL )
         return NULL;
 
@@ -697,7 +704,7 @@ static encoder_t *CreateEncoder( vlc_object_t *p_this, video_format_t *fmt_in,
     vlc_object_attach( p_enc, p_this );
 
     /* Find a suitable decoder module */
-    p_enc->p_module = module_Need( p_enc, "encoder", 0, 0 );
+    p_enc->p_module = module_need( p_enc, "encoder", NULL, false );
     if( !p_enc->p_module )
     {
         msg_Err( p_enc, "no suitable encoder module for fourcc `%4.4s'.\n"
@@ -716,7 +723,7 @@ static void DeleteEncoder( encoder_t * p_enc )
 {
     vlc_object_detach( p_enc );
 
-    if( p_enc->p_module ) module_Unneed( p_enc, p_enc->p_module );
+    if( p_enc->p_module ) module_unneed( p_enc, p_enc->p_module );
 
     es_format_Clean( &p_enc->fmt_in );
     es_format_Clean( &p_enc->fmt_out );
@@ -745,8 +752,8 @@ static filter_t *CreateFilter( vlc_object_t *p_this, es_format_t *p_fmt_in,
     p_filter->fmt_out = *p_fmt_in;
     p_filter->fmt_out.i_codec = p_fmt_out->i_chroma;
     p_filter->fmt_out.video = *p_fmt_out;
-    p_filter->p_module = module_Need( p_filter, "video filter2",
-                                      psz_module, 0 );
+    p_filter->p_module = module_need( p_filter, "video filter2",
+                                      psz_module, false );
 
     if( !p_filter->p_module )
     {
@@ -762,7 +769,7 @@ static void DeleteFilter( filter_t * p_filter )
 {
     vlc_object_detach( p_filter );
 
-    if( p_filter->p_module ) module_Unneed( p_filter, p_filter->p_module );
+    if( p_filter->p_module ) module_unneed( p_filter, p_filter->p_module );
 
     es_format_Clean( &p_filter->fmt_in );
     es_format_Clean( &p_filter->fmt_out );

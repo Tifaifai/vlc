@@ -2,7 +2,7 @@
  * xspf.c : XSPF playlist export functions
  ******************************************************************************
  * Copyright (C) 2006 the VideoLAN team
- * $Id: 7ec9f123b3c3777ceeade66a5fe422866bd8bf62 $
+ * $Id$
  *
  * Authors: Daniel Stränger <vlc at schmaller dot de>
  *          Yoann Peronneau <yoann@videolan.org>
@@ -70,14 +70,6 @@ int xspf_export_playlist( vlc_object_t *p_this )
     if( *psz_temp )
     {
         fprintf(  p_export->p_file, "\t<title>%s</title>\n", psz_temp );
-    }
-    free( psz_temp );
-
-    /* save location of the playlist node */
-    psz_temp = assertUTF8URI( p_export->psz_filename );
-    if( psz_temp && *psz_temp )
-    {
-        fprintf( p_export->p_file, "\t<location>%s</location>\n", psz_temp );
     }
     free( psz_temp );
 
@@ -319,14 +311,14 @@ static char *assertUTF8URI( char *psz_name )
 
     /* max. 3x for URI conversion (percent escaping) and
        8 bytes for "file://" and NULL-termination */
-    psz_ret = (char *)malloc( sizeof(char)*strlen(psz_name)*6*3+8 );
+    psz_ret = (char *)malloc( strlen(psz_name)*6*3+8 );
     if( !psz_ret )
         return NULL;
 
     /** \todo check for a valid scheme part preceding the colon */
-    size_t i_delim = strcspn( psz_s, ":" );
-    if( i_delim != strlen( psz_s ) )
+    if( strstr( psz_s, "://") != NULL )
     {
+        size_t i_delim = strcspn( psz_s, ":" );
         i_delim++; /* skip the ':' */
         strncpy( psz_ret, psz_s, i_delim );
         psz_d = psz_ret + i_delim;
@@ -354,6 +346,7 @@ static char *assertUTF8URI( char *psz_name )
             *psz_s == ' ' ||
             *psz_s == '+' ||
             *psz_s == '%' ||
+            *psz_s == '\\' ||
             ( b_uri_is_file && (
             *psz_s == ':' ||
             *psz_s == '"' ||
@@ -378,5 +371,5 @@ static char *assertUTF8URI( char *psz_name )
     }
     *psz_d = '\0';
 
-    return (char *)realloc( psz_ret, sizeof(char)*strlen( psz_ret ) + 1 );
+    return (char *)realloc( psz_ret, strlen( psz_ret ) + 1 );
 }

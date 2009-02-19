@@ -2,7 +2,7 @@
  * direct3d.c: Windows Direct3D video output module
  *****************************************************************************
  * Copyright (C) 2006 the VideoLAN team
- *$Id: f78287e32a91e1fb7befc7435b763245afc8e7a8 $
+ *$Id$
  *
  * Authors: Damien Fouilleul <damienf@videolan.org>
  *
@@ -84,9 +84,7 @@ static void Direct3DVoutRenderScene     ( vout_thread_t *, picture_t * );
  * Module descriptor
  *****************************************************************************/
 
-static bool _got_vista_or_above;
-
-static int get_capability_for_osversion(void)
+static bool IsVistaOrAbove(void)
 {
     OSVERSIONINFO winVer;
     winVer.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -96,27 +94,39 @@ static int get_capability_for_osversion(void)
         if( winVer.dwMajorVersion > 5 )
         {
             /* Windows Vista or above, make this module the default */
-        _got_vista_or_above = true;
-            return 150;
+            return true;
         }
     }
     /* Windows XP or lower, make sure this module isn't the default */
-    _got_vista_or_above = false;
-    return 50;
+    return false;
 }
 
-vlc_module_begin();
-    set_shortname( "Direct3D" );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VOUT );
-    set_description( N_("DirectX 3D video output") );
-    set_capability( "video output", get_capability_for_osversion() );
-    add_shortcut( "direct3d" );
-    set_callbacks( OpenVideo, CloseVideo );
+static int OpenVideoXP( vlc_object_t *obj )
+{
+    return IsVistaOrAbove() ? VLC_EGENERIC : OpenVideo( obj );
+}
+
+static int OpenVideoVista( vlc_object_t *obj )
+{
+    return IsVistaOrAbove() ? OpenVideo( obj ) : VLC_EGENERIC;
+}
+
+vlc_module_begin ()
+    set_shortname( "Direct3D" )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VOUT )
+    set_description( N_("DirectX 3D video output") )
+    set_capability( "video output", 50 )
+    add_shortcut( "direct3d" )
+    set_callbacks( OpenVideoXP, CloseVideo )
 
     /* FIXME: Hack to avoid unregistering our window class */
-    linked_with_a_crap_library_which_uses_atexit( );
-vlc_module_end();
+    linked_with_a_crap_library_which_uses_atexit ()
+
+    add_submodule()
+        set_capability( "video output", 150 )
+        set_callbacks( OpenVideoVista, CloseVideo )
+vlc_module_end ()
 
 #if 0 /* FIXME */
     /* check if we registered a window class because we need to
@@ -154,6 +164,7 @@ static int OpenVideo( vlc_object_t *p_this )
     p_vout->p_sys = malloc( sizeof( vout_sys_t ) );
     if( p_vout->p_sys == NULL )
         return VLC_ENOMEM;
+
     memset( p_vout->p_sys, 0, sizeof( vout_sys_t ) );
 
     if( VLC_SUCCESS != Direct3DVoutCreate( p_vout ) )
@@ -202,14 +213,18 @@ static int OpenVideo( vlc_object_t *p_this )
     p_vout->p_sys->p_event =
         vlc_object_create( p_vout, sizeof(event_thread_t) );
     p_vout->p_sys->p_event->p_vout = p_vout;
+    p_vout->p_sys->p_event->window_ready = CreateEvent( NULL, TRUE, FALSE, NULL );
     if( vlc_thread_create( p_vout->p_sys->p_event, "Vout Events Thread",
-                           EventThread, 0, 1 ) )
+                           EventThread, 0 ) )
     {
         msg_Err( p_vout, "cannot create Vout EventThread" );
+        CloseHandle( p_vout->p_sys->p_event->window_ready );
         vlc_object_release( p_vout->p_sys->p_event );
         p_vout->p_sys->p_event = NULL;
         goto error;
     }
+    WaitForSingleObject( p_vout->p_sys->p_event->window_ready, INFINITE );
+    CloseHandle( p_vout->p_sys->p_event->window_ready );
 
     if( p_vout->p_sys->p_event->b_error )
     {
@@ -309,11 +324,8 @@ static void CloseVideo( vlc_object_t *p_this )
             p_vout->p_sys->i_spi_screensavetimeout, NULL, 0);
     }
 
-    if( p_vout->p_sys )
-    {
-        free( p_vout->p_sys );
-        p_vout->p_sys = NULL;
-    }
+    free( p_vout->p_sys );
+    p_vout->p_sys = NULL;
 }
 
 /*****************************************************************************
@@ -442,6 +454,28 @@ static int Manage( vout_thread_t *p_vout )
         }
 #endif
         p_vout->p_sys->i_changes &= ~DX_POSITION_CHANGE;
+    }
+
+    /* autoscale toggle */
+    if( p_vout->i_changes & VOUT_SCALE_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_SCALE_CHANGE;
+
+        p_vout->b_autoscale = var_GetBool( p_vout, "autoscale" );
+        p_vout->i_zoom = (int) ZOOM_FP_FACTOR;
+
+        UpdateRects( p_vout, true );
+    }
+
+    /* scaling factor */
+    if( p_vout->i_changes & VOUT_ZOOM_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_ZOOM_CHANGE;
+
+        p_vout->b_autoscale = false;
+        p_vout->i_zoom =
+            (int)( ZOOM_FP_FACTOR * var_GetFloat( p_vout, "scale" ) );
+        UpdateRects( p_vout, true );
     }
 
     /* Check for cropping / aspect changes */
@@ -741,7 +775,7 @@ static void Direct3DVoutClose( vout_thread_t *p_vout )
        IDirect3DDevice9_Release(p_vout->p_sys->p_d3ddev);
        p_vout->p_sys->p_d3ddev = NULL;
     }
- 
+
     p_vout->p_sys->hmonitor = NULL;
 }
 
@@ -1039,7 +1073,7 @@ static int Direct3DVoutCreatePictures( vout_thread_t *p_vout, size_t i_num_pics 
 
         /* fill surface with black color */
         IDirect3DDevice9_ColorFill(p_d3ddev, p_d3dsurf, NULL, D3DCOLOR_ARGB(0xFF, 0, 0, 0) );
- 
+
         /* assign surface to internal structure */
         p_pic->p_sys = (void *)p_d3dsurf;
 
@@ -1385,41 +1419,43 @@ static void Direct3DVoutRenderScene( vout_thread_t *p_vout, picture_t *p_pic )
     }
 
     /* Setup vertices */
-    f_width  = (float)(p_vout->output.i_width) + 1;
-    f_height = (float)(p_vout->output.i_height) + 1;
+    f_width  = (float)(p_vout->output.i_width);
+    f_height = (float)(p_vout->output.i_height);
 
-    p_vertices[0].x       = 0.0f;       // left
-    p_vertices[0].y       = 0.0f;       // top
+    /* -0.5f is a "feature" of DirectX and it seems to apply to Direct3d also */
+    /* http://www.sjbrown.co.uk/2003/05/01/fix-directx-rasterisation/ */
+    p_vertices[0].x       = -0.5f;       // left
+    p_vertices[0].y       = -0.5f;       // top
     p_vertices[0].z       = 0.0f;
     p_vertices[0].diffuse = D3DCOLOR_ARGB(255, 255, 255, 255);
     p_vertices[0].rhw     = 1.0f;
     p_vertices[0].tu      = 0.0f;
     p_vertices[0].tv      = 0.0f;
- 
-    p_vertices[1].x       = f_width;    // right
-    p_vertices[1].y       = 0.0f;       // top
+
+    p_vertices[1].x       = f_width - 0.5f;    // right
+    p_vertices[1].y       = -0.5f;       // top
     p_vertices[1].z       = 0.0f;
     p_vertices[1].diffuse = D3DCOLOR_ARGB(255, 255, 255, 255);
     p_vertices[1].rhw     = 1.0f;
     p_vertices[1].tu      = 1.0f;
     p_vertices[1].tv      = 0.0f;
- 
-    p_vertices[2].x       = f_width;    // right
-    p_vertices[2].y       = f_height;   // bottom
+
+    p_vertices[2].x       = f_width - 0.5f;    // right
+    p_vertices[2].y       = f_height - 0.5f;   // bottom
     p_vertices[2].z       = 0.0f;
     p_vertices[2].diffuse = D3DCOLOR_ARGB(255, 255, 255, 255);
     p_vertices[2].rhw     = 1.0f;
     p_vertices[2].tu      = 1.0f;
     p_vertices[2].tv      = 1.0f;
- 
-    p_vertices[3].x       = 0.0f;       // left
-    p_vertices[3].y       = f_height;   // bottom
+
+    p_vertices[3].x       = -0.5f;       // left
+    p_vertices[3].y       = f_height - 0.5f;   // bottom
     p_vertices[3].z       = 0.0f;
     p_vertices[3].diffuse = D3DCOLOR_ARGB(255, 255, 255, 255);
     p_vertices[3].rhw     = 1.0f;
     p_vertices[3].tu      = 0.0f;
     p_vertices[3].tv      = 1.0f;
- 
+
     hr= IDirect3DVertexBuffer9_Unlock(p_d3dvtc);
     if( FAILED(hr) )
     {
@@ -1455,16 +1491,8 @@ static void Direct3DVoutRenderScene( vout_thread_t *p_vout, picture_t *p_pic )
         IDirect3DDevice9_EndScene(p_d3ddev);
         return;
     }
- 
-    // we use FVF instead of vertex shader
-    hr = IDirect3DDevice9_SetVertexShader(p_d3ddev, NULL);
-    if( FAILED(hr) )
-    {
-        msg_Dbg( p_vout, "%s:%d (hr=0x%0lX)", __FUNCTION__, __LINE__, hr);
-        IDirect3DDevice9_EndScene(p_d3ddev);
-        return;
-    }
 
+    // we use FVF instead of vertex shader
     hr = IDirect3DDevice9_SetFVF(p_d3ddev, D3DFVF_CUSTOMVERTEX);
     if( FAILED(hr) )
     {

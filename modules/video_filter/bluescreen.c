@@ -2,7 +2,7 @@
  * bluescreen.c : Bluescreen (weather channel like) video filter for vlc
  *****************************************************************************
  * Copyright (C) 2005-2007 the VideoLAN team
- * $Id: 2499f55d9b016180d56d29c1a85010dd8182f00e $
+ * $Id$
  *
  * Authors: Antoine Cellerier <dionoea at videolan tod org>
  *
@@ -38,8 +38,8 @@
 #define BLUESCREEN_HELP N_( \
     "This effect, also known as \"greenscreen\" or \"chroma key\" blends " \
     "the \"blue parts\" of the foreground image of the mosaic on the " \
-    "background (like weather forcasts). You can choose the \"key\" " \
-    "color for blending (blyyue by default)." )
+    "background (like weather forecasts). You can choose the \"key\" " \
+    "color for blending (blue by default)." )
 
 #define BLUESCREENU_TEXT N_("Bluescreen U value")
 #define BLUESCREENU_LONGTEXT N_( \
@@ -75,27 +75,27 @@ static int BluescreenCallback( vlc_object_t *, char const *,
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_description( N_("Bluescreen video filter") );
-    set_shortname( N_("Bluescreen" ));
-    set_help( BLUESCREEN_HELP );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VFILTER );
-    set_capability( "video filter2", 0 );
-    add_shortcut( "bluescreen" );
-    set_callbacks( Create, Destroy );
+vlc_module_begin ()
+    set_description( N_("Bluescreen video filter") )
+    set_shortname( N_("Bluescreen" ))
+    set_help( BLUESCREEN_HELP )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VFILTER )
+    set_capability( "video filter2", 0 )
+    add_shortcut( "bluescreen" )
+    set_callbacks( Create, Destroy )
 
     add_integer_with_range( CFG_PREFIX "u", 120, 0, 255, NULL,
-                            BLUESCREENU_TEXT, BLUESCREENU_LONGTEXT, false );
+                            BLUESCREENU_TEXT, BLUESCREENU_LONGTEXT, false )
     add_integer_with_range( CFG_PREFIX "v", 90, 0, 255, NULL,
-                            BLUESCREENV_TEXT, BLUESCREENV_LONGTEXT, false );
+                            BLUESCREENV_TEXT, BLUESCREENV_LONGTEXT, false )
     add_integer_with_range( CFG_PREFIX "ut", 17, 0, 255, NULL,
                             BLUESCREENUTOL_TEXT, BLUESCREENUTOL_LONGTEXT,
-                            false );
+                            false )
     add_integer_with_range( CFG_PREFIX "vt", 17, 0, 255, NULL,
                             BLUESCREENVTOL_TEXT, BLUESCREENVTOL_LONGTEXT,
-                            false );
-vlc_module_end();
+                            false )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "u", "v", "ut", "vt", NULL

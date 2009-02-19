@@ -31,7 +31,6 @@
 #include <vlc_common.h>
 
 #include "util/qvlcframe.hpp"
-#include "dialogs_provider.hpp"
 #include "ui/open.h"
 #include "components/open_panels.hpp"
 
@@ -57,8 +56,6 @@ class QTabWidget;
 
 class OpenDialog : public QVLCDialog
 {
-    friend class FileOpenBox;
-
     Q_OBJECT;
 public:
     static OpenDialog * getInstance( QWidget *parent, intf_thread_t *p_intf,
@@ -73,7 +70,7 @@ public:
     virtual ~OpenDialog();
 
     void showTab( int = OPEN_FILE_TAB );
-    QString getMRL(){ return mrl; }
+    QString getMRL( bool b = true );
 
 public slots:
     void selectSlots();
@@ -89,9 +86,9 @@ private:
     static OpenDialog *instance;
     input_thread_t *p_input;
 
-    QString mrl;
-    QString mainMRL;
+    QString optionsMRL;
     QString storedMethod;
+    QStringList itemsMRL;
 
     Ui::Open ui;
     FileOpenPanel *fileOpenPanel;
@@ -113,7 +110,7 @@ private slots:
     void cancel();
     void close();
     void toggleAdvancedPanel();
-    void updateMRL( QString );
+    void updateMRL( QStringList, QString );
     void updateMRL();
     void newCachingMethod( QString );
     void signalCurrent( int );

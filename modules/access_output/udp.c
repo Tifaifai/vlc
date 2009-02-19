@@ -2,7 +2,7 @@
  * udp.c
  *****************************************************************************
  * Copyright (C) 2001-2007 the VideoLAN team
- * $Id: 2cadddf90bbf178a0362174671d64083553164cd $
+ * $Id$
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Eric Petit <titer@videolan.org>
@@ -76,21 +76,21 @@ static void Close( vlc_object_t * );
                           "helps reducing the scheduling load on " \
                           "heavily-loaded systems." )
 
-vlc_module_begin();
-    set_description( N_("UDP stream output") );
-    set_shortname( "UDP" );
-    set_category( CAT_SOUT );
-    set_subcategory( SUBCAT_SOUT_ACO );
-    add_integer( SOUT_CFG_PREFIX "caching", DEFAULT_PTS_DELAY / 1000, NULL, CACHING_TEXT, CACHING_LONGTEXT, true );
+vlc_module_begin ()
+    set_description( N_("UDP stream output") )
+    set_shortname( "UDP" )
+    set_category( CAT_SOUT )
+    set_subcategory( SUBCAT_SOUT_ACO )
+    add_integer( SOUT_CFG_PREFIX "caching", DEFAULT_PTS_DELAY / 1000, NULL, CACHING_TEXT, CACHING_LONGTEXT, true )
     add_integer( SOUT_CFG_PREFIX "group", 1, NULL, GROUP_TEXT, GROUP_LONGTEXT,
-                                 true );
-    add_obsolete_integer( SOUT_CFG_PREFIX "late" );
-    add_obsolete_bool( SOUT_CFG_PREFIX "raw" );
+                                 true )
+    add_obsolete_integer( SOUT_CFG_PREFIX "late" )
+    add_obsolete_bool( SOUT_CFG_PREFIX "raw" )
 
-    set_capability( "sout access", 100 );
-    add_shortcut( "udp" );
-    set_callbacks( Open, Close );
-vlc_module_end();
+    set_capability( "sout access", 100 )
+    add_shortcut( "udp" )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Exported prototypes
@@ -113,6 +113,7 @@ static const char *const ppsz_core_options[] = {
 
 static ssize_t Write   ( sout_access_out_t *, block_t * );
 static int  Seek    ( sout_access_out_t *, off_t  );
+static int Control( sout_access_out_t *, int, va_list );
 
 static void* ThreadWrite( vlc_object_t * );
 static block_t *NewUDPPacket( sout_access_out_t *, mtime_t );
@@ -120,8 +121,6 @@ static block_t *NewUDPPacket( sout_access_out_t *, mtime_t );
 typedef struct sout_access_thread_t
 {
     VLC_COMMON_MEMBERS
-
-    sout_instance_t *p_sout;
 
     block_fifo_t *p_fifo;
 
@@ -204,7 +203,6 @@ static int Open( vlc_object_t *p_this )
     }
 
     vlc_object_attach( p_sys->p_thread, p_access );
-    p_sys->p_thread->p_sout = p_access->p_sout;
     p_sys->p_thread->b_die  = 0;
     p_sys->p_thread->b_error= 0;
     p_sys->p_thread->p_fifo = block_FifoNew();
@@ -252,9 +250,9 @@ static int Open( vlc_object_t *p_this )
     p_sys->p_buffer = NULL;
 
     if( vlc_thread_create( p_sys->p_thread, "sout write thread", ThreadWrite,
-                           VLC_THREAD_PRIORITY_HIGHEST, false ) )
+                           VLC_THREAD_PRIORITY_HIGHEST ) )
     {
-        msg_Err( p_access->p_sout, "cannot spawn sout access thread" );
+        msg_Err( p_access, "cannot spawn sout access thread" );
         net_Close (i_handle);
         vlc_object_release( p_sys->p_thread );
         free (p_sys);
@@ -263,9 +261,7 @@ static int Open( vlc_object_t *p_this )
 
     p_access->pf_write = Write;
     p_access->pf_seek = Seek;
-
-    /* update p_sout->i_out_pace_nocontrol */
-    p_access->p_sout->i_out_pace_nocontrol++;
+    p_access->pf_control = Control;
 
     return VLC_SUCCESS;
 }
@@ -280,7 +276,6 @@ static void Close( vlc_object_t * p_this )
     int i;
 
     vlc_object_kill( p_sys->p_thread );
-    block_FifoWake( p_sys->p_thread->p_fifo );
 
     for( i = 0; i < 10; i++ )
     {
@@ -302,11 +297,25 @@ static void Close( vlc_object_t * p_this )
 
     vlc_object_detach( p_sys->p_thread );
     vlc_object_release( p_sys->p_thread );
-    /* update p_sout->i_out_pace_nocontrol */
-    p_access->p_sout->i_out_pace_nocontrol--;
 
     msg_Dbg( p_access, "UDP access output closed" );
     free( p_sys );
+}
+
+static int Control( sout_access_out_t *p_access, int i_query, va_list args )
+{
+    (void)p_access;
+
+    switch( i_query )
+    {
+        case ACCESS_OUT_CONTROLS_PACE:
+            *va_arg( args, bool * ) = false;
+            break;
+
+        default:
+            return VLC_EGENERIC;
+    }
+    return VLC_SUCCESS;
 }
 
 /*****************************************************************************
@@ -419,7 +428,7 @@ static block_t *NewUDPPacket( sout_access_out_t *p_access, mtime_t i_dts)
 
     if( block_FifoCount( p_sys->p_thread->p_empty_blocks ) == 0 )
     {
-        p_buffer = block_New( p_access->p_sout, p_sys->i_mtu );
+        p_buffer = block_Alloc( p_sys->i_mtu );
     }
     else
     {
@@ -444,7 +453,7 @@ static void* ThreadWrite( vlc_object_t *p_this )
     mtime_t              i_to_send = p_thread->i_group;
     int                  i_dropped_packets = 0;
 
-    while( vlc_object_alive (p_thread) )
+    for (;;)
     {
         block_t *p_pk;
         mtime_t       i_date, i_sent;
@@ -461,8 +470,6 @@ static void* ThreadWrite( vlc_object_t *p_this )
         }
 #endif
         p_pk = block_FifoGet( p_thread->p_fifo );
-        if( p_pk == NULL )
-            continue; /* forced wake-up */
 
         i_date = p_thread->i_caching + p_pk->i_dts;
         if( i_date_last > 0 )
@@ -487,18 +494,17 @@ static void* ThreadWrite( vlc_object_t *p_this )
             }
         }
 
+        block_cleanup_push( p_pk );
         i_to_send--;
         if( !i_to_send || (p_pk->i_flags & BLOCK_FLAG_CLOCK) )
         {
             mwait( i_date );
             i_to_send = p_thread->i_group;
         }
-        ssize_t val = send( p_thread->i_handle, p_pk->p_buffer,
-                            p_pk->i_buffer, 0 );
-        if (val == -1)
-        {
+        if ( send( p_thread->i_handle, p_pk->p_buffer,
+                            p_pk->i_buffer, 0 ) == -1 )
             msg_Warn( p_thread, "send error: %m" );
-        }
+        vlc_cleanup_pop();
 
         if( i_dropped_packets )
         {

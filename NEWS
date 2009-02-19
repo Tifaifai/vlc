@@ -1,3 +1,86 @@
+Changes between 0.9.8a and 1.0.0-git:
+------------------------------------
+
+Playback:
+ * Instantaneous pausing
+ * Frame-by-Frame playback
+ * Timeshift for all medias
+ * On-the-fly recording for all medias
+ * RTSP trickplay support
+
+New Decoders:
+ * AES3 (SMPTE 302M)
+ * Dolby Digital Plus - E-AC-3 (A/52b)
+ * True HD/MLP
+ * Blu-Ray Linear PCM
+ * QCELP (Qualcomm PureVoice)
+ * Real Video 3.0 & 4.0
+ * WMA v1/2 fixed point integer
+ * Close Caption under SCTE-20 standard
+
+Demuxers:
+ * Support for Dirac and RealVideo in Matroska files
+ * Major improvements in RealMedia files opening (.rm and .rmvb)
+ * Improvements of the TS demuxer for M2TS files
+
+Encoders:
+ * Dirac encoding using libdirac (supported in Ogg and in TS)
+ * Shine mp3 fixed point encoder
+
+Access:
+ * RTSP authentication with Darwin Streaming Server
+ * On-the-fly gzip and bzip2 file decompression (except on Windows)
+ * Playback for video in uncompressed multi-RAR archives
+ * DVB-S and ATSC cards support on Windows
+ * New OSS and Alsa accesses. The v4l2 and v4l modules no longer support
+   OSS or Alsa audio input. Use --input-slave alsa:// or oss:// if needed.
+ * DVB scanning on linux
+ * EXPERIMENTAL Blu-Ray Disc Folder support
+ * On-the-fly zip file decompression and browsing (MRL of the form zip://file.zip|file.avi to specify the file)
+
+Inputs:
+ * Mouse cursor support in x11 and win32 screen modules
+ * Screen module now features partial screen capture and mouse following on
+   Windows.
+
+Playlist:
+ * Export the playlist in HTML
+ * Lua script for BBC radio playback
+
+Linux/Windows interface:
+ * Recently played items list
+ * Interface customizations
+ * Global Hotkeys on Windows and Linux
+
+Mac OS X Interface:
+ * Reveal-in-Finder functionality for locally stored items.
+
+Stream output:
+ * Restored the old mpeg2 transrating module.
+ * Multiple bridge-in instances are now possible.
+ * bridge-in can be used to configure a placeholder stream.
+ * Remote Audio Output Protocol (AirTunes) module.
+
+Maemo Port:
+ * New Maemo port with:
+   - an interface based on Hildon framework.
+   - scaler based on the swscale_nokia770 library.
+
+Windows CE Port:
+ EXPERIMENTAL work for the winCE port has been done.
+
+Audio output:
+ * Removed obsolete Esound and aRts plugins
+ * Surround support for PulseAudio
+
+Video output:
+ * Effects (cube, torus, etc.) removed from OpenGL video output
+ * Video is able to stay in original size and to zoom in fullscreen (hotkey 'o') while keeping black borders
+
+Miscellanous:
+ * Invmem, a fake codec to display images from external applications
+
+
 Changes between 0.9.6 and 0.9.8a:
 ---------------------------------
 
@@ -6,14 +89,15 @@ Security update:
 
 Bunch of small bugfixes.
 
+
 Changes between 0.9.5 and 0.9.6:
 --------------------------------
 New Localizations:
  * Ukranian
 
 Security updates:
- * Fixed overflow in CUE support from VCD access (SA-0810, CVE-2008-xxxx)
- * Fixed overflow in RealText subtitles support (SA-0810, CVE-2008-xxxx)
+ * Fixed overflow in CUE support from VCD access (SA-0810, CVE-2008-5032)
+ * Fixed overflow in RealText subtitles support (SA-0810, CVE-2008-5036)
 
 
 Changes between 0.9.4 and 0.9.5:
@@ -44,8 +128,9 @@ Access:
 Translations:
  * Update of Brazillian, Swedish translation
 
+
 Changes between 0.9.3 and 0.9.4:
---------------------------------
+------------------------------------
 Various bugfixes:
  * Crashes fixed in ogg, vobsub, dvdread
  * Fixes several memory leaks.
@@ -68,7 +153,7 @@ Various bugfixes:
  * Multiple subtitles and podcast fixes
  * Various crashes fixed in PS, SSA, mkv, xspf, freetype
  * Fixed update system bugs
- * Other bug fixes (dvd language selection, subtitle colours, HTTP keep-alive...)
+ * Other bug fixes (dvd language selection, subtitle colours, HTTP keep-alive...+)
 
 Mac OS X port:
  * Fixed ffmpeg slowness on PowerPC-based Macs

@@ -2,7 +2,7 @@
  * intf.h: MacOS X interface module
  *****************************************************************************
  * Copyright (C) 2002-2008 the VideoLAN team
- * $Id: d0acee095c852bcb2f6a0e03cbd26f0c1be16491 $
+ * $Id$
  *
  * Authors: Jon Lech Johansen <jon-vl@nanocrew.net>
  *          Christophe Massiot <massiot@via.ecp.fr>
@@ -83,6 +83,8 @@ struct intf_sys_t
     msg_subscription_t * p_sub;
 };
 
+static void MsgCallback( msg_cb_data_t *, msg_item_t *, unsigned );
+
 /*****************************************************************************
  * VLCMain interface
  *****************************************************************************/
@@ -102,6 +104,7 @@ struct intf_sys_t
     id o_wizard;                /* VLCWizard      */
     id o_extended;              /* VLCExtended    */
     id o_bookmarks;             /* VLCBookmarks   */
+    id o_vlm;                   /* VLCVLMController */
     id o_embedded_list;         /* VLCEmbeddedList*/
     id o_interaction_list;      /* VLCInteractionList*/
     VLCInformation * o_info;                  /* VLCInformation */
@@ -118,6 +121,7 @@ struct intf_sys_t
     BOOL nib_prefs_loaded;      /* preferences nibfile */
     BOOL nib_update_loaded;     /* update nibfile */
     BOOL nib_info_loaded;       /* information panel nibfile */
+    BOOL nib_vlm_loaded;        /* VLM Panel nibfile */
 
     IBOutlet VLControllerWindow * o_window;       /* main window    */
     IBOutlet NSView * o_playlist_view;/* playlist view  */
@@ -150,10 +154,11 @@ struct intf_sys_t
     IBOutlet VLCControls * o_controls;     /* VLCControls    */
     IBOutlet VLCPlaylist * o_playlist;     /* VLCPlaylist    */
 
-    IBOutlet id o_messages;     /* messages tv    */
-    IBOutlet id o_msgs_panel;   /* messages panel */
-    NSMutableArray * o_msg_arr; /* messages array */
-    NSLock * o_msg_lock;        /* messages lock  */
+    IBOutlet NSTextView * o_messages;           /* messages tv    */
+    IBOutlet NSWindow * o_msgs_panel;           /* messages panel */
+    NSMutableArray * o_msg_arr;                 /* messages array */
+    NSLock * o_msg_lock;                        /* messages lock */
+    BOOL b_msg_arr_changed;                     /* did the array change? */
     IBOutlet NSButton * o_msgs_btn_crashlog;    /* messages open crashlog */
     
     /* CrashReporter panel */
@@ -189,6 +194,7 @@ struct intf_sys_t
     IBOutlet NSMenuItem * o_mi_open_recent;
     IBOutlet NSMenuItem * o_mi_open_recent_cm;
     IBOutlet NSMenuItem * o_mi_open_wizard;
+    IBOutlet NSMenuItem * o_mi_open_vlm;
 
     IBOutlet NSMenu * o_mu_edit;
     IBOutlet NSMenuItem * o_mi_cut;
@@ -255,6 +261,13 @@ struct intf_sys_t
     IBOutlet NSMenu * o_mu_deinterlace;
     IBOutlet NSMenuItem * o_mi_ffmpeg_pp;
     IBOutlet NSMenuItem * o_mu_ffmpeg_pp;
+    IBOutlet NSMenuItem * o_mi_teletext;
+    IBOutlet NSMenuItem * o_mi_teletext_transparent;
+    IBOutlet NSMenuItem * o_mi_teletext_index;
+    IBOutlet NSMenuItem * o_mi_teletext_red;
+    IBOutlet NSMenuItem * o_mi_teletext_green;
+    IBOutlet NSMenuItem * o_mi_teletext_yellow;
+    IBOutlet NSMenuItem * o_mi_teletext_blue;
 
     IBOutlet NSMenu * o_mu_window;
     IBOutlet NSMenuItem * o_mi_minimize;
@@ -333,6 +346,7 @@ struct intf_sys_t
 - (id)getSimplePreferences;
 - (id)getPreferences;
 - (id)getPlaylist;
+- (BOOL)isPlaylistCollapsed;
 - (id)getInfo;
 - (id)getWizard;
 - (id)getBookmarks;
@@ -357,7 +371,7 @@ struct intf_sys_t
 - (void)setScrollField:(NSString *)o_string stopAfter:(int )timeout;
 - (void)resetScrollField;
 
-- (void)updateMessageArray;
+- (void)updateMessageDisplay;
 - (void)playStatusUpdated:(int) i_status;
 - (void)setSubmenusEnabled:(BOOL)b_enabled;
 - (void)manageVolumeSlider;
@@ -373,6 +387,7 @@ struct intf_sys_t
 - (IBAction)intfOpenCapture:(id)sender;
 
 - (IBAction)showWizard:(id)sender;
+- (IBAction)showVLM:(id)sender;
 - (IBAction)showExtended:(id)sender;
 - (IBAction)showBookmarks:(id)sender;
 

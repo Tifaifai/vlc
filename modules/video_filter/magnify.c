@@ -46,15 +46,15 @@
 static int  Create    ( vlc_object_t * );
 static void Destroy   ( vlc_object_t * );
 
-vlc_module_begin();
-    set_description( N_("Magnify/Zoom interactive video filter") );
-    set_shortname( N_( "Magnify" ));
-    set_capability( "video filter", 0 );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VFILTER );
+vlc_module_begin ()
+    set_description( N_("Magnify/Zoom interactive video filter") )
+    set_shortname( N_( "Magnify" ))
+    set_capability( "video filter", 0 )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VFILTER )
 
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 
 /*****************************************************************************
@@ -256,8 +256,7 @@ static void Render( vout_thread_t *p_vout, picture_t *p_pic )
         msleep( VOUT_OUTMEM_SLEEP );
     }
 
-    vout_DatePicture( p_sys->p_vout, p_outpic, p_pic->date );
-
+    p_outpic->date = p_pic->date;
 
     vlc_mutex_lock( &p_sys->lock );
     const bool b_visible = p_sys->b_visible;

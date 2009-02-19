@@ -152,6 +152,7 @@ static VLCOpen *_o_sharedMainInstance = nil;
         [self dealloc];
     } else {
         _o_sharedMainInstance = [super init];
+        p_intf = VLCIntf;
     }
  
     return _o_sharedMainInstance;
@@ -159,8 +160,6 @@ static VLCOpen *_o_sharedMainInstance = nil;
 
 - (void)awakeFromNib
 {
-    intf_thread_t * p_intf = VLCIntf;
-
     [o_panel setTitle: _NS("Open Source")];
     [o_mrl_lbl setTitle: _NS("Media Resource Locator (MRL)")];
 
@@ -209,6 +208,10 @@ static VLCOpen *_o_sharedMainInstance = nil;
     [o_screen_lbl setStringValue: _NS("Screen Capture Input")];
     [o_screen_long_lbl setStringValue: _NS("This facility allows you to process your screen's output.")];
     [o_screen_fps_lbl setStringValue: _NS("Frames per Second:")];
+    [o_screen_left_lbl setStringValue: _NS("Subscreen left:")];
+    [o_screen_top_lbl setStringValue: _NS("Subscreen top:")];
+    [o_screen_width_lbl setStringValue: _NS("Subscreen width:")];
+    [o_screen_height_lbl setStringValue: _NS("Subscreen height:")];
     [o_eyetv_currentChannel_lbl setStringValue: _NS("Current channel:")];
     [o_eyetv_previousProgram_btn setTitle: _NS("Previous Channel")];
     [o_eyetv_nextProgram_btn setTitle: _NS("Next Channel")];
@@ -279,7 +282,6 @@ static VLCOpen *_o_sharedMainInstance = nil;
 
 - (void)setSubPanel
 {
-    intf_thread_t * p_intf = VLCIntf;
     int i_index;
     module_config_t * p_item;
 
@@ -348,7 +350,6 @@ static VLCOpen *_o_sharedMainInstance = nil;
 - (void)openTarget:(int)i_type
 {
     int i_result;
-    intf_thread_t * p_intf = VLCIntf;
 
     b_autoplay = config_GetInt( VLCIntf, "macosx-autoplay" );
 
@@ -405,6 +406,21 @@ static VLCOpen *_o_sharedMainInstance = nil;
             [o_options addObject: [NSString stringWithString:
                                                 @"access-filter=timeshift"]];
         }
+        if( [[[o_tabview selectedTabViewItem] label] isEqualToString: _NS("Capture")] )
+        {
+            if( [[[o_capture_mode_pop selectedItem] title] isEqualToString: _NS("Screen")] )
+                [o_options addObject: [NSString stringWithFormat: @"screen-fps=%f", [o_screen_fps_fld floatValue]]];
+                [o_options addObject: [NSString stringWithFormat: @"screen-left=%i", [o_screen_left_fld intValue]]];
+                [o_options addObject: [NSString stringWithFormat: @"screen-top=%i", [o_screen_top_fld intValue]]];
+                [o_options addObject: [NSString stringWithFormat: @"screen-width=%i", [o_screen_width_fld intValue]]];
+                [o_options addObject: [NSString stringWithFormat: @"screen-height=%i", [o_screen_height_fld intValue]]];
+                if( [o_screen_follow_mouse_ckb intValue] == YES )
+                    [o_options addObject: @"screen-follow-mouse"];
+                else
+                    [o_options addObject: @"no-screen-follow-mouse"];
+        }
+
+        /* apply the options to our item(s) */
         [o_dic setObject: (NSArray *)[o_options copy] forKey: @"ITEM_OPTIONS"];
         if( b_autoplay )
             [o_playlist appendArray: [NSArray arrayWithObject: o_dic] atPos: -1 enqueue:NO];
@@ -472,7 +488,7 @@ static VLCOpen *_o_sharedMainInstance = nil;
 
     if( b_dir )
     {
-        o_mrl_string = [NSString stringWithFormat: @"directory://%@", o_filename];
+        o_mrl_string = [NSString stringWithFormat: @"directory://%@/", o_filename];
     }
     else if( [o_ext isEqualToString: @"bin"] ||
         [o_ext isEqualToString: @"cue"] ||
@@ -750,7 +766,6 @@ static VLCOpen *_o_sharedMainInstance = nil;
 {
     NSString *o_mode;
     NSString *o_mrl_string = [NSString string];
-    intf_thread_t * p_intf = VLCIntf;
 
     o_mode = [[o_net_mode selectedCell] title];
 
@@ -832,7 +847,7 @@ static VLCOpen *_o_sharedMainInstance = nil;
         [o_currentCaptureView removeFromSuperviewWithoutNeedingDisplay];
         [o_currentCaptureView release];
     }
-    [theView setFrame: NSMakeRect( 0, 10, o_view_rect.size.width, o_view_rect.size.height)];
+    [theView setFrame: NSMakeRect( 0, -10, o_view_rect.size.width, o_view_rect.size.height)];
     [theView setNeedsDisplay: YES];
     [theView setAutoresizesSubviews: YES];
     [[[o_tabview tabViewItemAtIndex: 3] view] addSubview: theView];
@@ -864,7 +879,13 @@ static VLCOpen *_o_sharedMainInstance = nil;
     else if( [[[o_capture_mode_pop selectedItem] title] isEqualToString: _NS("Screen")] )
     {
         [self showCaptureView: o_screen_view];
-        [o_mrl setStringValue: [NSString stringWithFormat:@"screen:// :screen-fps=%@", [o_screen_fps_fld stringValue]]];
+        [o_mrl setStringValue: @"screen://"];
+        [o_screen_height_fld setIntValue: config_GetInt( p_intf, "screen-height" )];
+        [o_screen_width_fld setIntValue: config_GetInt( p_intf, "screen-width" )];
+        [o_screen_fps_fld setFloatValue: config_GetFloat( p_intf, "screen-fps" )];
+        [o_screen_left_fld setIntValue: config_GetInt( p_intf, "screen-left" )];
+        [o_screen_top_fld setIntValue: config_GetInt( p_intf, "screen-top" )];
+        [o_screen_follow_mouse_ckb setIntValue: config_GetInt( p_intf, "screen-follow-mouse" )];
     }
     else if( [[[o_capture_mode_pop selectedItem] title] isEqualToString: @"iSight"] )
     {
@@ -880,17 +901,17 @@ static VLCOpen *_o_sharedMainInstance = nil;
 
 - (IBAction)screenStepperChanged:(id)sender
 {
-    [o_screen_fps_fld setIntValue: [o_screen_fps_stp intValue]];
+    [o_screen_fps_fld setFloatValue: [o_screen_fps_stp floatValue]];
     [o_panel makeFirstResponder: o_screen_fps_fld];
-    [o_mrl setStringValue: [NSString stringWithFormat:@"screen:// :screen-fps=%@", [o_screen_fps_fld stringValue]]];
+    [o_mrl setStringValue: @"screen://"];
 }
 
 - (void)screenFPSfieldChanged:(NSNotification *)o_notification
 {
-    [o_screen_fps_stp setIntValue: [o_screen_fps_fld intValue]];
+    [o_screen_fps_stp setFloatValue: [o_screen_fps_fld floatValue]];
     if( [[o_screen_fps_fld stringValue] isEqualToString: @""] )
-        [o_screen_fps_fld setIntValue: 1];
-    [o_mrl setStringValue: [NSString stringWithFormat:@"screen:// :screen-fps=%i", [o_screen_fps_fld intValue]]];
+        [o_screen_fps_fld setFloatValue: 1.0];
+    [o_mrl setStringValue: @"screen://"];
 }
 
 - (IBAction)eyetvSwitchChannel:(id)sender

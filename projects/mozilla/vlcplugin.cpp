@@ -2,7 +2,7 @@
  * vlcplugin.cpp: a VLC plugin for Mozilla
  *****************************************************************************
  * Copyright (C) 2002-2008 the VideoLAN team
- * $Id: ec52f29917a82f73f3f26e3d558e8dd761af82c3 $
+ * $Id$
  *
  * Authors: Samuel Hocevar <sam@zoy.org>
  *          Damien Fouilleul <damienf.fouilleul@laposte.net>
@@ -87,9 +87,8 @@ NPError VlcPlugin::init(int argc, char* const argn[], char* const argv[])
 
     /* locate VLC module path */
 #ifdef XP_MACOSX
-    ppsz_argv[ppsz_argc++] = "--plugin-path";
-    ppsz_argv[ppsz_argc++] = "/Library/Internet Plug-Ins/VLC Plugin.plugin/"
-                             "Contents/MacOS/modules";
+    ppsz_argv[ppsz_argc++] = "--plugin-path=/Library/Internet\\ Plug-Ins/VLC\\ Plugin.plugin/Contents/MacOS/modules";
+    ppsz_argv[ppsz_argc++] = "--vout=macosx";
 #elif defined(XP_WIN)
     HKEY h_key;
     DWORD i_type, i_data = MAX_PATH + 1;
@@ -118,9 +117,7 @@ NPError VlcPlugin::init(int argc, char* const argn[], char* const argv[])
     ppsz_argv[ppsz_argc++] = "--no-stats";
     ppsz_argv[ppsz_argc++] = "--no-media-library";
     ppsz_argv[ppsz_argc++] = "--ignore-config";
-    ppsz_argv[ppsz_argc++] = "--intf";
-    ppsz_argv[ppsz_argc++] = "dummy";
-
+    ppsz_argv[ppsz_argc++] = "--intf=dummy";
     const char *progid = NULL;
 
     /* parse plugin arguments */
@@ -178,7 +175,11 @@ NPError VlcPlugin::init(int argc, char* const argn[], char* const argv[])
         }
         else if( !strcmp( argn[i], "toolbar" ) )
         {
+/* FIXME: Remove this when toolbar functionality has been implemented on\
+ * MacOS X and Win32 for Firefox/Mozilla/Safari. */
+#ifdef XP_UNIX
             b_toolbar = boolValue(argv[i]);
+#endif
         }
     }
 
@@ -558,7 +559,7 @@ void VlcPlugin::redrawToolbar()
     libvlc_media_player_t *p_md = NULL;
     libvlc_exception_t ex;
     float f_position = 0.0;
-    int i_playing = 0;
+    int is_playing = 0;
     bool b_mute = false;
     unsigned int dst_x, dst_y;
     GC gc;
@@ -579,22 +580,26 @@ void VlcPlugin::redrawToolbar()
     libvlc_exception_init( &ex );
     p_md = libvlc_playlist_get_media_player( getVLC(), &ex );
     libvlc_exception_clear( &ex );
+    if( p_md )
+    {
+        /* get isplaying */
+        libvlc_playlist_lock( getVLC() );
+        is_playing = libvlc_playlist_isplaying( getVLC(), &ex );
+        libvlc_playlist_unlock( getVLC() );
+        libvlc_exception_clear( &ex );
 
-    /* get isplaying */
-    i_playing = libvlc_playlist_isplaying( getVLC(), &ex );
-    libvlc_exception_clear( &ex );
+        /* get movie position in % */
+        if( is_playing == 1 )
+        {
+            f_position = libvlc_media_player_get_position( p_md, &ex ) * 100.0;
+            libvlc_exception_clear( &ex );
+        }
+        libvlc_media_player_release( p_md );
+    }
 
     /* get mute info */
     b_mute = libvlc_audio_get_mute( getVLC(), &ex );
     libvlc_exception_clear( &ex );
-
-    /* get movie position in % */
-    if( i_playing == 1 )
-    {
-        f_position = libvlc_media_player_get_position( p_md, &ex ) * 100;
-        libvlc_exception_clear( &ex );
-    }
-    libvlc_media_player_release( p_md );
 
     gcv.foreground = BlackPixel( p_display, 0 );
     gc = XCreateGC( p_display, control, GCForeground, &gcv );
@@ -608,7 +613,7 @@ void VlcPlugin::redrawToolbar()
     dst_x = BTN_SPACE;
     dst_y = i_tb_height >> 1; /* baseline = vertical middle */
 
-    if( p_btnPause && (i_playing == 1) )
+    if( p_btnPause && (is_playing == 1) )
     {
         XPutImage( p_display, control, gc, p_btnPause, 0, 0, dst_x,
                    dst_y - (p_btnPause->height >> 1),
@@ -675,7 +680,7 @@ void VlcPlugin::redrawToolbar()
 vlc_toolbar_clicked_t VlcPlugin::getToolbarButtonClicked( int i_xpos, int i_ypos )
 {
     unsigned int i_dest = BTN_SPACE;//(i_tb_height >> 1);
-    int i_playing = 0;
+    int is_playing = 0;
     bool b_mute = false;
     libvlc_exception_t ex;
 
@@ -693,7 +698,9 @@ vlc_toolbar_clicked_t VlcPlugin::getToolbarButtonClicked( int i_xpos, int i_ypos
 
     /* get isplaying */
     libvlc_exception_init( &ex );
-    i_playing = libvlc_playlist_isplaying( getVLC(), &ex );
+    libvlc_playlist_lock( getVLC() );
+    is_playing = libvlc_playlist_isplaying( getVLC(), &ex );
+    libvlc_playlist_unlock( getVLC() );
     libvlc_exception_clear( &ex );
 
     /* get mute info */
@@ -701,7 +708,7 @@ vlc_toolbar_clicked_t VlcPlugin::getToolbarButtonClicked( int i_xpos, int i_ypos
     libvlc_exception_clear( &ex );
 
     /* is Pause of Play button clicked */
-    if( (i_playing != 1) &&
+    if( (is_playing != 1) &&
         (i_xpos >= (BTN_SPACE>>1)) &&
         (i_xpos <= i_dest + p_btnPlay->width + (BTN_SPACE>>1)) )
         return clicked_Play;
@@ -710,7 +717,7 @@ vlc_toolbar_clicked_t VlcPlugin::getToolbarButtonClicked( int i_xpos, int i_ypos
         return clicked_Pause;
 
     /* is Stop button clicked */
-    if( i_playing != 1 )
+    if( is_playing != 1 )
         i_dest += (p_btnPlay->width + (BTN_SPACE>>1));
     else
         i_dest += (p_btnPause->width + (BTN_SPACE>>1));

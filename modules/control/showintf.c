@@ -2,7 +2,7 @@
  * showintf.c: control the display of the interface in fullscreen mode
  *****************************************************************************
  * Copyright (C) 2004 the VideoLAN team
- * $Id: bebf0679b1f8b559b07dd466ab61ffcfe5dcfe85 $
+ * $Id$
  *
  * Authors: Olivier Teuliere <ipkiss@via.ecp.fr>
  *
@@ -66,14 +66,14 @@ static int  MouseEvent( vlc_object_t *, char const *,
 #define THRESHOLD_TEXT N_( "Threshold" )
 #define THRESHOLD_LONGTEXT N_( "Height of the zone triggering the interface." )
 
-vlc_module_begin();
-    set_shortname( "Showintf" );
-    add_integer( "showintf-threshold", 10, NULL, THRESHOLD_TEXT, THRESHOLD_LONGTEXT, true );
-    set_description( N_("Show interface with mouse") );
+vlc_module_begin ()
+    set_shortname( "Showintf" )
+    add_integer( "showintf-threshold", 10, NULL, THRESHOLD_TEXT, THRESHOLD_LONGTEXT, true )
+    set_description( N_("Show interface with mouse") )
 
-    set_capability( "interface", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+    set_capability( "interface", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: initialize interface
@@ -111,6 +111,7 @@ void Close( vlc_object_t *p_this )
  *****************************************************************************/
 static void RunIntf( intf_thread_t *p_intf )
 {
+    int canc = vlc_savecancel( );
     p_intf->p_sys->p_vout = NULL;
 
     if( InitThread( p_intf ) < 0 )
@@ -120,7 +121,7 @@ static void RunIntf( intf_thread_t *p_intf )
     }
 
     /* Main loop */
-    while( !intf_ShouldDie( p_intf ) )
+    while( vlc_object_alive( p_intf ) )
     {
         vlc_mutex_lock( &p_intf->change_lock );
 
@@ -170,6 +171,7 @@ static void RunIntf( intf_thread_t *p_intf )
                          MouseEvent, p_intf );
         vlc_object_release( p_intf->p_sys->p_vout );
     }
+    vlc_restorecancel( canc );
 }
 
 /*****************************************************************************
@@ -177,7 +179,7 @@ static void RunIntf( intf_thread_t *p_intf )
  *****************************************************************************/
 static int InitThread( intf_thread_t * p_intf )
 {
-    if( !intf_ShouldDie( p_intf ) )
+    if( vlc_object_alive( p_intf ) )
     {
         vlc_mutex_lock( &p_intf->change_lock );
 

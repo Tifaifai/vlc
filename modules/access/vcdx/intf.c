@@ -2,7 +2,7 @@
  * intf.c: Video CD interface to handle user interaction and still time
  *****************************************************************************
  * Copyright (C) 2002,2003 the VideoLAN team
- * $Id: 24527e0891755680d54d2d76030fce0fd6c355df $
+ * $Id$
  *
  * Author: Rocky Bernstein <rocky@panix.com>
  *   from DVD code by Stéphane Borel <stef@via.ecp.fr>
@@ -105,6 +105,7 @@ RunIntf( intf_thread_t *p_intf )
        the 10_ADD keypresses */
     int number_addend = 0;
 
+    int canc = vlc_savecancel();
     if( InitThread( p_intf ) < 0 )
     {
         msg_Err( p_intf, "can't initialize intf" );
@@ -121,6 +122,7 @@ RunIntf( intf_thread_t *p_intf )
     p_vcdplayer = p_intf->p_sys->p_vcdplayer;
     p_access    = p_vcdplayer->p_access;
 
+    canc = vlc_savecancel();
     dbg_print( INPUT_DBG_CALL, "intf initialized" );
 
     /* Main loop */
@@ -298,8 +300,8 @@ RunIntf( intf_thread_t *p_intf )
         }
 
 
-      /* Wait a bit */
-      msleep( INTF_IDLE_SLEEP );
+        /* Wait a bit */
+        msleep( INTF_IDLE_SLEEP );
     }
 
     if( p_vout )
@@ -309,6 +311,7 @@ RunIntf( intf_thread_t *p_intf )
     }
 
     vlc_object_release( p_intf->p_sys->p_input );
+    vlc_restorecancel( canc );
 }
 
 /*****************************************************************************
@@ -317,35 +320,26 @@ RunIntf( intf_thread_t *p_intf )
 static int InitThread( intf_thread_t * p_intf )
 {
     /* We might need some locking here */
-    if( vlc_object_alive (p_intf) )
-    {
-        input_thread_t * p_input;
+    input_thread_t * p_input;
 
-        p_input = vlc_object_find( p_intf, VLC_OBJECT_INPUT, FIND_PARENT );
+    p_input = vlc_object_find( p_intf, VLC_OBJECT_INPUT, FIND_PARENT );
 
-        /* Maybe the input just died */
-        if( p_input == NULL )
-        {
-            return VLC_EGENERIC;
-        }
-
-        vlc_mutex_lock( &p_intf->change_lock );
-
-        p_intf->p_sys->p_input     = p_input;
-        p_intf->p_sys->p_vcdplayer = NULL;
-
-        p_intf->p_sys->b_move  = false;
-        p_intf->p_sys->b_click = false;
-        p_intf->p_sys->b_key_pressed = false;
-
-        vlc_mutex_unlock( &p_intf->change_lock );
-
-        return VLC_SUCCESS;
-    }
-    else
-    {
+    /* Maybe the input just died */
+    if( p_input == NULL )
         return VLC_EGENERIC;
-    }
+
+    vlc_mutex_lock( &p_intf->change_lock );
+
+    p_intf->p_sys->p_input     = p_input;
+    p_intf->p_sys->p_vcdplayer = NULL;
+
+    p_intf->p_sys->b_move  = false;
+    p_intf->p_sys->b_click = false;
+    p_intf->p_sys->b_key_pressed = false;
+
+    vlc_mutex_unlock( &p_intf->change_lock );
+    /* make sure we return a value */
+    return 0;
 }
 
 /*****************************************************************************

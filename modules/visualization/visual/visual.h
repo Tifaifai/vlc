@@ -34,6 +34,12 @@ typedef struct visual_effect_t
     int        i_nb_chans;
 } visual_effect_t ;
 
+typedef struct spectrum_data
+{
+    int *peaks;
+    int *prev_heights;
+} spectrum_data;
+
 
 /*****************************************************************************
  * aout_filter_sys_t: visualizer audio filter method descriptor
@@ -41,7 +47,7 @@ typedef struct visual_effect_t
  * This structure is part of the audio filter descriptor.
  * It describes some visualizer specific variables.
  *****************************************************************************/
-typedef struct aout_filter_sys_t
+struct aout_filter_sys_t
 {
     vout_thread_t   *p_vout;
 
@@ -50,7 +56,7 @@ typedef struct aout_filter_sys_t
 
     int             i_effect;
     visual_effect_t **effect;
-} aout_filter_sys_t;
+};
 
 /* Prototypes */
 int scope_Run

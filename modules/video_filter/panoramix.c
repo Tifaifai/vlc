@@ -41,7 +41,7 @@
 #ifdef OVERLAP
     #include <math.h>
     // OS CODE DEPENDENT to get display dimensions
-    #ifdef SYS_MINGW32
+    #ifdef WIN32
         #include <windows.h>
     #else
         #include <X11/Xlib.h>
@@ -92,62 +92,62 @@ static int  SendEvents( vlc_object_t *, char const *,
 
 #define CFG_PREFIX "panoramix-"
 
-vlc_module_begin();
-    set_description( N_("Panoramix: wall with overlap video filter") );
-    set_shortname( N_("Panoramix" ));
-    set_capability( "video filter", 0 );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VFILTER );
+vlc_module_begin ()
+    set_description( N_("Panoramix: wall with overlap video filter") )
+    set_shortname( N_("Panoramix" ))
+    set_capability( "video filter", 0 )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VFILTER )
 
     add_integer( CFG_PREFIX "cols", -1, NULL,
-                 COLS_TEXT, COLS_LONGTEXT, true );
+                 COLS_TEXT, COLS_LONGTEXT, true )
     add_integer( CFG_PREFIX "rows", -1, NULL,
-                 ROWS_TEXT, ROWS_LONGTEXT, true );
+                 ROWS_TEXT, ROWS_LONGTEXT, true )
 
 #ifdef OVERLAP
 #define OFFSET_X_TEXT N_("Offset X offset (automatic compensation)")
 #define OFFSET_X_LONGTEXT N_("Select if you want an automatic offset in horizontal (in case of misalignment due to autoratio control)")
-    add_bool( CFG_PREFIX "offset-x", 1, NULL, OFFSET_X_TEXT, OFFSET_X_LONGTEXT, true );
+    add_bool( CFG_PREFIX "offset-x", 1, NULL, OFFSET_X_TEXT, OFFSET_X_LONGTEXT, true )
 
 #define LENGTH_TEXT N_("length of the overlapping area (in %)")
 #define LENGTH_LONGTEXT N_("Select in percent the length of the blended zone")
-    add_integer_with_range( CFG_PREFIX "bz-length", 100, 0, 100, NULL, LENGTH_TEXT, LENGTH_LONGTEXT, true );
+    add_integer_with_range( CFG_PREFIX "bz-length", 100, 0, 100, NULL, LENGTH_TEXT, LENGTH_LONGTEXT, true )
 
 #define HEIGHT_TEXT N_("height of the overlapping area (in %)")
 #define HEIGHT_LONGTEXT N_("Select in percent the height of the blended zone (case of 2x2 wall)")
-    add_integer_with_range( CFG_PREFIX "bz-height", 100, 0, 100, NULL, HEIGHT_TEXT, HEIGHT_LONGTEXT, true );
+    add_integer_with_range( CFG_PREFIX "bz-height", 100, 0, 100, NULL, HEIGHT_TEXT, HEIGHT_LONGTEXT, true )
 
 #define ATTENUATION_TEXT N_("Attenuation")
 #define ATTENUATION_LONGTEXT N_("Check this option if you want attenuate blended zone by this plug-in (if option is unchecked, attenuate is made by opengl)")
-    add_bool( CFG_PREFIX "attenuate", 1, NULL, ATTENUATION_TEXT, ATTENUATION_LONGTEXT, false );
+    add_bool( CFG_PREFIX "attenuate", 1, NULL, ATTENUATION_TEXT, ATTENUATION_LONGTEXT, false )
 
 #define BEGIN_TEXT N_("Attenuation, begin (in %)")
 #define BEGIN_LONGTEXT N_("Select in percent the Lagrange coeff of the beginning blended zone")
-    add_integer_with_range( CFG_PREFIX "bz-begin", 0, 0, 100, NULL, BEGIN_TEXT, BEGIN_LONGTEXT, true );
+    add_integer_with_range( CFG_PREFIX "bz-begin", 0, 0, 100, NULL, BEGIN_TEXT, BEGIN_LONGTEXT, true )
 
 #define MIDDLE_TEXT N_("Attenuation, middle (in %)")
 #define MIDDLE_LONGTEXT N_("Select in percent the Lagrange coeff of the middle of blended zone")
-    add_integer_with_range( CFG_PREFIX "bz-middle", 50, 0, 100, NULL, MIDDLE_TEXT, MIDDLE_LONGTEXT, false );
+    add_integer_with_range( CFG_PREFIX "bz-middle", 50, 0, 100, NULL, MIDDLE_TEXT, MIDDLE_LONGTEXT, false )
 
 #define END_TEXT N_("Attenuation, end (in %)")
 #define END_LONGTEXT N_("Select in percent the Lagrange coeff of the end of blended zone")
-    add_integer_with_range( CFG_PREFIX "bz-end", 100, 0, 100, NULL, END_TEXT, END_LONGTEXT, true );
+    add_integer_with_range( CFG_PREFIX "bz-end", 100, 0, 100, NULL, END_TEXT, END_LONGTEXT, true )
 
 #define MIDDLE_POS_TEXT N_("middle position (in %)")
 #define MIDDLE_POS_LONGTEXT N_("Select in percent (50 is center) the position of the middle point (Lagrange) of blended zone")
-    add_integer_with_range( CFG_PREFIX "bz-middle-pos", 50, 1, 99, NULL, MIDDLE_POS_TEXT, MIDDLE_POS_LONGTEXT, false );
+    add_integer_with_range( CFG_PREFIX "bz-middle-pos", 50, 1, 99, NULL, MIDDLE_POS_TEXT, MIDDLE_POS_LONGTEXT, false )
 #ifdef GAMMA
 #define RGAMMA_TEXT N_("Gamma (Red) correction")
 #define RGAMMA_LONGTEXT N_("Select the gamma for the correction of blended zone (Red or Y component)")
-    add_float_with_range( CFG_PREFIX "bz-gamma-red", 1, 0, 5, NULL, RGAMMA_TEXT, RGAMMA_LONGTEXT, true );
+    add_float_with_range( CFG_PREFIX "bz-gamma-red", 1, 0, 5, NULL, RGAMMA_TEXT, RGAMMA_LONGTEXT, true )
 
 #define GGAMMA_TEXT N_("Gamma (Green) correction")
 #define GGAMMA_LONGTEXT N_("Select the gamma for the correction of blended zone (Green or U component)")
-    add_float_with_range( CFG_PREFIX "bz-gamma-green", 1, 0, 5, NULL, GGAMMA_TEXT, GGAMMA_LONGTEXT, true );
+    add_float_with_range( CFG_PREFIX "bz-gamma-green", 1, 0, 5, NULL, GGAMMA_TEXT, GGAMMA_LONGTEXT, true )
 
 #define BGAMMA_TEXT N_("Gamma (Blue) correction")
 #define BGAMMA_LONGTEXT N_("Select the gamma for the correction of blended zone (Blue or V component)")
-    add_float_with_range( CFG_PREFIX "bz-gamma-blue", 1, 0, 5, NULL, BGAMMA_TEXT, BGAMMA_LONGTEXT, true );
+    add_float_with_range( CFG_PREFIX "bz-gamma-blue", 1, 0, 5, NULL, BGAMMA_TEXT, BGAMMA_LONGTEXT, true )
 #endif
 #define RGAMMA_BC_TEXT N_("Black Crush for Red")
 #define RGAMMA_BC_LONGTEXT N_("Select the Black Crush of blended zone (Red or Y component)")
@@ -176,30 +176,30 @@ vlc_module_begin();
 #define GGAMMA_WL_LONGTEXT N_("Select the White Level of blended zone (Green or U component)")
 #define BGAMMA_WL_TEXT N_("White Level for Blue")
 #define BGAMMA_WL_LONGTEXT N_("Select the White Level of blended zone (Blue or V component)")
-    add_integer_with_range( CFG_PREFIX "bz-blackcrush-red", 140, 0, 255, NULL, RGAMMA_BC_TEXT, RGAMMA_BC_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-blackcrush-green", 140, 0, 255, NULL, GGAMMA_BC_TEXT, GGAMMA_BC_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-blackcrush-blue", 140, 0, 255, NULL, BGAMMA_BC_TEXT, BGAMMA_BC_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-whitecrush-red", 200, 0, 255, NULL, RGAMMA_WC_TEXT, RGAMMA_WC_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-whitecrush-green", 200, 0, 255, NULL, GGAMMA_WC_TEXT, GGAMMA_WC_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-whitecrush-blue", 200, 0, 255, NULL, BGAMMA_WC_TEXT, BGAMMA_WC_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-blacklevel-red", 150, 0, 255, NULL, RGAMMA_BL_TEXT, RGAMMA_BL_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-blacklevel-green", 150, 0, 255, NULL, GGAMMA_BL_TEXT, GGAMMA_BL_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-blacklevel-blue", 150, 0, 255, NULL, BGAMMA_BL_TEXT, BGAMMA_BL_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-whitelevel-red", 0, 0, 255, NULL, RGAMMA_WL_TEXT, RGAMMA_WL_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-whitelevel-green", 0, 0, 255, NULL, GGAMMA_WL_TEXT, GGAMMA_WL_LONGTEXT, true );
-    add_integer_with_range( CFG_PREFIX "bz-whitelevel-blue", 0, 0, 255, NULL, BGAMMA_WL_TEXT, BGAMMA_WL_LONGTEXT, true );
-#ifndef SYS_MINGW32
+    add_integer_with_range( CFG_PREFIX "bz-blackcrush-red", 140, 0, 255, NULL, RGAMMA_BC_TEXT, RGAMMA_BC_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-blackcrush-green", 140, 0, 255, NULL, GGAMMA_BC_TEXT, GGAMMA_BC_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-blackcrush-blue", 140, 0, 255, NULL, BGAMMA_BC_TEXT, BGAMMA_BC_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-whitecrush-red", 200, 0, 255, NULL, RGAMMA_WC_TEXT, RGAMMA_WC_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-whitecrush-green", 200, 0, 255, NULL, GGAMMA_WC_TEXT, GGAMMA_WC_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-whitecrush-blue", 200, 0, 255, NULL, BGAMMA_WC_TEXT, BGAMMA_WC_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-blacklevel-red", 150, 0, 255, NULL, RGAMMA_BL_TEXT, RGAMMA_BL_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-blacklevel-green", 150, 0, 255, NULL, GGAMMA_BL_TEXT, GGAMMA_BL_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-blacklevel-blue", 150, 0, 255, NULL, BGAMMA_BL_TEXT, BGAMMA_BL_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-whitelevel-red", 0, 0, 255, NULL, RGAMMA_WL_TEXT, RGAMMA_WL_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-whitelevel-green", 0, 0, 255, NULL, GGAMMA_WL_TEXT, GGAMMA_WL_LONGTEXT, true )
+    add_integer_with_range( CFG_PREFIX "bz-whitelevel-blue", 0, 0, 255, NULL, BGAMMA_WL_TEXT, BGAMMA_WL_LONGTEXT, true )
+#ifndef WIN32
 #define XINERAMA_TEXT N_("Xinerama option")
 #define XINERAMA_LONGTEXT N_("Uncheck if you have not used xinerama")
-    add_bool( CFG_PREFIX "xinerama", 1, NULL, XINERAMA_TEXT, XINERAMA_LONGTEXT, true );
+    add_bool( CFG_PREFIX "xinerama", 1, NULL, XINERAMA_TEXT, XINERAMA_LONGTEXT, true )
 #endif
 #endif
 
-    add_string( CFG_PREFIX "active", NULL, NULL, ACTIVE_TEXT, ACTIVE_LONGTEXT, true );
+    add_string( CFG_PREFIX "active", NULL, NULL, ACTIVE_TEXT, ACTIVE_LONGTEXT, true )
 
-    add_shortcut( "panoramix" );
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+    add_shortcut( "panoramix" )
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "cols", "rows", "offset-x", "bz-length", "bz-height", "attenuate",
@@ -244,7 +244,7 @@ struct vout_sys_t
     uint8_t         LUT2[VOUT_MAX_PLANES][256][500];
 #endif
 #endif
-#ifndef SYS_MINGW32
+#ifndef WIN32
     bool   b_xinerama;
 #endif
 #endif
@@ -358,7 +358,7 @@ case VLC_FOURCC('c','y','u','v'):    // packed by 2
     p_vout->p_sys->i_row = var_CreateGetInteger( p_vout, CFG_PREFIX "rows" );
 
 // OS dependent code :  Autodetect number of displays in wall
-#ifdef SYS_MINGW32
+#ifdef WIN32
     if ((p_vout->p_sys->i_col < 0) || (p_vout->p_sys->i_row < 0) )
     {
         int nbMonitors = GetSystemMetrics(SM_CMONITORS);
@@ -411,7 +411,7 @@ case VLC_FOURCC('c','y','u','v'):    // packed by 2
     p_vout->p_sys->f_gamma_green = var_CreateGetFloat( p_vout, CFG_PREFIX "bz-gamma-green" );
     p_vout->p_sys->f_gamma_blue = var_CreateGetFloat( p_vout, CFG_PREFIX "bz-gamma-blue" );
 #endif
-#ifndef SYS_MINGW32
+#ifndef WIN32
     p_vout->p_sys->b_xinerama = var_CreateGetBool( p_vout, CFG_PREFIX "xinerama" );
 #endif
 #else
@@ -554,11 +554,14 @@ static int AdjustHeight( vout_thread_t *p_vout )
     // OS DEPENDENT CODE to get display dimensions
     if (b_fullscreen )
     {
-#ifdef SYS_MINGW32
+#ifdef WIN32
         i_window_width  = GetSystemMetrics(SM_CXSCREEN);
         i_window_height = GetSystemMetrics(SM_CYSCREEN);
 #else
-        Display *p_display = XOpenDisplay( "" );
+        char *psz_display = var_CreateGetNonEmptyString( p_vout,
+                                                        "x11-display" );
+        Display *p_display = XOpenDisplay( psz_display );
+        free( psz_display );
         if (p_vout->p_sys->b_xinerama)
         {
             i_window_width = DisplayWidth(p_display, 0) / p_vout->p_sys->i_col;
@@ -850,7 +853,7 @@ static int Init( vout_thread_t *p_vout )
                 else if (i_row == p_vout->p_sys->i_row -1)
                     p_entry->p_vout->i_alignment |= VOUT_ALIGN_TOP;
             }
-            // i_n : number of active pp_vout
+            // i_active : number of active pp_vout
             int i_active = 0;
             for( int i = 0; i <= p_vout->p_sys->i_vout; i++ )
             {
@@ -858,8 +861,8 @@ static int Init( vout_thread_t *p_vout )
                     i_active++;
             }
             var_SetInteger( p_vout, "align", p_entry->p_vout->i_alignment );
-            var_SetInteger( p_vout, "video-x", i_video_x + p_vout->p_sys->i_offset_x + ((i_active + 1) % p_vout->p_sys->i_col) * p_vout->i_window_width);
-            var_SetInteger( p_vout, "video-y", i_video_y +                             ((i_active + 1) / p_vout->p_sys->i_col) * p_vout->i_window_height);
+            var_SetInteger( p_vout, "video-x", i_video_x + p_vout->p_sys->i_offset_x + (i_active % p_vout->p_sys->i_col) * p_vout->i_window_width);
+            var_SetInteger( p_vout, "video-y", i_video_y +                             (i_active / p_vout->p_sys->i_col) * p_vout->i_window_height);
 #endif
         }
     }
@@ -960,7 +963,7 @@ static void RenderPlanarYUV( vout_thread_t *p_vout, picture_t *p_pic )
                 msleep( VOUT_OUTMEM_SLEEP );
             }
 
-            vout_DatePicture( p_entry->p_vout, p_outpic, p_pic->date );
+            p_outpic->date = p_pic->date;
             vout_LinkPicture( p_entry->p_vout, p_outpic );
 
             for( i_plane = 0 ; i_plane < p_pic->i_planes ; i_plane++ )
@@ -1040,7 +1043,7 @@ static void RenderPlanarYUV( vout_thread_t *p_vout, picture_t *p_pic )
                     if( p_vout->p_sys->i_col > 2 )
                     {
                         const int halfl = length / 2;
-                        if( b_col_first == 0)
+                        if( b_col_first)
                             vlc_memcpy( &p_out[halfl], &p_in[0], i_copy_pitch - halfl );
                         else if( b_col_last )
                             vlc_memcpy( &p_out[    0], &p_in[-halfl], i_copy_pitch - halfl );
@@ -1085,10 +1088,7 @@ static void RenderPlanarYUV( vout_thread_t *p_vout, picture_t *p_pic )
                                 p_dst[i_index] = (p_vout->p_sys->lambda[0][i_plane][i_index] * p_dst[i_index]) / ACCURACY +
                                                         p_vout->p_sys->cstYUV[0][i_plane][i_index];
 #else
-                                fprintf( stderr, "r=%d c=%d, i_plane=%d i_index=%d | %d %d\n", i_row, i_col, i_plane, i_index,
-                                         i_copy_pitch, length );
-                                fprintf( stderr, "# %d\n", p_dst[i_index] );
-                                p_dst[i_index] = p_vout->p_sys->LUT[i_plane][p_vout->p_sys->lambda[0][i_plane][i_index]][p_dst[i_index]];
+                               p_dst[i_index] = p_vout->p_sys->LUT[i_plane][p_vout->p_sys->lambda[0][i_plane][i_index]][p_dst[i_index]];
 #endif
                             }
                         }
@@ -1099,36 +1099,46 @@ static void RenderPlanarYUV( vout_thread_t *p_vout, picture_t *p_pic )
                     p_out += i_out_pitch;
                 }
 #ifdef OVERLAP
-                // horizontal blend
-                if( p_vout->p_sys->i_row > 2 )
+       // horizontal blend
+        if ( p_vout->p_sys->i_row >= 2 )
+        {
+           // black bar
+           if (( p_vout->p_sys->i_row > 2 ) && (( b_row_first ) || ( b_row_last )))
+           {
+
+               int height = 2 * p_vout->p_sys->i_halfHeight / i_div;
+               if ( b_row_first )
+               {
+                    TopOffset = i_lines + (2 * p_vout->p_sys->i_halfHeight) / i_div;
+               }
+               else
                 {
-                    length = 2 * p_vout->p_sys->i_halfHeight / i_div;
-                    if (p_vout->p_sys->b_has_changed)
-                    {
-                        Denom = F2(length);
-                        a_2 = p_vout->p_sys->a_2 * (ACCURACY / 100);
-                        a_1 = p_vout->p_sys->a_1 * length * (ACCURACY / 100);
-                        a_0 = p_vout->p_sys->a_0 * Denom * (ACCURACY / 100);
-                       for(i_col_mod = 0; i_col_mod < 2; i_col_mod++)
-                        for (i_index = 0; i_index < length; i_index++)
-                        {
-                            p_vout->p_sys->lambda2[i_col_mod][i_plane][i_index] = CLIP_0A(!i_col_mod ? ACCURACY - (F4(a_2, a_1, i_index) + a_0) / Denom : ACCURACY - (F4(a_2, a_1,length - i_index) + a_0) / Denom);
-                            p_vout->p_sys->cstYUV2[i_col_mod][i_plane][i_index] = ((ACCURACY - p_vout->p_sys->lambda2[i_col_mod][i_plane][i_index]) * constantYUV[i_plane]) / ACCURACY;
-                        }
-                    }
-
-                    if( b_row_first )
-                    {
-                        // black bar
-                        TopOffset = i_lines + (2 * p_vout->p_sys->i_halfHeight) / i_div;
-                        uint8_t *p_dst = p_out - TopOffset * i_out_pitch;
-
-                        for (i_index = 0; i_index < length; i_index++)
-                            memset( &p_dst[i_index * i_out_pitch], constantYUV[i_plane], i_copy_pitch );
-                    }
-                    else if( p_vout->p_sys->b_attenuate )
-                    {
-                        // first blended zone
+                   TopOffset = height - (2 * p_vout->p_sys->i_halfHeight) / i_div;
+                }
+                uint8_t *p_dst = p_out - TopOffset * i_out_pitch;
+                for (i_index = 0; i_index < height; i_index++)
+                   for (i_index2 = 0; i_index2 < i_copy_pitch; i_index2++)
+                       p_dst[i_index * i_out_pitch + i_index2] = constantYUV[i_plane];
+           }
+           if( p_vout->p_sys->b_attenuate )
+           {
+               length = 2 * p_vout->p_sys->i_halfHeight / (p_vout->p_sys->pp_vout[i_vout].i_width / i_copy_pitch);
+               if (p_vout->p_sys->b_has_changed)
+               {
+                   Denom = F2(length);
+                   a_2 = p_vout->p_sys->a_2 * (ACCURACY / 100);
+                   a_1 = p_vout->p_sys->a_1 * length * (ACCURACY / 100);
+                   a_0 = p_vout->p_sys->a_0 * Denom * (ACCURACY / 100);
+                   for(i_col_mod = 0; i_col_mod < 2; i_col_mod++)
+                       for (i_index = 0; i_index < length; i_index++)
+                       {
+                           p_vout->p_sys->lambda2[i_col_mod][i_plane][i_index] = CLIP_0A(!i_col_mod ? ACCURACY - (F4(a_2, a_1, i_index) + a_0) / Denom : ACCURACY - (F4(a_2, a_1,length - i_index) + a_0) / Denom);
+                           p_vout->p_sys->cstYUV2[i_col_mod][i_plane][i_index] = ((ACCURACY - p_vout->p_sys->lambda2[i_col_mod][i_plane][i_index]) * constantYUV[i_plane]) / ACCURACY;
+                       }
+               }
+               // first blended zone
+               if ( !b_row_first )
+               {
                         TopOffset = i_lines;
                         uint8_t *p_dst = p_out - TopOffset * i_out_pitch;
 
@@ -1145,20 +1155,10 @@ static void RenderPlanarYUV( vout_thread_t *p_vout, picture_t *p_pic )
 #endif
                             }
                         }
-                    }
-
-                    if( b_row_last )
-                    {
-                        // black bar
-                        TopOffset = length - (2 * p_vout->p_sys->i_halfHeight) / i_div;
-                        uint8_t *p_dst = p_out - TopOffset * p_outpic->p[i_plane].i_pitch;
-
-                        for (i_index = 0; i_index < length; i_index++)
-                            memset( &p_dst[i_index * i_out_pitch], constantYUV[i_plane], i_copy_pitch );
-                    }
-                    else if( p_vout->p_sys->b_attenuate )
-                    {
-                    // second blended zone
+               }
+               // second blended zone
+               if ( !b_row_last )
+               {
                         TopOffset = length;
                         uint8_t *p_dst = p_out - TopOffset * p_outpic->p[i_plane].i_pitch;
 
@@ -1176,9 +1176,10 @@ static void RenderPlanarYUV( vout_thread_t *p_vout, picture_t *p_pic )
 #endif
                             }
                         }
-                    }
-                    // end blended zone
-                }
+               }
+           }
+        }
+       // end blended zone
 #endif
                 // bug for wall filter : fix by CC
                 //            pi_left_skip[i_plane] += i_out_pitch;
@@ -1262,8 +1263,7 @@ static void RenderPackedRGB( vout_thread_t *p_vout, picture_t *p_pic )
                 msleep( VOUT_OUTMEM_SLEEP );
             }
 
-            vout_DatePicture( p_vout->p_sys->pp_vout[ i_vout ].p_vout,
-                              p_outpic, p_pic->date );
+            p_outpic->date = p_pic->date;
             vout_LinkPicture( p_vout->p_sys->pp_vout[ i_vout ].p_vout,
                               p_outpic );
 
@@ -1598,8 +1598,7 @@ static void RenderPackedYUV( vout_thread_t *p_vout, picture_t *p_pic )
                 msleep( VOUT_OUTMEM_SLEEP );
             }
 
-            vout_DatePicture( p_vout->p_sys->pp_vout[ i_vout ].p_vout,
-                              p_outpic, p_pic->date );
+            p_outpic->date = p_pic->date;
             vout_LinkPicture( p_vout->p_sys->pp_vout[ i_vout ].p_vout,
                               p_outpic );
 

@@ -37,6 +37,9 @@
 /* BeginFullScreen, EndFullScreen */
 #include <QuickTime/QuickTime.h>
 
+/* prevent system sleep */
+#import <CoreServices/CoreServices.h>
+
 #include <vlc_keys.h>
 
 #include "intf.h"
@@ -123,14 +126,19 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
 
 - (id)getViewForWindow: (id)o_window
 {
-    id o_enumerator = [o_embedded_array objectEnumerator];
-    id o_current_embedded;
-
-    while( (o_current_embedded = [o_enumerator nextObject]) )
+    if( o_embedded_array != nil )
     {
-        if( [o_current_embedded getWindow] == o_window )
+        id o_enumerator = [o_embedded_array objectEnumerator];
+        id o_current_embedded;
+        if( o_window != nil )
         {
-            return o_current_embedded;
+            while( (o_current_embedded = [o_enumerator nextObject]) )
+            {
+                if( [o_current_embedded getWindow] == o_window )
+                {
+                    return o_current_embedded;
+                }
+            }
         }
     }
     return nil;
@@ -438,7 +446,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
 
 - (void)snapshot
 {
-    vout_Control( p_real_vout, VOUT_SNAPSHOT );
+    var_TriggerCallback( p_real_vout, "video-snapshot" );
 }
 
 - (void)manage
@@ -447,6 +455,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
     if( !VLCIntf || !VLCIntf->p_sys )
         return;
 
+    UInt8 UsrActivity;
     if( VLCIntf->p_sys->i_play_status == PLAYING_S )
         UpdateSystemActivity( UsrActivity );
 }
@@ -532,7 +541,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
                  ( [o_event modifierFlags] &  NSControlKeyMask ) ) )
         {
             msg_Dbg( p_vout, "received NSRightMouseDown (generic method) or Ctrl clic" );
-            [NSMenu popUpContextMenu: [[VLCMain sharedInstance] getVoutMenu] withEvent: o_event forView: [[[VLCMain sharedInstance] getControls] getVoutView]];
+            [NSMenu popUpContextMenu: [[VLCMain sharedInstance] getVoutMenu] withEvent: o_event forView: [[[VLCMain sharedInstance] getControls] voutView]];
         }
     }
 
@@ -558,7 +567,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
     if( p_vout && [o_event type] == NSRightMouseDown )
     {
         msg_Dbg( p_vout, "received NSRightMouseDown (specific method)" );
-        [NSMenu popUpContextMenu: [[VLCMain sharedInstance] getVoutMenu] withEvent: o_event forView: [[[VLCMain sharedInstance] getControls] getVoutView]];
+        [NSMenu popUpContextMenu: [[VLCMain sharedInstance] getVoutMenu] withEvent: o_event forView: [[[VLCMain sharedInstance] getControls] voutView]];
     }
 
     [super mouseDown: o_event];
@@ -570,9 +579,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
 
     if( p_vout && [o_event type] == NSLeftMouseUp )
     {
-        vlc_value_t b_val;
-        b_val.b_bool = true;
-        var_Set( p_vout, "mouse-clicked", b_val );
+        var_SetBool( p_vout, "mouse-clicked", true );
 
         var_Get( p_vout, "mouse-button-down", &val );
         val.i_int &= ~1;
@@ -603,7 +610,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
         /* FIXME: this isn't the appropriate place, but we can't receive
          * NSRightMouseDown some how */
         msg_Dbg( p_vout, "received NSRightMouseUp" );
-        [NSMenu popUpContextMenu: [[VLCMain sharedInstance] getVoutMenu] withEvent: o_event forView: [[[VLCMain sharedInstance] getControls] getVoutView]];
+        [NSMenu popUpContextMenu: [[VLCMain sharedInstance] getVoutMenu] withEvent: o_event forView: [[[VLCMain sharedInstance] getControls] voutView]];
     }
 
     [super mouseUp: o_event];
@@ -694,20 +701,15 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
 {
     /* p_real_vout: the vout we have to use to check for video-on-top
        and a few other things. If we are the QuickTime output, it's us.
-       It we are the OpenGL provider, it is our parent. */
-    if( p_vout->i_object_type == VLC_OBJECT_OPENGL )
-    {
-        return (vout_thread_t *) p_vout->p_parent;
-    }
-    else
-    {
-        return p_vout;
-    }
-
+       It we are the OpenGL provider, it is our parent.
+       Since we can't be the QuickTime output anymore, we need to be
+       the parent.
+       FIXME: check with the caca and x11 vouts! */
+    return (vout_thread_t *) p_vout->p_parent;
 }
 
-+ (id)getVoutView: (vout_thread_t *)p_vout subView: (NSView *)view
-                                    frame: (NSRect *)s_frame
++ (id)voutView: (vout_thread_t *)p_vout subView: (NSView *)view
+         frame: (NSRect *)s_frame
 {
     vlc_value_t value_drawable;
     int i_timeout;
@@ -769,7 +771,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
 - (void)enterFullscreen
 {
     /* Save the settings for next playing item */
-    playlist_t * p_playlist = pl_Yield( p_real_vout );
+    playlist_t * p_playlist = pl_Hold( p_real_vout );
     var_SetBool( p_playlist, "fullscreen", true );
     pl_Release( p_real_vout );
 }
@@ -777,7 +779,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
 - (void)leaveFullscreen
 {
     /* Save the settings for next playing item */
-    playlist_t * p_playlist = pl_Yield( p_real_vout );
+    playlist_t * p_playlist = pl_Hold( p_real_vout );
     var_SetBool( p_playlist, "fullscreen", false );
     pl_Release( p_real_vout );
 }
@@ -801,7 +803,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
     return YES;
 }
 
-- (bool)setVout: (vout_thread_t *) p_arg_vout subView: (NSView *) view
+- (BOOL)setVout: (vout_thread_t *) p_arg_vout subView: (NSView *) view
                      frame: (NSRect *) s_arg_frame
 {
     BOOL b_return = [super setVout: p_arg_vout subView: view frame:s_arg_frame];
@@ -1144,7 +1146,7 @@ int DeviceCallback( vlc_object_t *p_this, const char *psz_variable,
         [self setLevel: NSStatusWindowLevel];
 }
 
-- (id)getVoutView // FIXME Naming scheme!
+- (id)voutView
 {
     return o_view;
 }

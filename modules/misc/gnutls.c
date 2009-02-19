@@ -2,7 +2,7 @@
  * gnutls.c
  *****************************************************************************
  * Copyright (C) 2004-2006 Rémi Denis-Courmont
- * $Id: b49c7a6d2c189a4786c8c29c08af95131b67cef5 $
+ * $Id$
  *
  * Authors: Rémi Denis-Courmont <rem # videolan.org>
  *
@@ -85,30 +85,32 @@ static void CloseServer (vlc_object_t *);
     "This is the maximum number of resumed TLS sessions that " \
     "the cache will hold." )
 
-vlc_module_begin();
-    set_shortname( "GnuTLS" );
-    set_description( N_("GnuTLS transport layer security") );
-    set_capability( "tls client", 1 );
-    set_callbacks( OpenClient, CloseClient );
-    set_category( CAT_ADVANCED );
-    set_subcategory( SUBCAT_ADVANCED_MISC );
+vlc_module_begin ()
+    set_shortname( "GnuTLS" )
+    set_description( N_("GnuTLS transport layer security") )
+    set_capability( "tls client", 1 )
+    set_callbacks( OpenClient, CloseClient )
+    set_category( CAT_ADVANCED )
+    set_subcategory( SUBCAT_ADVANCED_MISC )
 
-    add_obsolete_bool( "tls-check-cert" );
-    add_obsolete_bool( "tls-check-hostname" );
+    add_obsolete_bool( "tls-check-cert" )
+    add_obsolete_bool( "tls-check-hostname" )
 
-    add_submodule();
-        set_description( N_("GnuTLS server") );
-        set_capability( "tls server", 1 );
-        set_category( CAT_ADVANCED );
-        set_subcategory( SUBCAT_ADVANCED_MISC );
-        set_callbacks( OpenServer, CloseServer );
+    add_submodule ()
+        set_description( N_("GnuTLS server") )
+        set_capability( "tls server", 1 )
+        set_category( CAT_ADVANCED )
+        set_subcategory( SUBCAT_ADVANCED_MISC )
+        set_callbacks( OpenServer, CloseServer )
 
-        add_obsolete_integer( "gnutls-dh-bits" );
+        add_obsolete_integer( "gnutls-dh-bits" )
         add_integer( "gnutls-cache-timeout", CACHE_TIMEOUT, NULL,
-                    CACHE_TIMEOUT_TEXT, CACHE_TIMEOUT_LONGTEXT, true );
+                    CACHE_TIMEOUT_TEXT, CACHE_TIMEOUT_LONGTEXT, true )
         add_integer( "gnutls-cache-size", CACHE_SIZE, NULL, CACHE_SIZE_TEXT,
-                    CACHE_SIZE_LONGTEXT, true );
-vlc_module_end();
+                    CACHE_SIZE_LONGTEXT, true )
+vlc_module_end ()
+
+static vlc_mutex_t gnutls_mutex = VLC_STATIC_MUTEX;
 
 /**
  * Initializes GnuTLS with proper locking.
@@ -120,7 +122,7 @@ static int gnutls_Init (vlc_object_t *p_this)
 
     vlc_gcrypt_init (); /* GnuTLS depends on gcrypt */
 
-    vlc_mutex_t *lock = var_AcquireMutex ("gnutls_mutex");
+    vlc_mutex_lock (&gnutls_mutex);
     if (gnutls_global_init ())
     {
         msg_Err (p_this, "cannot initialize GnuTLS");
@@ -139,7 +141,7 @@ static int gnutls_Init (vlc_object_t *p_this)
     ret = VLC_SUCCESS;
 
 error:
-    vlc_mutex_unlock (lock);
+    vlc_mutex_unlock (&gnutls_mutex);
     return ret;
 }
 
@@ -149,11 +151,11 @@ error:
  */
 static void gnutls_Deinit (vlc_object_t *p_this)
 {
-    vlc_mutex_t *lock = var_AcquireMutex( "gnutls_mutex" );
+    vlc_mutex_lock (&gnutls_mutex);
 
     gnutls_global_deinit ();
     msg_Dbg (p_this, "GnuTLS deinitialized");
-    vlc_mutex_unlock (lock);
+    vlc_mutex_unlock (&gnutls_mutex);
 }
 
 

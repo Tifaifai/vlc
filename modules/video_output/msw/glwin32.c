@@ -2,7 +2,7 @@
  * glwin32.c: Windows OpenGL provider
  *****************************************************************************
  * Copyright (C) 2001-2004 the VideoLAN team
- * $Id: 596cb5aad4534dcb500fed990588336978798134 $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *
@@ -62,18 +62,18 @@ static void FirstSwap( vout_thread_t * );
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VOUT );
-    set_shortname( "OpenGL" );
-    set_description( N_("OpenGL video output") );
-    set_capability( "opengl provider", 100 );
-    add_shortcut( "glwin32" );
-    set_callbacks( OpenVideo, CloseVideo );
+vlc_module_begin ()
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VOUT )
+    set_shortname( "OpenGL" )
+    set_description( N_("OpenGL video output") )
+    set_capability( "opengl provider", 100 )
+    add_shortcut( "glwin32" )
+    set_callbacks( OpenVideo, CloseVideo )
 
     /* FIXME: Hack to avoid unregistering our window class */
-    linked_with_a_crap_library_which_uses_atexit( );
-vlc_module_end();
+    linked_with_a_crap_library_which_uses_atexit ()
+vlc_module_end ()
 
 #if 0 /* FIXME */
     /* check if we registered a window class because we need to
@@ -134,14 +134,18 @@ static int OpenVideo( vlc_object_t *p_this )
     p_vout->p_sys->p_event =
         vlc_object_create( p_vout, sizeof(event_thread_t) );
     p_vout->p_sys->p_event->p_vout = p_vout;
+    p_vout->p_sys->p_event->window_ready = CreateEvent( NULL, TRUE, FALSE, NULL );
     if( vlc_thread_create( p_vout->p_sys->p_event, "Vout Events Thread",
-                           EventThread, 0, 1 ) )
+                           EventThread, 0 ) )
     {
         msg_Err( p_vout, "cannot create Vout EventThread" );
+        CloseHandle( p_vout->p_sys->p_event->window_ready );
         vlc_object_release( p_vout->p_sys->p_event );
         p_vout->p_sys->p_event = NULL;
         goto error;
     }
+    WaitForSingleObject( p_vout->p_sys->p_event->window_ready, INFINITE );
+    CloseHandle( p_vout->p_sys->p_event->window_ready );
 
     if( p_vout->p_sys->p_event->b_error )
     {
@@ -248,11 +252,8 @@ static void CloseVideo( vlc_object_t *p_this )
 
     vlc_mutex_destroy( &p_vout->p_sys->lock );
 
-    if( p_vout->p_sys )
-    {
-        free( p_vout->p_sys );
-        p_vout->p_sys = NULL;
-    }
+    free( p_vout->p_sys );
+    p_vout->p_sys = NULL;
 }
 
 /*****************************************************************************
@@ -302,6 +303,28 @@ static int Manage( vout_thread_t *p_vout )
     else
     {
         vlc_mutex_unlock( &p_vout->p_sys->lock );
+    }
+
+    /* autoscale toggle */
+    if( p_vout->i_changes & VOUT_SCALE_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_SCALE_CHANGE;
+
+        p_vout->b_autoscale = var_GetBool( p_vout, "autoscale" );
+        p_vout->i_zoom = (int) ZOOM_FP_FACTOR;
+
+        UpdateRects( p_vout, true );
+    }
+
+    /* scaling factor */
+    if( p_vout->i_changes & VOUT_ZOOM_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_ZOOM_CHANGE;
+
+        p_vout->b_autoscale = false;
+        p_vout->i_zoom =
+            (int)( ZOOM_FP_FACTOR * var_GetFloat( p_vout, "scale" ) );
+        UpdateRects( p_vout, true );
     }
 
     /* Check for cropping / aspect changes */

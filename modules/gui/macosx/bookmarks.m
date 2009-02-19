@@ -120,17 +120,12 @@ static VLCBookmarks *_o_sharedInstance = nil;
     if( !p_input ) return;
  
     seekpoint_t bookmark;
-    vlc_value_t pos;
-    bookmark.psz_name = NULL;
-    bookmark.i_byte_offset = 0;
-    bookmark.i_time_offset = 0;
- 
-    var_Get( VLCIntf, "position", &pos);
-    bookmark.psz_name = _("Untitled");
-    input_Control( p_input, INPUT_GET_BYTE_POSITION, &bookmark.i_byte_offset );
-    var_Get( p_input, "time", &pos );
-    bookmark.i_time_offset = pos.i_time;
-    input_Control( p_input, INPUT_ADD_BOOKMARK, &bookmark );
+
+    if( !input_Control( p_input, INPUT_GET_BOOKMARK, &bookmark ) )
+	{
+		bookmark.psz_name = _("Untitled");
+		input_Control( p_input, INPUT_ADD_BOOKMARK, &bookmark );
+	}
  
     vlc_object_release( p_input );
  
@@ -370,7 +365,7 @@ static VLCBookmarks *_o_sharedInstance = nil;
  * data source methods
  *****************************************************************************/
 
-- (int)numberOfRowsInTableView:(NSTableView *)theDataTable
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)theDataTable
 {
     /* return the number of bookmarks */
     input_thread_t * p_input = pl_CurrentInput( VLCIntf );
@@ -391,7 +386,7 @@ static VLCBookmarks *_o_sharedInstance = nil;
 }
 
 - (id)tableView:(NSTableView *)theDataTable objectValueForTableColumn:
-    (NSTableColumn *)theTableColumn row: (int)row
+    (NSTableColumn *)theTableColumn row: (NSInteger)row
 {
     /* return the corresponding data as NSString */
     input_thread_t * p_input = pl_CurrentInput( VLCIntf );

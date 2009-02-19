@@ -2,7 +2,7 @@
  * dvdnav.c: DVD module using the dvdnav library.
  *****************************************************************************
  * Copyright (C) 2004 the VideoLAN team
- * $Id: 9c4677044631e76949f3215e11403e37eedee506 $
+ * $Id$
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *
@@ -83,22 +83,23 @@
 static int  Open ( vlc_object_t * );
 static void Close( vlc_object_t * );
 
-vlc_module_begin();
-    set_shortname( N_("DVD with menus") );
-    set_description( N_("DVDnav Input") );
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_ACCESS );
+vlc_module_begin ()
+    set_shortname( N_("DVD with menus") )
+    set_description( N_("DVDnav Input") )
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_ACCESS )
     add_integer( "dvdnav-angle", 1, NULL, ANGLE_TEXT,
-        ANGLE_LONGTEXT, false );
+        ANGLE_LONGTEXT, false )
     add_integer( "dvdnav-caching", DEFAULT_PTS_DELAY / 1000, NULL,
-        CACHING_TEXT, CACHING_LONGTEXT, true );
+        CACHING_TEXT, CACHING_LONGTEXT, true )
     add_bool( "dvdnav-menu", true, NULL,
-        MENU_TEXT, MENU_LONGTEXT, false );
-    set_capability( "access_demux", 5 );
-    add_shortcut( "dvd" );
-    add_shortcut( "dvdnav" );
-    set_callbacks( Open, Close );
-vlc_module_end();
+        MENU_TEXT, MENU_LONGTEXT, false )
+    set_capability( "access_demux", 5 )
+    add_shortcut( "dvd" )
+    add_shortcut( "dvdnav" )
+    add_shortcut( "file" )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /* Shall we use libdvdnav's read ahead cache? */
 #define DVD_READ_CACHE 1
@@ -309,7 +310,7 @@ static int Open( vlc_object_t *p_this )
             msg_Err( p_demux, "cannot set title (can't decrypt DVD?)" );
             intf_UserFatal( p_demux, false, _("Playback failure"),
                             _("VLC cannot set the DVD's title. It possibly "
-                              "cannot decrypt the entire disk.") );
+                              "cannot decrypt the entire disc.") );
             dvdnav_close( p_sys->dvdnav );
             free( p_sys );
             return VLC_EGENERIC;
@@ -348,7 +349,7 @@ static int Open( vlc_object_t *p_this )
     p_sys->p_ev = vlc_object_create( p_demux, sizeof( event_thread_t ) );
     p_sys->p_ev->p_demux = p_demux;
     vlc_thread_create( p_sys->p_ev, "dvdnav event thread handler", EventThread,
-                       VLC_THREAD_PRIORITY_LOW, false );
+                       VLC_THREAD_PRIORITY_LOW );
 
     return VLC_SUCCESS;
 }
@@ -616,6 +617,7 @@ static int Demux( demux_t *p_demux )
     switch( i_event )
     {
     case DVDNAV_BLOCK_OK:   /* mpeg block */
+        p_sys->p_ev->b_still = false;
         DemuxBlock( p_demux, packet, i_len );
         break;
 
@@ -625,19 +627,18 @@ static int Demux( demux_t *p_demux )
 
     case DVDNAV_STILL_FRAME:
     {
-        /* We send a dummy mpeg2 end of sequence to force still frame display */
-        static const uint8_t buffer[] = {
-            0x00, 0x00, 0x01, 0xe0, 0x00, 0x07,
-            0x80, 0x00, 0x00,
-            0x00, 0x00, 0x01, 0xB7,
-        };
-        DemuxBlock( p_demux, buffer, sizeof(buffer) );
-
-        /* */
         dvdnav_still_event_t *event = (dvdnav_still_event_t*)packet;
         vlc_mutex_lock( &p_sys->p_ev->lock );
         if( !p_sys->p_ev->b_still )
         {
+            /* We send a dummy mpeg2 end of sequence to force still frame display */
+            static const uint8_t buffer[] = {
+                0x00, 0x00, 0x01, 0xe0, 0x00, 0x07,
+                0x80, 0x00, 0x00,
+                0x00, 0x00, 0x01, 0xB7,
+            };
+            DemuxBlock( p_demux, buffer, sizeof(buffer) );
+
             msg_Dbg( p_demux, "DVDNAV_STILL_FRAME" );
             msg_Dbg( p_demux, "     - length=0x%x", event->length );
             p_sys->p_ev->b_still = true;
@@ -648,7 +649,7 @@ static int Demux( demux_t *p_demux )
             else
             {
                 p_sys->p_ev->i_still_end = (int64_t)event->length *
-                    1000000 + mdate() + p_sys->p_input->i_pts_delay;
+                    1000000 + mdate();
             }
         }
         vlc_mutex_unlock( &p_sys->p_ev->lock );
@@ -1273,6 +1274,8 @@ static void* EventThread( vlc_object_t *p_this )
     p_ev->i_key_action = 0;
     p_ev->b_still   = false;
 
+    int canc = vlc_savecancel ();
+
     /* catch all key event */
     var_AddCallback( p_ev->p_libvlc, "key-action", EventKey, p_ev );
 
@@ -1383,7 +1386,7 @@ static void* EventThread( vlc_object_t *p_this )
         vlc_object_release( p_vout );
     }
     var_DelCallback( p_ev->p_libvlc, "key-action", EventKey, p_ev );
-
+    vlc_restorecancel (canc);
     vlc_mutex_destroy( &p_ev->lock );
 
     return NULL;
@@ -1425,7 +1428,6 @@ static int ProbeDVD( demux_t *p_demux, char *psz_name )
 #ifdef HAVE_SYS_STAT_H
     struct stat stat_info;
     uint8_t pi_anchor[2];
-    uint16_t i_tag_id = 0;
     int i_fd, i_ret;
 
     if( !*psz_name )
@@ -1434,34 +1436,26 @@ static int ProbeDVD( demux_t *p_demux, char *psz_name )
         return VLC_SUCCESS;
     }
 
-    if( utf8_stat( psz_name, &stat_info ) || !S_ISREG( stat_info.st_mode ) )
+    if( (i_fd = utf8_open( psz_name, O_RDONLY |O_NONBLOCK, 0666 )) == -1 )
     {
-        /* Let dvdnav_open() do the probing */
-        return VLC_SUCCESS;
+        return VLC_SUCCESS; /* Let dvdnav_open() do the probing */
     }
 
-    if( (i_fd = open( psz_name, O_RDONLY )) == -1 )
+    if( fstat( i_fd, &stat_info ) || !S_ISREG( stat_info.st_mode ) )
     {
-        /* Let dvdnav_open() do the probing */
-        return VLC_SUCCESS;
+        close( i_fd );
+
+        if( S_ISFIFO( stat_info.st_mode ) )
+            return VLC_EGENERIC;
+        return VLC_SUCCESS; /* Let dvdnav_open() do the probing */
     }
 
     /* Try to find the anchor (2 bytes at LBA 256) */
-    i_ret = VLC_SUCCESS;
-    if( lseek( i_fd, 256 * DVD_VIDEO_LB_LEN, SEEK_SET ) == -1 )
-    {
-        i_ret = VLC_EGENERIC;
-    }
-
-    if( read( i_fd, pi_anchor, 2 ) == 2 )
-    {
-        i_tag_id = GetWLE(pi_anchor);
-        if( i_tag_id != 2 ) i_ret = VLC_EGENERIC; /* Not an anchor */
-    }
-    else
-    {
-        i_ret = VLC_EGENERIC;
-    }
+    i_ret = VLC_EGENERIC;
+    if( lseek( i_fd, 256 * DVD_VIDEO_LB_LEN, SEEK_SET ) != -1
+     && read( i_fd, pi_anchor, 2 ) == 2
+     && GetWLE( pi_anchor ) == 2 )
+        i_ret = VLC_SUCCESS; /* Found a potential anchor */
 
     close( i_fd );
 

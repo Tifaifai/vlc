@@ -2,7 +2,7 @@
  * waveout.c : Windows waveOut plugin for vlc
  *****************************************************************************
  * Copyright (C) 2001 the VideoLAN team
- * $Id: 7b48bf451aa4aeffa2f7eb7212bb677c6c5ba9ac $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *
@@ -162,23 +162,24 @@ static const char *const ppsz_adev_text[] = { N_("Microsoft Soundmapper") };
                        "to apply.")
 #define DEFAULT_AUDIO_DEVICE N_("Default Audio Device")
 
-vlc_module_begin();
-    set_shortname( "WaveOut" );
-    set_description( N_("Win32 waveOut extension output") );
-    set_capability( "audio output", 50 );
-    set_category( CAT_AUDIO );
-    set_subcategory( SUBCAT_AUDIO_AOUT );
-    add_bool( "waveout-float32", 1, 0, FLOAT_TEXT, FLOAT_LONGTEXT, true );
+vlc_module_begin ()
+    set_shortname( "WaveOut" )
+    set_description( N_("Win32 waveOut extension output") )
+    set_capability( "audio output", 50 )
+    set_category( CAT_AUDIO )
+    set_subcategory( SUBCAT_AUDIO_AOUT )
+    add_bool( "waveout-float32", 1, 0, FLOAT_TEXT, FLOAT_LONGTEXT, true )
 
-    add_string( "waveout-dev", "wavemapper", NULL,
-                 DEVICE_TEXT, DEVICE_LONG, false );
-       change_string_list( ppsz_adev, ppsz_adev_text, ReloadWaveoutDevices );
-       change_need_restart();
-       change_action_add( ReloadWaveoutDevices, N_("Refresh list") );
+    add_string( "waveout-audio-device", "wavemapper", NULL,
+                 DEVICE_TEXT, DEVICE_LONG, false )
+       add_deprecated_alias( "waveout-dev" )   /* deprecated since 0.9.3 */
+       change_string_list( ppsz_adev, ppsz_adev_text, ReloadWaveoutDevices )
+       change_need_restart ()
+       change_action_add( ReloadWaveoutDevices, N_("Refresh list") )
 
 
-    set_callbacks( Open, Close );
-vlc_module_end();
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * aout_sys_t: waveOut audio output method descriptor
@@ -255,13 +256,13 @@ static int Open( vlc_object_t *p_this )
     /*
      initialize/update Device selection List
     */
-    ReloadWaveoutDevices( p_this, "waveout-dev", val, val, NULL);
+    ReloadWaveoutDevices( p_this, "waveout-audio-device", val, val, NULL);
 
 
     /*
       check for configured audio device!
     */
-    char *psz_waveout_dev = var_CreateGetString( p_aout, "waveout-dev");
+    char *psz_waveout_dev = var_CreateGetString( p_aout, "waveout-audio-device");
 
     p_aout->output.p_sys->i_wave_device_id =
          findDeviceID( psz_waveout_dev );
@@ -303,7 +304,7 @@ static int Open( vlc_object_t *p_this )
     if( var_Get( p_aout, "audio-device", &val ) < 0 )
     {
         /* Probe() has failed. */
-        var_Destroy( p_aout, "waveout-device");
+        var_Destroy( p_aout, "waveout-audio-device");
         free( p_aout->output.p_sys );
         return VLC_EGENERIC;
     }
@@ -434,7 +435,7 @@ static int Open( vlc_object_t *p_this )
     /* Then launch the notification thread */
     if( vlc_thread_create( p_aout->output.p_sys->p_notif,
                            "waveOut Notification Thread", WaveOutThread,
-                           VLC_THREAD_PRIORITY_OUTPUT, false ) )
+                           VLC_THREAD_PRIORITY_OUTPUT ) )
     {
         msg_Err( p_aout, "cannot create WaveOutThread" );
     }
@@ -477,7 +478,7 @@ static void Probe( aout_instance_t * p_aout )
             == VLC_SUCCESS )
         {
             val.i_int = AOUT_VAR_5_1;
-            text.psz_string = (char *)N_("5.1");
+            text.psz_string = (char *)_("5.1");
             var_Change( p_aout, "audio-device",
                         VLC_VAR_ADDCHOICE, &val, &text );
             msg_Dbg( p_aout, "device supports 5.1 channels" );
@@ -498,7 +499,7 @@ static void Probe( aout_instance_t * p_aout )
             == VLC_SUCCESS )
         {
             val.i_int = AOUT_VAR_2F2R;
-            text.psz_string = (char *)N_("2 Front 2 Rear");
+            text.psz_string = (char *)_("2 Front 2 Rear");
             var_Change( p_aout, "audio-device",
                         VLC_VAR_ADDCHOICE, &val, &text );
             msg_Dbg( p_aout, "device supports 4 channels" );
@@ -515,7 +516,7 @@ static void Probe( aout_instance_t * p_aout )
         == VLC_SUCCESS )
     {
         val.i_int = AOUT_VAR_STEREO;
-        text.psz_string = (char *)N_("Stereo");
+        text.psz_string = (char *)_("Stereo");
         var_Change( p_aout, "audio-device", VLC_VAR_ADDCHOICE, &val, &text );
         msg_Dbg( p_aout, "device supports 2 channels" );
     }
@@ -530,7 +531,7 @@ static void Probe( aout_instance_t * p_aout )
         == VLC_SUCCESS )
     {
         val.i_int = AOUT_VAR_MONO;
-        text.psz_string = (char *)N_("Mono");
+        text.psz_string = (char *)_("Mono");
         var_Change( p_aout, "audio-device", VLC_VAR_ADDCHOICE, &val, &text );
         msg_Dbg( p_aout, "device supports 1 channel" );
     }
@@ -548,7 +549,7 @@ static void Probe( aout_instance_t * p_aout )
         {
             msg_Dbg( p_aout, "device supports A/52 over S/PDIF" );
             val.i_int = AOUT_VAR_SPDIF;
-            text.psz_string = (char *)N_("A/52 over S/PDIF");
+            text.psz_string = (char *)_("A/52 over S/PDIF");
             var_Change( p_aout, "audio-device",
                         VLC_VAR_ADDCHOICE, &val, &text );
             if( config_GetInt( p_aout, "spdif" ) )
@@ -982,6 +983,7 @@ static void* WaveOutThread( vlc_object_t *p_this )
     bool b_sleek;
     mtime_t next_date;
     uint32_t i_buffer_length = 64;
+    int canc = vlc_savecancel ();
 
     /* We don't want any resampling when using S/PDIF */
     b_sleek = p_aout->output.output.i_format == VLC_FOURCC('s','p','d','i');
@@ -1108,6 +1110,7 @@ static void* WaveOutThread( vlc_object_t *p_this )
     }
 
 #undef waveout_warn
+    vlc_restorecancel (canc);
     return NULL;
 }
 

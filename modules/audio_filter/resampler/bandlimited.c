@@ -2,7 +2,7 @@
  * bandlimited.c : band-limited interpolation resampler
  *****************************************************************************
  * Copyright (C) 2002, 2006 the VideoLAN team
- * $Id: 3eddef55bf45f0949f66e472a0a5d25f6ae0dc47 $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@netcourrier.com>
  *
@@ -92,18 +92,18 @@ struct filter_sys_t
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_category( CAT_AUDIO );
-    set_subcategory( SUBCAT_AUDIO_MISC );
-    set_description( N_("Audio filter for band-limited interpolation resampling") );
-    set_capability( "audio filter", 20 );
-    set_callbacks( Create, Close );
+vlc_module_begin ()
+    set_category( CAT_AUDIO )
+    set_subcategory( SUBCAT_AUDIO_MISC )
+    set_description( N_("Audio filter for band-limited interpolation resampling") )
+    set_capability( "audio filter", 20 )
+    set_callbacks( Create, Close )
 
-    add_submodule();
-    set_description( _("Audio filter for band-limited interpolation resampling") );
-    set_capability( "audio filter2", 20 );
-    set_callbacks( OpenFilter, CloseFilter );
-vlc_module_end();
+    add_submodule ()
+    set_description( N_("Audio filter for band-limited interpolation resampling") )
+    set_capability( "audio filter2", 20 )
+    set_callbacks( OpenFilter, CloseFilter )
+vlc_module_end ()
 
 /*****************************************************************************
  * Create: allocate linear resampler

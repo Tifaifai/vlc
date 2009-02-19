@@ -2,7 +2,7 @@
  * marq.c : marquee display video plugin for vlc
  *****************************************************************************
  * Copyright (C) 2003-2008 the VideoLAN team
- * $Id: e454ca907c5a24913e1799effd6bab0f4fa2a331 $
+ * $Id$
  *
  * Authors: Mark Moriarty
  *          Sigmund Augdal Helberg <dnumgis@videolan.org>
@@ -141,47 +141,47 @@ static const char *const ppsz_pos_descriptions[] =
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_capability( "sub filter", 0 );
-    set_shortname( N_("Marquee" ));
-    set_callbacks( CreateFilter, DestroyFilter );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_SUBPIC );
+vlc_module_begin ()
+    set_capability( "sub filter", 0 )
+    set_shortname( N_("Marquee" ))
+    set_callbacks( CreateFilter, DestroyFilter )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_SUBPIC )
     add_string( CFG_PREFIX "marquee", "VLC", NULL, MSG_TEXT, MSG_LONGTEXT,
-                false );
+                false )
 
-    set_section( N_("Position"), NULL );
-    add_integer( CFG_PREFIX "x", 0, NULL, POSX_TEXT, POSX_LONGTEXT, true );
-    add_integer( CFG_PREFIX "y", 0, NULL, POSY_TEXT, POSY_LONGTEXT, true );
-    add_integer( CFG_PREFIX "position", -1, NULL, POS_TEXT, POS_LONGTEXT, false );
-        change_integer_list( pi_pos_values, ppsz_pos_descriptions, NULL );
+    set_section( N_("Position"), NULL )
+    add_integer( CFG_PREFIX "x", 0, NULL, POSX_TEXT, POSX_LONGTEXT, true )
+    add_integer( CFG_PREFIX "y", 0, NULL, POSY_TEXT, POSY_LONGTEXT, true )
+    add_integer( CFG_PREFIX "position", -1, NULL, POS_TEXT, POS_LONGTEXT, false )
+        change_integer_list( pi_pos_values, ppsz_pos_descriptions, NULL )
 
-    set_section( N_("Font"), NULL );
+    set_section( N_("Font"), NULL )
     /* 5 sets the default to top [1] left [4] */
     add_integer_with_range( CFG_PREFIX "opacity", 255, 0, 255, NULL,
-        OPACITY_TEXT, OPACITY_LONGTEXT, false );
+        OPACITY_TEXT, OPACITY_LONGTEXT, false )
     add_integer( CFG_PREFIX "color", 0xFFFFFF, NULL, COLOR_TEXT, COLOR_LONGTEXT,
-                 false );
-        change_integer_list( pi_color_values, ppsz_color_descriptions, NULL );
+                 false )
+        change_integer_list( pi_color_values, ppsz_color_descriptions, NULL )
     add_integer( CFG_PREFIX "size", -1, NULL, SIZE_TEXT, SIZE_LONGTEXT,
-                 false );
+                 false )
 
-    set_section( N_("Misc"), NULL );
+    set_section( N_("Misc"), NULL )
     add_integer( CFG_PREFIX "timeout", 0, NULL, TIMEOUT_TEXT, TIMEOUT_LONGTEXT,
-                 false );
+                 false )
     add_integer( CFG_PREFIX "refresh", 1000, NULL, REFRESH_TEXT,
-                 REFRESH_LONGTEXT, false );
+                 REFRESH_LONGTEXT, false )
 
-    set_description( N_("Marquee display") );
-    add_shortcut( "time" );
-    add_obsolete_string( "time-format" );
-    add_obsolete_string( "time-x" );
-    add_obsolete_string( "time-y" );
-    add_obsolete_string( "time-position" );
-    add_obsolete_string( "time-opacity" );
-    add_obsolete_string( "time-color" );
-    add_obsolete_string( "time-size" );
-vlc_module_end();
+    set_description( N_("Marquee display") )
+    add_shortcut( "time" )
+    add_obsolete_string( "time-format" )
+    add_obsolete_string( "time-x" )
+    add_obsolete_string( "time-y" )
+    add_obsolete_string( "time-position" )
+    add_obsolete_string( "time-opacity" )
+    add_obsolete_string( "time-color" )
+    add_obsolete_string( "time-size" )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "marquee", "x", "y", "position", "color", "size", "timeout", "refresh",
@@ -286,7 +286,7 @@ static subpicture_t *Filter( filter_t *p_filter, mtime_t date )
     fmt.i_width = fmt.i_height = 0;
     fmt.i_x_offset = 0;
     fmt.i_y_offset = 0;
-    p_spu->p_region = p_spu->pf_create_region( VLC_OBJECT(p_filter), &fmt );
+    p_spu->p_region = subpicture_region_New( &fmt );
     if( !p_spu->p_region )
     {
         p_filter->pf_sub_buffer_del( p_filter, p_spu );
@@ -317,8 +317,8 @@ static subpicture_t *Filter( filter_t *p_filter, mtime_t date )
         p_spu->b_absolute = false;
     }
 
-    p_spu->i_x = p_sys->i_xoff;
-    p_spu->i_y = p_sys->i_yoff;
+    p_spu->p_region->i_x = p_sys->i_xoff;
+    p_spu->p_region->i_y = p_sys->i_yoff;
 
     p_spu->p_region->p_style = p_sys->p_style;
 

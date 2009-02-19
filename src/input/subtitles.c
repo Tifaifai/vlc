@@ -2,7 +2,7 @@
  * subtitles.c
  *****************************************************************************
  * Copyright (C) 2003-2006 the VideoLAN team
- * $Id: 0ad27d3b82238d4d81fc79b9f759d1ed1c0790f6 $
+ * $Id$
  *
  * Authors: Derk-Jan Hartman <hartman at videolan.org>
  * This is adapted code from the GPL'ed MPlayer (http://mplayerhq.hu)
@@ -278,7 +278,7 @@ char **subtitles_Detect( input_thread_t *p_this, char *psz_path,
     }
     else
     {
-#ifdef HAVE_UNISTD_H
+#if defined (HAVE_UNISTD_H) && !defined (UNDER_CE)
         /* Get the current working directory */
         char *psz_cwd = getcwd( NULL, 0 );
 #else
@@ -345,7 +345,7 @@ char **subtitles_Detect( input_thread_t *p_this, char *psz_path,
 
             int i_prio;
 
-            if( psz_name == NULL )
+            if( psz_name == NULL || psz_name[0] == '.' )
                 continue;
 
             /* retrieve various parts of the filename */

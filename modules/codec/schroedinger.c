@@ -45,14 +45,14 @@
 static int        OpenDecoder  ( vlc_object_t * );
 static void       CloseDecoder ( vlc_object_t * );
 
-vlc_module_begin();
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_VCODEC );
-    set_description( N_("Schroedinger video decoder") );
-    set_capability( "decoder", 200 );
-    set_callbacks( OpenDecoder, CloseDecoder );
-    add_shortcut( "schroedinger" );
-vlc_module_end();
+vlc_module_begin ()
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_VCODEC )
+    set_description( N_("Schroedinger video decoder") )
+    set_capability( "decoder", 200 )
+    set_callbacks( OpenDecoder, CloseDecoder )
+    add_shortcut( "schroedinger" )
+vlc_module_end ()
 
 /*****************************************************************************
  * Local prototypes
@@ -256,7 +256,7 @@ static void SchroFrameFree( SchroFrame *frame, void *priv)
     if( !p_free )
         return;
 
-    p_free->p_dec->pf_vout_buffer_del( p_free->p_dec, p_free->p_pic );
+    decoder_DeletePicture( p_free->p_dec, p_free->p_pic );
     free(p_free);
     (void)frame;
 }
@@ -274,7 +274,7 @@ static SchroFrame *CreateSchroFrameFromPic( decoder_t *p_dec )
     if( !p_schroframe )
         return NULL;
 
-    p_pic = p_dec->pf_vout_buffer_new( p_dec );
+    p_pic = decoder_NewPicture( p_dec );
 
     if( !p_pic )
         return NULL;

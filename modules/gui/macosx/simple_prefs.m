@@ -2,7 +2,7 @@
 * simple_prefs.m: Simple Preferences for Mac OS X
 *****************************************************************************
 * Copyright (C) 2008 the VideoLAN team
-* $Id: e63e7f847f007a85a10b1e40fef069f30c6868ea $
+* $Id$
 *
 * Authors: Felix Paul Kühne <fkuehne at videolan dot org>
 *
@@ -242,22 +242,17 @@ create_toolbar_item( NSString * o_itemIdent, NSString * o_name, NSString * o_des
     [[[o_hotkeys_listbox tableColumnWithIdentifier: @"shortcut"] headerCell] setStringValue: _NS("Shortcut")];
 
     /* input */
-    [o_input_access_box setTitle: _NS("Access Filter")];
     [o_input_avi_txt setStringValue: _NS("Repair AVI Files")];
-    [o_input_bandwidth_ckb setTitle: _NS("Bandwidth limiter")];
     [o_input_cachelevel_txt setStringValue: _NS("Default Caching Level")];
     [o_input_caching_box setTitle: _NS("Caching")];
     [o_input_cachelevel_custom_txt setStringValue: _NS("Use the complete preferences to configure custom caching values for each access module.")];
-    [o_input_dump_ckb setTitle: _NS("Dump")];
     [o_input_httpproxy_txt setStringValue: _NS("HTTP Proxy")];
     [o_input_httpproxypwd_txt setStringValue: _NS("Password for HTTP Proxy")];
     [o_input_mux_box setTitle: _NS("Codecs / Muxers")];
     [o_input_net_box setTitle: _NS("Network")];
     [o_input_postproc_txt setStringValue: _NS("Post-Processing Quality")];
-    [o_input_record_ckb setTitle: _NS("Record")];
     [o_input_rtsp_ckb setTitle: _NS("Use RTP over RTSP (TCP)")];
     [o_input_serverport_txt setStringValue: _NS("Default Server Port")];
-    [o_input_timeshift_ckb setTitle: _NS("Timeshift")];
 
     /* interface */
     [o_intf_art_txt setStringValue: _NS("Album art download policy")];
@@ -363,33 +358,32 @@ create_toolbar_item( NSString * o_itemIdent, NSString * o_name, NSString * o_des
 - (void)setupButton: (NSPopUpButton *)object forModuleList: (const char *)name
 {
     module_config_t *p_item;
-    vlc_list_t *p_list;
-    module_t *p_parser;
+    module_t *p_parser, **p_list;
     int y = 0;
     
     [object removeAllItems];
     
     p_item = config_FindConfig( VLC_OBJECT(p_intf), name );
-    p_list = vlc_list_find( p_intf, VLC_OBJECT_MODULE, FIND_ANYWHERE );
+    p_list = module_list_get( NULL );
     if( !p_item ||!p_list )
     {
-        if( p_list ) vlc_list_release(p_list);
+        if( p_list ) module_list_free(p_list);
         NSLog( @"serious problem, item or list not found" );
         return;
     }
 
     [object addItemWithTitle: _NS("Default")];
-    for( int i_index = 0; i_index < p_list->i_count; i_index++ )
+    for( size_t i_index = 0; p_list[i_index]; i_index++ )
     {
-        p_parser = (module_t *)p_list->p_values[i_index].p_object;
-        if( p_parser && module_IsCapable( p_parser, p_item->psz_type ) )
+        p_parser = p_list[i_index];
+        if( module_provides( p_parser, p_item->psz_type ) )
         {
             [object addItemWithTitle: [NSString stringWithUTF8String: module_GetLongName( p_parser ) ?: ""]];
-            if( p_item->value.psz && !strcmp( p_item->value.psz, module_GetObjName( p_parser ) ) )
+            if( p_item->value.psz && !strcmp( p_item->value.psz, module_get_object( p_parser ) ) )
                 [object selectItem: [object lastItem]];
         }
     }
-    vlc_list_release( p_list );
+    module_list_free( p_list );
     [object setToolTip: _NS(p_item->psz_longtext)];
 }
 
@@ -429,7 +423,7 @@ create_toolbar_item( NSString * o_itemIdent, NSString * o_name, NSString * o_des
     psz_tmp = config_GetPsz( p_intf, "audio-filter" );
     if( psz_tmp )
     {
-        [o_audio_norm_ckb setState: (int)strstr( psz_tmp, "volnorm" )];
+        [o_audio_norm_ckb setState: (NSInteger)strstr( psz_tmp, "volnorm" )];
         [o_audio_norm_fld setEnabled: [o_audio_norm_ckb state]];
         [o_audio_norm_stepper setEnabled: [o_audio_norm_ckb state]];
     }
@@ -438,7 +432,7 @@ create_toolbar_item( NSString * o_itemIdent, NSString * o_name, NSString * o_des
     [self setupButton: o_audio_visual_pop forModuleList: "audio-visual"];
 
     /* Last.FM is optional */
-    if( module_Exists( p_intf, "audioscrobbler" ) )
+    if( module_exists( "audioscrobbler" ) )
     {
         [o_audio_lastuser_fld setStringValue: [NSString stringWithUTF8String: config_GetPsz( p_intf, "lastfm-username" ) ?: ""]];
         [o_audio_lastpwd_sfld setStringValue: [NSString stringWithUTF8String: config_GetPsz( p_intf, "lastfm-password" ) ?: ""]];
@@ -506,15 +500,6 @@ create_toolbar_item( NSString * o_itemIdent, NSString * o_name, NSString * o_des
 
     [o_input_rtsp_ckb setState: config_GetInt( p_intf, "rtsp-tcp" )];
 
-    psz_tmp = config_GetPsz( p_intf, "access-filter" );
-    if( psz_tmp )
-    {
-        [o_input_record_ckb setState: (int)strstr( psz_tmp, "record" )];
-        [o_input_dump_ckb setState: (int)strstr( psz_tmp, "dump" )];
-        [o_input_bandwidth_ckb setState: (int)strstr( psz_tmp, "bandwidth" )];
-        [o_input_timeshift_ckb setState: (int)strstr( psz_tmp, "timeshift" )];
-    }
-
     [o_input_cachelevel_pop removeAllItems];
     [o_input_cachelevel_pop addItemsWithTitles: 
         [NSArray arrayWithObjects: _NS("Custom"), _NS("Lowest latency"), _NS("Low latency"), _NS("Normal"),
@@ -539,9 +524,9 @@ create_toolbar_item( NSString * o_itemIdent, NSString * o_name, NSString * o_des
     int i_cache = config_GetInt( p_intf, "file-caching");
     
     TestCaC( "udp-caching" );
-    if( module_Exists (p_intf, "dvdread") )
+    if( module_exists ("dvdread") )
         TestCaC( "dvdread-caching" );
-    if( module_Exists (p_intf, "dvdnav") )
+    if( module_exists ("dvdnav") )
         TestCaC( "dvdnav-caching" );
     TestCaC( "tcp-caching" );
     TestCaC( "fake-caching" );
@@ -551,7 +536,7 @@ create_toolbar_item( NSString * o_itemIdent, NSString * o_name, NSString * o_des
     TestCaCi( "rtsp-caching", 4 );
     TestCaCi( "ftp-caching", 2 );
     TestCaCi( "http-caching", 4 );
-    if(module_Exists (p_intf, "access_realrtsp"))
+    if(module_exists ("access_realrtsp"))
         TestCaCi( "realrtsp-caching", 10 );
     TestCaCi( "mms-caching", 19 );
     if( b_cache_equal )
@@ -679,26 +664,25 @@ static inline void save_string_list( intf_thread_t * p_intf, id object, const ch
 static inline void save_module_list( intf_thread_t * p_intf, id object, const char * name )
 {
     module_config_t *p_item;
-    module_t *p_parser;
-    vlc_list_t *p_list;
+    module_t *p_parser, **p_list;
 
     p_item = config_FindConfig( VLC_OBJECT(p_intf), name );
 
-    p_list = vlc_list_find( VLCIntf, VLC_OBJECT_MODULE, FIND_ANYWHERE );
-    for( int i_module_index = 0; i_module_index < p_list->i_count; i_module_index++ )
+    p_list = module_list_get( NULL );
+    for( size_t i_module_index = 0; p_list[i_module_index]; i_module_index++ )
     {
-        p_parser = (module_t *)p_list->p_values[i_module_index].p_object;
+        p_parser = p_list[i_module_index];
 
-        if( p_item->i_type == CONFIG_ITEM_MODULE && module_IsCapable( p_parser, p_item->psz_type ) )
+        if( p_item->i_type == CONFIG_ITEM_MODULE && module_provides( p_parser, p_item->psz_type ) )
         {
             if( [[[object selectedItem] title] isEqualToString: _NS( module_GetLongName( p_parser ) )] )
             {
-                config_PutPsz( p_intf, name, strdup( module_GetObjName( p_parser )));
+                config_PutPsz( p_intf, name, strdup( module_get_object( p_parser )));
                 break;
             }
         }
     }
-    vlc_list_release( p_list );
+    module_list_free( p_list );
     if( [[[object selectedItem] title] isEqualToString: _NS( "Default" )] )
         config_PutPsz( p_intf, name, "" );
 }
@@ -760,7 +744,7 @@ static inline void save_module_list( intf_thread_t * p_intf, id object, const ch
             psz_tmp = config_GetPsz( p_intf, "audio-filter" );
             if(! psz_tmp)
                 config_PutPsz( p_intf, "audio-filter", "volnorm" );
-            else if( (int)strstr( psz_tmp, "normvol" ) == NO )
+            else if( (NSInteger)strstr( psz_tmp, "normvol" ) == NO )
             {
                 /* work-around a GCC 4.0.1 bug */
                 psz_tmp = (char *)[[NSString stringWithFormat: @"%s:volnorm", psz_tmp] UTF8String];
@@ -783,7 +767,7 @@ static inline void save_module_list( intf_thread_t * p_intf, id object, const ch
         SaveModuleList( o_audio_visual_pop, "audio-visual" );
 
         /* Last.FM is optional */
-        if( module_Exists( p_intf, "audioscrobbler" ) )
+        if( module_exists( "audioscrobbler" ) )
         {   
             [o_audio_last_ckb setEnabled: YES];
             if( [o_audio_last_ckb state] == NSOnState )
@@ -861,14 +845,14 @@ static inline void save_module_list( intf_thread_t * p_intf, id object, const ch
 
         #define CaCi( name, int ) config_PutInt( p_intf, name, int * [[o_input_cachelevel_pop selectedItem] tag] )
         #define CaC( name ) CaCi( name, 1 )
-        msg_Dbg( p_intf, "Adjusting all cache values to: %i", [[o_input_cachelevel_pop selectedItem] tag] );
+        msg_Dbg( p_intf, "Adjusting all cache values to: %i", (int)[[o_input_cachelevel_pop selectedItem] tag] );
         CaC( "udp-caching" );
-        if( module_Exists (p_intf, "dvdread" ) )
+        if( module_exists ( "dvdread" ) )
         {
             CaC( "dvdread-caching" );
             i = i + config_SaveConfigFile( p_intf, "dvdread" );
         }
-        if( module_Exists (p_intf, "dvdnav" ) )
+        if( module_exists ( "dvdnav" ) )
         {
             CaC( "dvdnav-caching" );
             i = i + config_SaveConfigFile( p_intf, "dvdnav" );
@@ -878,33 +862,12 @@ static inline void save_module_list( intf_thread_t * p_intf, id object, const ch
         CaC( "screen-caching" );
         CaCi( "rtsp-caching", 4 ); CaCi( "ftp-caching", 2 );
         CaCi( "http-caching", 4 );
-        if( module_Exists (p_intf, "access_realrtsp" ) )
+        if( module_exists ( "access_realrtsp" ) )
         {
             CaCi( "realrtsp-caching", 10 );
             i = i + config_SaveConfigFile( p_intf, "access_realrtsp" );
         }
         CaCi( "mms-caching", 19 );
-
-        #define SaveAccessFilter( object, name ) \
-        if( [object state] == NSOnState ) \
-        { \
-            if( b_first ) \
-            { \
-                [o_temp appendString: name]; \
-                b_first = NO; \
-            } \
-            else \
-                [o_temp appendFormat: @":%@", name]; \
-        }
-
-        BOOL b_first = YES;
-        NSMutableString *o_temp = [[NSMutableString alloc] init];
-        SaveAccessFilter( o_input_record_ckb, @"record" );
-        SaveAccessFilter( o_input_dump_ckb, @"dump" );
-        SaveAccessFilter( o_input_bandwidth_ckb, @"bandwidth" );
-        SaveAccessFilter( o_input_timeshift_ckb, @"timeshift" );
-        config_PutPsz( p_intf, "access-filter", [o_temp UTF8String] );
-        [o_temp release];
 
         i = config_SaveConfigFile( p_intf, "main" );
         i = i + config_SaveConfigFile( p_intf, "ffmpeg" );
@@ -1042,8 +1005,8 @@ static inline void save_module_list( intf_thread_t * p_intf, id object, const ch
     {
         [o_audio_norm_stepper setEnabled: [o_audio_norm_ckb state]];
         [o_audio_norm_fld setEnabled: [o_audio_norm_ckb state]];
-    }
-
+    }    
+    
     if( sender == o_audio_last_ckb )
     {
         if( [o_audio_last_ckb state] == NSOnState )
@@ -1181,7 +1144,7 @@ static inline void save_module_list( intf_thread_t * p_intf, id object, const ch
     }
     else if( sender == o_hotkeys_change_ok_btn )
     {
-        int i_returnValue;
+        NSInteger i_returnValue;
         if(! o_keyInTransition )
         {
             [NSApp stopModal];
@@ -1236,7 +1199,7 @@ static inline void save_module_list( intf_thread_t * p_intf, id object, const ch
 
 - (BOOL)changeHotkeyTo: (int)i_theNewKey
 {
-    int i_returnValue;
+    NSInteger i_returnValue;
     i_returnValue = [o_hotkeysNonUseableKeys indexOfObject: [NSNumber numberWithInt: i_theNewKey]];
     if( i_returnValue != NSNotFound || i_theNewKey == 0 )
     {

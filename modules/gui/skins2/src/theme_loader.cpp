@@ -217,10 +217,7 @@ bool ThemeLoader::extractFileInZip( unzFile file, const string &rootDir )
     // Allocate the buffer
     void *pBuffer = malloc( ZIP_BUFFER_SIZE );
     if( !pBuffer )
-    {
-        msg_Err( getIntf(), "failed to allocate memory" );
         return false;
-    }
 
     // Get the path of the file
     OSFactory *pOsFactory = OSFactory::instance( getIntf() );
@@ -362,10 +359,7 @@ bool ThemeLoader::parse( const string &path, const string &xmlFile )
     // Start the parser
     SkinParser parser( getIntf(), xmlFile, path );
     if( ! parser.parse() )
-    {
-        msg_Err( getIntf(), "failed to parse %s", xmlFile.c_str() );
         return false;
-    }
 
     // Build and store the theme
     Builder builder( getIntf(), parser.getData(), path );

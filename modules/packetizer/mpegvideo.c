@@ -64,16 +64,17 @@
 static int  Open ( vlc_object_t * );
 static void Close( vlc_object_t * );
 
-vlc_module_begin();
-    set_category( CAT_SOUT );
-    set_subcategory( SUBCAT_SOUT_PACKETIZER );
-    set_description( N_("MPEG-I/II video packetizer") );
-    set_capability( "packetizer", 50 );
-    set_callbacks( Open, Close );
+vlc_module_begin ()
+    set_category( CAT_SOUT )
+    set_subcategory( SUBCAT_SOUT_PACKETIZER )
+    set_description( N_("MPEG-I/II video packetizer") )
+    set_shortname( N_("MPEG Video") )
+    set_capability( "packetizer", 50 )
+    set_callbacks( Open, Close )
 
     add_bool( "packetizer-mpegvideo-sync-iframe", 0, NULL, SYNC_INTRAFRAME_TEXT,
-              SYNC_INTRAFRAME_LONGTEXT, true );
-vlc_module_end();
+              SYNC_INTRAFRAME_LONGTEXT, true )
+vlc_module_end ()
 
 /*****************************************************************************
  * Local prototypes
@@ -262,7 +263,7 @@ static block_t *Packetize( decoder_t *p_dec, block_t **pp_block )
         if( (*pp_block)->i_flags&BLOCK_FLAG_CORRUPTED )
         {
             p_sys->i_state = STATE_NOSYNC;
-            block_BytestreamFlush( &p_sys->bytestream );
+            block_BytestreamEmpty( &p_sys->bytestream );
 
             p_sys->b_discontinuity = true;
             if( p_sys->p_frame )
@@ -271,8 +272,10 @@ static block_t *Packetize( decoder_t *p_dec, block_t **pp_block )
             p_sys->pp_last = &p_sys->p_frame;
             p_sys->b_frame_slice = false;
         }
-//        p_sys->i_interpolated_dts =
-//        p_sys->i_last_ref_pts = 0;
+        p_sys->i_dts = 0;
+        p_sys->i_pts = 0;
+        p_sys->i_interpolated_dts = 0;
+        p_sys->i_last_ref_pts = 0;
 
         block_Release( *pp_block );
         return NULL;

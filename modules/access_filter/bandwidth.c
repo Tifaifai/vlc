@@ -41,18 +41,18 @@ static void Close (vlc_object_t *);
 
 /* TODO: burst support */
 
-vlc_module_begin ();
-    set_shortname (N_("Bandwidth"));
-    set_description (N_("Bandwidth limiter"));
-    set_category (CAT_INPUT);
-    set_subcategory (SUBCAT_INPUT_ACCESS_FILTER);
-    set_capability ("access_filter", 0);
-    add_shortcut ("bandwidth");
-    set_callbacks (Open, Close);
+vlc_module_begin ()
+    set_shortname (N_("Bandwidth"))
+    set_description (N_("Bandwidth limiter"))
+    set_category (CAT_INPUT)
+    set_subcategory (SUBCAT_INPUT_ACCESS_FILTER)
+    set_capability ("access_filter", 0)
+    add_shortcut ("bandwidth")
+    set_callbacks (Open, Close)
 
     add_integer ("access-bandwidth", 65536, NULL, BANDWIDTH_TEXT,
                  BANDWIDTH_LONGTEXT, false);
-vlc_module_end();
+vlc_module_end ()
 
 static ssize_t Read (access_t *access, uint8_t *buffer, size_t len);
 static int Seek (access_t *access, int64_t offset);
@@ -87,11 +87,10 @@ static int Open (vlc_object_t *obj)
     access->pf_control = Control;
     access->info = src->info;
 
-    access_sys_t *p_sys = access->p_sys = malloc (sizeof (*p_sys));
-    if (p_sys == NULL)
+    access_sys_t *p_sys = access->p_sys = calloc( 1, sizeof (*p_sys) );
+    if( !p_sys )
         return VLC_ENOMEM;
 
-    memset (p_sys, 0, sizeof (*p_sys));
     p_sys->bandwidth = var_CreateGetInteger (access, "access-bandwidth");
     p_sys->last_time = mdate ();
 
@@ -175,3 +174,4 @@ static int Seek (access_t *access, int64_t offset)
     access->info = src->info;
     return ret;
 }
+

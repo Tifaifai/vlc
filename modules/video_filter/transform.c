@@ -72,20 +72,20 @@ static const char *const type_list_text[] = { N_("Rotate by 90 degrees"),
 
 #define CFG_PREFIX "transform-"
 
-vlc_module_begin();
-    set_description( N_("Video transformation filter") );
-    set_shortname( N_("Transformation"));
-    set_capability( "video filter", 0 );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VFILTER );
+vlc_module_begin ()
+    set_description( N_("Video transformation filter") )
+    set_shortname( N_("Transformation"))
+    set_capability( "video filter", 0 )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VFILTER )
 
     add_string( CFG_PREFIX "type", "90", NULL,
-                          TYPE_TEXT, TYPE_LONGTEXT, false);
-        change_string_list( type_list, type_list_text, 0);
+                          TYPE_TEXT, TYPE_LONGTEXT, false)
+        change_string_list( type_list, type_list_text, 0)
 
-    add_shortcut( "transform" );
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+    add_shortcut( "transform" )
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "type", NULL
@@ -324,7 +324,7 @@ static void Render( vout_thread_t *p_vout, picture_t *p_pic )
         msleep( VOUT_OUTMEM_SLEEP );
     }
 
-    vout_DatePicture( p_vout->p_sys->p_vout, p_outpic, p_pic->date );
+    p_outpic->date = p_pic->date;
     vout_LinkPicture( p_vout->p_sys->p_vout, p_outpic );
 
     p_vout->p_sys->pf_filter( p_vout, p_pic, p_outpic );

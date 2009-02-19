@@ -1,7 +1,7 @@
 /*****************************************************************************
  * open.hpp : Panels for the open dialogs
  ****************************************************************************
- * Copyright (C) 2006-2007 the VideoLAN team
+ * Copyright (C) 2006-2009 the VideoLAN team
  * Copyright (C) 2007 Société des arts technologiques
  * Copyright (C) 2007 Savoir-faire Linux
  * $Id$
@@ -32,16 +32,14 @@
 # include "config.h"
 #endif
 
-#include <vlc_common.h>
-
-#include <QFileDialog>
+#include "components/preferences_widgets.hpp"
 
 #include "ui/open_file.h"
 #include "ui/open_disk.h"
 #include "ui/open_net.h"
 #include "ui/open_capture.h"
 
-#include "components/preferences_widgets.hpp"
+#include <QFileDialog>
 
 #include <limits.h>
 
@@ -61,7 +59,6 @@ enum
     RTMP_PROTO
 };
 
-
 enum
 {
     V4L_DEVICE,
@@ -74,13 +71,10 @@ enum
     JACK_DEVICE
 };
 
-static const char *psz_devModule[] = { "v4l", "v4l2", "pvr", "dvb", "bda",
-                                       "dshow", "screen", "jack" };
-
-
 class QWidget;
 class QLineEdit;
 class QString;
+class QStringListModel;
 
 class OpenPanel: public QWidget
 {
@@ -97,20 +91,8 @@ protected:
 public slots:
     virtual void updateMRL() = 0;
 signals:
-    void mrlUpdated( QString );
+    void mrlUpdated( QStringList, QString );
     void methodChanged( QString method );
-};
-
-class FileOpenBox: public QFileDialog
-{
-    Q_OBJECT;
-public:
-    FileOpenBox( QWidget *parent, const QString &caption,
-        const QString &directory, const QString &filter ):
-        QFileDialog( parent, caption, directory, filter ) {}
-public slots:
-    void accept();
-    void reject();
 };
 
 class FileOpenPanel: public OpenPanel
@@ -123,15 +105,12 @@ public:
     virtual void accept() ;
 private:
     Ui::OpenFile ui;
-    QStringList browse( QString );
-    FileOpenBox *dialogBox;
-    QLineEdit *lineFileEdit;
-    QStringList fileCompleteList ;
 public slots:
     virtual void updateMRL();
 private slots:
     void browseFileSub();
-    void toggleSubtitleFrame();
+    void browseFile();
+    void toggleSubtitleFrame( bool );
 };
 
 class NetOpenPanel: public OpenPanel
@@ -143,10 +122,12 @@ public:
     virtual void clear() ;
 private:
     Ui::OpenNetwork ui;
+    QStringListModel *mrlList;
 public slots:
     virtual void updateMRL();
 private slots:
     void updateProtocol( int );
+    void updateCompleter();
 };
 
 class DiscOpenPanel: public OpenPanel
@@ -184,7 +165,7 @@ private:
     QString advMRL;
     QDialog *adv;
 #ifdef WIN32
-    QRadioButton *bdas, *bdat, *bdac;
+    QRadioButton *bdas, *bdat, *bdac, *bdaa;
     QSpinBox *bdaCard, *bdaFreq, *bdaSrate;
     QLabel *bdaSrateLabel, *bdaBandLabel;
     QComboBox *bdaBandBox;

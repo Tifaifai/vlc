@@ -2,7 +2,7 @@
  * cdrom.c: cdrom tools
  *****************************************************************************
  * Copyright (C) 1998-2001 the VideoLAN team
- * $Id: 5fa97052ee8b4f440db88fbc6f8a47fd475d50fc $
+ * $Id$
  *
  * Authors: Johan Bilien <jobi@via.ecp.fr>
  *          Gildas Bazin <gbazin@netcourrier.com>
@@ -111,7 +111,7 @@ vcddev_t *ioctl_Open( vlc_object_t *p_this, const char *psz_dev )
     }
 
 #else
-    if( utf8_stat( psz_dev, &fileinfo ) < 0 )
+    if( stat( psz_dev, &fileinfo ) < 0 )
     {
         free( p_vcddev );
         return NULL;
@@ -728,7 +728,7 @@ int ioctl_ReadSectors( vlc_object_t *p_this, const vcddev_t *p_vcddev,
         }
         if( sc.retsts || sc.error )
         {
-            msg_Err( p_this, "SCSI command failed: status %d error %d\n",
+            msg_Err( p_this, "SCSI command failed: status %d error %d",
                              sc.retsts, sc.error );
             if( i_type == VCD_TYPE ) free( p_block );
            return -1;
@@ -847,8 +847,8 @@ static int OpenVCDImage( vlc_object_t * p_this, const char *psz_dev,
         }
         else
         {
-            psz_cuefile = malloc( strlen(psz_dev) + 5 /* ".cue" */ );
-            sprintf( psz_cuefile, "%s.cue", psz_dev );
+            if( asprintf( &psz_cuefile, "%s.cue", psz_dev ) == -1 )
+                psz_cuefile = NULL;
         }
         /* If we need to look up the .cue file, then we don't have to look for the vcd */
         psz_vcdfile = strdup( psz_dev );

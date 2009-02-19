@@ -41,10 +41,11 @@
  ***************************************************************************/
 VLC_EXPORT (libvlc_int_t *, libvlc_InternalCreate, ( void ) );
 VLC_EXPORT (int, libvlc_InternalInit, ( libvlc_int_t *, int, const char *ppsz_argv[] ) );
-VLC_EXPORT (int, libvlc_InternalCleanup, ( libvlc_int_t * ) );
-VLC_EXPORT (int, libvlc_InternalDestroy, ( libvlc_int_t * ) );
+VLC_EXPORT (void, libvlc_InternalCleanup, ( libvlc_int_t * ) );
+VLC_EXPORT (void, libvlc_InternalDestroy, ( libvlc_int_t * ) );
 
 VLC_EXPORT (int, libvlc_InternalAddIntf, ( libvlc_int_t *, const char * ) );
+VLC_EXPORT (void, libvlc_InternalWait, ( libvlc_int_t * ) );
 
 /***************************************************************************
  * Opaque structures for libvlc API
@@ -64,6 +65,7 @@ struct libvlc_instance_t
     vlm_t        *p_vlm;
     int           b_playlist_locked;
     unsigned      ref_count;
+    int           verbosity;
     vlc_mutex_t   instance_lock;
     vlc_mutex_t   event_callback_lock;
     struct libvlc_callback_entry_list_t *p_callback_list;
@@ -91,7 +93,7 @@ struct libvlc_media_list_t
     libvlc_media_t * p_md; /* The media from which the
                                        * mlist comes, if any. */
     vlc_array_t                items;
- 
+
     /* Other way to see that media list */
     /* Used in flat_media_list.c */
     libvlc_media_list_t *       p_flat_mlist;
@@ -126,7 +128,7 @@ struct libvlc_media_list_view_t
     libvlc_instance_t *         p_libvlc_instance;
     int                         i_refcount;
     vlc_mutex_t                 object_lock;
-    
+
     libvlc_media_list_t *       p_mlist;
 
     struct libvlc_media_list_view_private_t * p_this_view_data;
@@ -152,8 +154,12 @@ struct libvlc_media_player_t
     struct libvlc_instance_t *  p_libvlc_instance; /* Parent instance */
     libvlc_media_t * p_md; /* current media descriptor */
     libvlc_event_manager_t *    p_event_manager;
-    libvlc_drawable_t           drawable;
-    
+    struct
+    {
+        void *hwnd;
+        uint32_t xid;
+    } drawable;
+
     bool        b_own_its_input_thread;
 };
 
@@ -202,7 +208,7 @@ struct libvlc_media_discoverer_t
  * libvlc_my_cool_object_new()
  * {
  *        ...
- *        p_self->p_event_manager = libvlc_event_manager_init( p_self,
+ *        p_self->p_event_manager = libvlc_event_manager_new( p_self,
  *                                                   p_self->p_libvlc_instance, p_e);
  *        libvlc_event_manager_register_event_type(p_self->p_event_manager,
  *                libvlc_MyCoolObjectDidSomething, p_e)
@@ -339,14 +345,20 @@ void libvlc_event_send(
         libvlc_event_manager_t * p_em,
         libvlc_event_t * p_event );
 
+/* Media player - audio, video */
+libvlc_track_description_t * libvlc_get_track_description(
+        libvlc_media_player_t *p_mi,
+        const char *psz_variable,
+        libvlc_exception_t *p_e );
+
 
 /* Exception shorcuts */
 
-#define RAISENULL( psz,a... ) { libvlc_exception_raise( p_e, psz,##a ); \
-                                return NULL; }
-#define RAISEVOID( psz,a... ) { libvlc_exception_raise( p_e, psz,##a ); \
-                                return; }
-#define RAISEZERO( psz,a... ) { libvlc_exception_raise( p_e, psz,##a ); \
-                                return 0; }
+#define RAISENULL( ... ) { libvlc_exception_raise( p_e, __VA_ARGS__ ); \
+                           return NULL; }
+#define RAISEVOID( ... ) { libvlc_exception_raise( p_e, __VA_ARGS__ ); \
+                           return; }
+#define RAISEZERO( ... ) { libvlc_exception_raise( p_e, __VA_ARGS__ ); \
+                           return 0; }
 
 #endif

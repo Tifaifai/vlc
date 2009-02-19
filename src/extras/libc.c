@@ -2,7 +2,7 @@
  * libc.c: Extra libc function for some systems.
  *****************************************************************************
  * Copyright (C) 2002-2006 the VideoLAN team
- * $Id: f58f05fe77899f3a59d67608bdb0a739a575fd55 $
+ * $Id$
  *
  * Authors: Jon Lech Johansen <jon-vl@nanocrew.net>
  *          Samuel Hocevar <sam@zoy.org>
@@ -212,7 +212,7 @@ extern size_t vlc_strlcpy (char *tgt, const char *src, size_t bufsize)
  * vlc_*dir_wrapper: wrapper under Windows to return the list of drive letters
  * when called with an empty argument or just '\'
  *****************************************************************************/
-#if defined(WIN32) && !defined(UNDER_CE)
+#if defined(WIN32)
 #   include <assert.h>
 
 typedef struct vlc_DIR
@@ -236,7 +236,11 @@ void *vlc_wopendir( const wchar_t *wpath )
         if( !p_dir )
             return NULL;
         p_dir->p_real_dir = NULL;
+#if defined(UNDER_CE)
+        p_dir->i_drives = NULL;
+#else
         p_dir->i_drives = GetLogicalDrives();
+#endif
         return (void *)p_dir;
     }
 
@@ -260,7 +264,6 @@ void *vlc_wopendir( const wchar_t *wpath )
 struct _wdirent *vlc_wreaddir( void *_p_dir )
 {
     vlc_DIR *p_dir = (vlc_DIR *)_p_dir;
-    unsigned int i;
     DWORD i_drives;
 
     if ( p_dir->p_real_dir != NULL )
@@ -281,6 +284,11 @@ struct _wdirent *vlc_wreaddir( void *_p_dir )
 
     /* Drive letters mode */
     i_drives = p_dir->i_drives;
+#ifdef UNDER_CE
+    swprintf( p_dir->dd_dir.d_name, L"\\");
+    p_dir->dd_dir.d_namlen = wcslen(p_dir->dd_dir.d_name);
+#else
+    unsigned int i;
     if ( !i_drives )
         return NULL; /* end */
 
@@ -293,6 +301,7 @@ struct _wdirent *vlc_wreaddir( void *_p_dir )
     swprintf( p_dir->dd_dir.d_name, L"%c:\\", 'A' + i );
     p_dir->dd_dir.d_namlen = wcslen(p_dir->dd_dir.d_name);
     p_dir->i_drives &= ~(1UL << i);
+#endif
     return &p_dir->dd_dir;
 }
 
@@ -308,7 +317,7 @@ void vlc_rewinddir( void *_p_dir )
 /* This one is in the libvlccore exported symbol list */
 int vlc_wclosedir( void *_p_dir )
 {
-#if defined(WIN32) && !defined(UNDER_CE)
+#if defined(WIN32)
     vlc_DIR *p_dir = (vlc_DIR *)_p_dir;
     int i_ret = 0;
 

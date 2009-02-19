@@ -65,19 +65,19 @@ static int  SendEvents( vlc_object_t *, char const *,
 
 #define CFG_PREFIX "clone-"
 
-vlc_module_begin();
-    set_description( N_("Clone video filter") );
-    set_capability( "video filter", 0 );
-    set_shortname( N_("Clone" ));
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VFILTER );
+vlc_module_begin ()
+    set_description( N_("Clone video filter") )
+    set_capability( "video filter", 0 )
+    set_shortname( N_("Clone" ))
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VFILTER )
 
-    add_integer( CFG_PREFIX "count", 2, NULL, COUNT_TEXT, COUNT_LONGTEXT, false );
-    add_string ( CFG_PREFIX "vout-list", NULL, NULL, VOUTLIST_TEXT, VOUTLIST_LONGTEXT, true );
+    add_integer( CFG_PREFIX "count", 2, NULL, COUNT_TEXT, COUNT_LONGTEXT, false )
+    add_string ( CFG_PREFIX "vout-list", NULL, NULL, VOUTLIST_TEXT, VOUTLIST_LONGTEXT, true )
 
-    add_shortcut( "clone" );
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+    add_shortcut( "clone" )
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "count", "vout-list", NULL
@@ -201,7 +201,6 @@ static int Create( vlc_object_t *p_this )
                                      sizeof(vout_thread_t *) );
     if( p_vout->p_sys->pp_vout == NULL )
     {
-        msg_Err( p_vout, "out of memory" );
         free( p_vout->p_sys );
         return VLC_ENOMEM;
     }
@@ -338,8 +337,7 @@ static void Render( vout_thread_t *p_vout, picture_t *p_pic )
             msleep( VOUT_OUTMEM_SLEEP );
         }
 
-        vout_DatePicture( p_vout->p_sys->pp_vout[ i_vout ],
-                          p_outpic, p_pic->date );
+        p_outpic->date = p_pic->date;
         vout_LinkPicture( p_vout->p_sys->pp_vout[ i_vout ], p_outpic );
 
         for( i_plane = 0 ; i_plane < p_pic->i_planes ; i_plane++ )

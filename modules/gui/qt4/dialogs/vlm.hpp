@@ -29,8 +29,6 @@
 # include "config.h"
 #endif
 
-#include <vlc_common.h>
-
 #ifdef ENABLE_VLM
 
 #include <vlc_vlm.h>
@@ -80,6 +78,7 @@ public:
         return instance;
     };
     virtual ~VLMDialog();
+    void toggleVisible();
 
     VLMWrapper *vlmWrapper;
     vlm_t *p_vlm;

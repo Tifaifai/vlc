@@ -2,7 +2,7 @@
  * main_interface.hpp : Main Interface
  ****************************************************************************
  * Copyright (C) 2006-2007 the VideoLAN team
- * $Id: 2d4f57dcd726530044d9130fb785a4c9d56847e7 $
+ * $Id$
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Baptiste Kempf <jb@videolan.org>
@@ -26,10 +26,9 @@
 #define _MAIN_INTERFACE_H_
 
 #include "qt4.hpp"
-#include "util/qvlcframe.hpp"
-#include "components/preferences_widgets.hpp"
 
-#include <vlc_aout.h>
+#include "util/qvlcframe.hpp"
+#include "components/preferences_widgets.hpp" /* First Start */
 
 #include <QSystemTrayIcon>
 
@@ -45,11 +44,11 @@ class PlaylistWidget;
 class VisualSelector;
 class AdvControlsWidget;
 class ControlsWidget;
+class InputControlsWidget;
 class FullscreenControllerWidget;
 class SpeedControlWidget;
 class QMenu;
 class QSize;
-//class QDockWidet;
 
 enum {
     CONTROLS_HIDDEN = 0x0,
@@ -68,7 +67,6 @@ class MainInterface : public QVLCMW
 {
     Q_OBJECT;
 
-    friend class VolumeClickHandler;
     friend class InteractionDialog;
     friend class PlaylistWidget;
 
@@ -77,11 +75,11 @@ public:
     virtual ~MainInterface();
 
     /* Video requests from core */
-    void *requestVideo( vout_thread_t *p_nvout, int *pi_x,
-                        int *pi_y, unsigned int *pi_width,
-                        unsigned int *pi_height );
-    void releaseVideo( void * );
-    int controlVideo( void *p_window, int i_query, va_list args );
+    WId requestVideo( vout_thread_t *p_nvout, int *pi_x,
+                      int *pi_y, unsigned int *pi_width,
+                      unsigned int *pi_height );
+    void releaseVideo( void  );
+    int controlVideo( int i_query, va_list args );
 
     /* Getters */
     QSystemTrayIcon *getSysTray() { return sysTray; };
@@ -89,7 +87,8 @@ public:
     int getControlsVisibilityStatus();
 
     /* Sizehint() */
-    QSize sizeHint() const;
+    virtual QSize sizeHint() const;
+
 protected:
 //    void resizeEvent( QResizeEvent * );
     void dropEvent( QDropEvent *);
@@ -106,9 +105,8 @@ private:
     QString              input_name;
     QVBoxLayout         *mainLayout;
     ControlsWidget      *controls;
+    InputControlsWidget *inputC;
     FullscreenControllerWidget *fullscreenControls;
-    QMenu               *speedControlMenu;
-    SpeedControlWidget  *speedControl;
 
     void handleMainUi( QSettings* );
     void askForPrivacy();
@@ -117,9 +115,9 @@ private:
     /* Systray */
     void handleSystray();
     void createSystray();
+    void initSystray();
 
     void createStatusBar();
-    void initSystray();
 
     /* Video */
     VideoWidget         *videoWidget;
@@ -128,26 +126,26 @@ private:
     VisualSelector      *visualSelector;
     PlaylistWidget      *playlistWidget;
 
-    bool                 videoIsActive; ///< Having a video now / THEMIM->hasV
-    bool                 videoEmbeddedFlag; ///< Want an external Video Window
-    bool                 playlistVisible; ///< Is the playlist visible ?
+    bool                 videoIsActive;       ///< Having a video now / THEMIM->hasV
+    bool                 videoEmbeddedFlag;   ///< Want an external Video Window
+    bool                 playlistVisible;     ///< Is the playlist visible ?
     bool                 visualSelectorEnabled;
     bool                 notificationEnabled; /// Systray Notifications
     bool                 bgWasVisible;
-    int                  i_visualmode; ///< Visual Mode
+    bool                 b_keep_size;         ///< persistent resizeable window
+    QSize                mainBasedSize;       ///< based Wnd (normal mode only)
+    QSize                mainVideoSize;       ///< Wnd with video (all modes)
+    int                  i_visualmode;        ///< Visual Mode
     pl_dock_e            i_pl_dock;
     bool                 isDocked() { return ( i_pl_dock != PL_UNDOCKED ); }
 
-    input_thread_t      *p_input;    ///< Main input associated to the playlist
-
     /* Status Bar */
-    QLabel              *timeLabel;
-    QLabel              *speedLabel;
     QLabel              *nameLabel;
 
     virtual void customEvent( QEvent *);
     virtual void keyPressEvent( QKeyEvent *);
     virtual void wheelEvent( QWheelEvent * );
+    virtual void resizeEvent( QResizeEvent * event );
 
 public slots:
     void undockPlaylist();
@@ -160,14 +158,11 @@ public slots:
     void toggleFSC();
 
     /* Manage the Video Functions from the vout threads */
-    void releaseVideoSlot( void * );
+    void releaseVideoSlot( void );
 
 private slots:
     void debug();
-    void updateOnTimer();
     void doComponentsUpdate();
-    void setStatus( int );
-    void setRate( int );
     void setName( QString );
     void setVLCWindowsTitle( QString title = "" );
 #if 0
@@ -176,9 +171,8 @@ private slots:
     void handleSystrayClick( QSystemTrayIcon::ActivationReason );
     void updateSystrayTooltipName( QString );
     void updateSystrayTooltipStatus( int );
-    void showSpeedMenu( QPoint );
 signals:
-    void askReleaseVideo( void * );
+    void askReleaseVideo( );
     void askVideoToResize( unsigned int, unsigned int );
     void askVideoToToggle();
     void askBgWidgetToToggle();

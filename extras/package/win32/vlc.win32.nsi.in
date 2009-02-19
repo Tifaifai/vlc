@@ -56,8 +56,8 @@ InstType $Name_InstTypeFull
 
 ; MUI Settings
   !define MUI_ABORTWARNING
-  !define MUI_ICON "vlc48x48.ico"
-  !define MUI_UNICON "vlc48x48.ico"
+  !define MUI_ICON "vlc.ico"
+  !define MUI_UNICON "vlc.ico"
   !define MUI_COMPONENTSPAGE_SMALLDESC
 
 ; Installer pages
@@ -110,9 +110,6 @@ InstType $Name_InstTypeFull
   !insertmacro MUI_LANGUAGE "Romanian"
   !insertmacro MUI_LANGUAGE "Slovak"
   !insertmacro MUI_LANGUAGE "Czech"
-  !insertmacro MUI_LANGUAGE "Hungarian"
-  !insertmacro MUI_LANGUAGE "Catalan"
-  !insertmacro MUI_LANGUAGE "Bulgarian"
 
 ; Reserve files for solid compression
   !insertmacro MUI_RESERVEFILE_LANGDLL
@@ -213,7 +210,7 @@ FunctionEnd
   !insertmacro ${_action} ".mp2"
   !insertmacro ${_action} ".mp3"
   !insertmacro ${_action} ".oma"
-  !insertmacro ${_action} ".ogg"
+  !insertmacro ${_action} ".oga"
   !insertmacro ${_action} ".spx"
   !insertmacro ${_action} ".wav"
   !insertmacro ${_action} ".wma"
@@ -241,7 +238,12 @@ FunctionEnd
   !insertmacro ${_action} ".mpg"
   !insertmacro ${_action} ".mts"
   !insertmacro ${_action} ".mxf"
+  !insertmacro ${_action} ".nuv"
+  !insertmacro ${_action} ".ogg"
   !insertmacro ${_action} ".ogm"
+  !insertmacro ${_action} ".ogx"
+  !insertmacro ${_action} ".ogv"
+  !insertmacro ${_action} ".rmvb"
   !insertmacro ${_action} ".ts"
   !insertmacro ${_action} ".vob"
   !insertmacro ${_action} ".wmv"
@@ -400,9 +402,12 @@ Section $Name_Section01 SEC01
   ; VLC.exe, libvlc.dll
   !insertmacro InstallFile vlc.exe
   !insertmacro InstallFile vlc.exe.manifest
-
-  ; All dlls
-  !insertmacro InstallFile *.dll
+  !ifdef LIBVLCCORE_DLL
+      !insertmacro InstallFile ${LIBVLCCORE_DLL}
+  !endif
+  !ifdef LIBVLC_DLL
+      !insertmacro InstallFile ${LIBVLC_DLL}
+  !endif
 
   ; Text files
   !insertmacro InstallFile *.txt
@@ -543,7 +548,7 @@ Section /o $Name_Section03 SEC03
 
 SectionEnd
 
-Section /o $Name_Section04 SEC04
+Section $Name_Section04 SEC04
   SectionIn 3
   SetOutPath "$INSTDIR"
   !insertmacro OpenUninstallLog
@@ -570,10 +575,10 @@ Section $Name_Section05 SEC06
   SectionIn 1 2 3
   WriteRegStr HKCR "AudioCD\shell\PlayWithVLC" "" $ContextMenuEntry_PlayWith
   WriteRegStr HKCR "AudioCD\shell\PlayWithVLC\command" "" \
-    '"$INSTDIR\vlc.exe" --started-from-file cdda://%1'
+    '"$INSTDIR\vlc.exe" --started-from-file "cdda://%1"'
   WriteRegStr HKCR "DVD\shell\PlayWithVLC" "" $ContextMenuEntry_PlayWith
   WriteRegStr HKCR "DVD\shell\PlayWithVLC\command" "" \
-    '"$INSTDIR\vlc.exe" --started-from-file dvd://%1'
+    '"$INSTDIR\vlc.exe" --started-from-file "dvd://%1"'
 
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\EventHandlers\PlayDVDMovieOnArrival" "VLCPlayDVDMovieOnArrival" ""
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\Handlers\VLCPlayDVDMovieOnArrival" "Action" $Action_OnArrivalDVD
@@ -591,12 +596,12 @@ Section $Name_Section05 SEC06
   WriteRegStr HKCR "VLC.DVDMovie" "" "VLC DVD Movie"
   WriteRegStr HKCR "VLC.DVDMovie\shell" "" "Play"
   WriteRegStr HKCR "VLC.DVDMovie\shell\Play\command" "" \
-    '"$INSTDIR\vlc.exe" --started-from-file dvd://%1'
+    '"$INSTDIR\vlc.exe" --started-from-file "dvd://%1"'
   WriteRegStr HKCR "VLC.DVDMovie\DefaultIcon" "" '"$INSTDIR\vlc.exe",0'
   WriteRegStr HKCR "VLC.CDAudio" "" "VLC CD Audio"
   WriteRegStr HKCR "VLC.CDAudio\shell" "" "Play"
   WriteRegStr HKCR "VLC.CDAudio\shell\Play\command" "" \
-    '"$INSTDIR\vlc.exe" --started-from-file cdda://%1'
+    '"$INSTDIR\vlc.exe" --started-from-file "cdda://%1"'
   WriteRegStr HKCR "VLC.CDAudio\DefaultIcon" "" '"$INSTDIR\vlc.exe",0'
 
 SectionEnd
@@ -618,8 +623,8 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02b} $Desc_Section02b
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} $Desc_Section03
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} $Desc_Section04
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} $Desc_Section06
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} $Desc_Section05
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} $Desc_Section05
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} $Desc_Section06
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} $Desc_Section07
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} $Desc_Section08
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
@@ -629,53 +634,9 @@ Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
 
   !include "languages\english.nsh"
-  StrCmp $LANGUAGE ${LANG_FRENCH} French 0
-  StrCmp $LANGUAGE ${LANG_ITALIAN} Italian 0
-  StrCmp $LANGUAGE ${LANG_HUNGARIAN} Hungarian 0
-  StrCmp $LANGUAGE ${LANG_ROMANIAN} Romanian 0
-  StrCmp $LANGUAGE ${LANG_CATALAN} Catalan 0
-  StrCmp $LANGUAGE ${LANG_BULGARIAN} Bulgarian 0
-  StrCmp $LANGUAGE ${LANG_SLOVAK} Slovak 0
-  StrCmp $LANGUAGE ${LANG_POLISH} Polish 0
-  StrCmp $LANGUAGE ${LANG_DUTCH} Dutch 0
-  StrCmp $LANGUAGE ${LANG_SIMPCHINESE} SChinese 0
-  StrCmp $LANGUAGE ${LANG_GERMAN} German 0
-  StrCmp $LANGUAGE ${LANG_FINNISH} Finnish EndLanguageCmp
+  StrCmp $LANGUAGE ${LANG_FRENCH} French EndLanguageCmp
   French:
   !include "languages\french.nsh"
-  Goto EndLanguageCmp
-  Italian:
-  !include "languages\italian.nsh"
-  Goto EndLanguageCmp
-  Hungarian:
-  !include "languages\hungarian.nsh"
-  Goto EndLanguageCmp
-  Romanian:
-  !include "languages\romanian.nsh"
-  Goto EndLanguageCmp
-  Catalan:
-  !include "languages\catalan.nsh"
-  Goto EndLanguageCmp
-  Bulgarian:
-  !include "languages\bulgarian.nsh"
-  Goto EndLanguageCmp
-  Slovak:
-  !include "languages\slovak.nsh"
-  Goto EndLanguageCmp
-  Polish:
-  !include "languages\polish.nsh"
-  Goto EndLanguageCmp
-  Dutch:
-  !include "languages\dutch.nsh"
-  Goto EndLanguageCmp
-  Schinese:
-  !include "languages\schinese.nsh"
-  Goto EndLanguageCmp
-  German:
-  !include "languages\german.nsh"
-  Goto EndLanguageCmp
-  Finnish:
-  !include "languages\finnish.nsh"
   EndLanguageCmp:
 
   ReadRegStr $R0  ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" \
@@ -781,6 +742,7 @@ Section "un.$Name_Section91" SEC91
   ;remove activex plugin
   UnRegDLL "$INSTDIR\axvlc.dll"
   Delete /REBOOTOK "$INSTDIR\axvlc.dll"
+  Delete /REBOOTOK "$INSTDIR\axvlc.dll.manifest"
 
   ;remove mozilla plugin
   Push $R0
@@ -808,6 +770,7 @@ Section "un.$Name_Section91" SEC91
   "${Index}-End:"
   !undef Index
   Delete /REBOOTOK "$INSTDIR\npvlc.dll"
+  Delete /REBOOTOK "$INSTDIR\npvlc.dll.manifest"
 
   RMDir "$SMPROGRAMS\VideoLAN"
   RMDir /r $SMPROGRAMS\VideoLAN
@@ -875,53 +838,9 @@ Function un.onInit
   !insertmacro MUI_UNGETLANGUAGE
   
   !include "languages\english.nsh"
-  StrCmp $LANGUAGE ${LANG_FRENCH} French 0
-  StrCmp $LANGUAGE ${LANG_ITALIAN} Italian 0
-  StrCmp $LANGUAGE ${LANG_HUNGARIAN} Hungarian 0
-  StrCmp $LANGUAGE ${LANG_ROMANIAN} Romanian 0
-  StrCmp $LANGUAGE ${LANG_CATALAN} Catalan 0
-  StrCmp $LANGUAGE ${LANG_BULGARIAN} Bulgarian 0
-  StrCmp $LANGUAGE ${LANG_SLOVAK} Slovak 0
-  StrCmp $LANGUAGE ${LANG_POLISH} Polish 0
-  StrCmp $LANGUAGE ${LANG_DUTCH} Dutch 0
-  StrCmp $LANGUAGE ${LANG_SIMPCHINESE} SChinese 0
-  StrCmp $LANGUAGE ${LANG_GERMAN} German 0
-  StrCmp $LANGUAGE ${LANG_FINNISH} Finnish EndLanguageCmp
+  StrCmp $LANGUAGE ${LANG_FRENCH} French EndLanguageCmp
   French:
   !include "languages\french.nsh"
-  Goto EndLanguageCmp
-  Italian:
-  !include "languages\italian.nsh"
-  Goto EndLanguageCmp
-  Hungarian:
-  !include "languages\hungarian.nsh"
-  Goto EndLanguageCmp
-  Romanian:
-  !include "languages\romanian.nsh"
-  Goto EndLanguageCmp
-  Catalan:
-  !include "languages\catalan.nsh"
-  Goto EndLanguageCmp
-  Bulgarian:
-  !include "languages\bulgarian.nsh"
-  Goto EndLanguageCmp
-  Slovak:
-  !include "languages\slovak.nsh"
-  Goto EndLanguageCmp
-  Polish:
-  !include "languages\polish.nsh"
-  Goto EndLanguageCmp
-  Dutch:
-  !include "languages\dutch.nsh"
-  Goto EndLanguageCmp
-  Schinese:
-  !include "languages\schinese.nsh"
-  Goto EndLanguageCmp
-  German:
-  !include "languages\german.nsh"
-  Goto EndLanguageCmp
-  Finnish:
-  !include "languages\finnish.nsh"
   EndLanguageCmp:
   
 FunctionEnd

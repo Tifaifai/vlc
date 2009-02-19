@@ -2,7 +2,7 @@
  * alsa.c : alsa plugin for vlc
  *****************************************************************************
  * Copyright (C) 2000-2001 the VideoLAN team
- * $Id: 6c020d86dd59aa3953308c98275bcb98c6277760 $
+ * $Id$
  *
  * Authors: Henri Fallon <henri@videolan.org> - Original Author
  *          Jeffrey Baker <jwbaker@acm.org> - Port to ALSA 1.0 API
@@ -103,19 +103,20 @@ static int FindDevicesCallback( vlc_object_t *p_this, char const *psz_name,
  *****************************************************************************/
 static const char *const ppsz_devices[] = { "default" };
 static const char *const ppsz_devices_text[] = { N_("Default") };
-vlc_module_begin();
-    set_shortname( "ALSA" );
-    set_description( N_("ALSA audio output") );
-    set_category( CAT_AUDIO );
-    set_subcategory( SUBCAT_AUDIO_AOUT );
-    add_string( "alsadev", DEFAULT_ALSA_DEVICE, aout_FindAndRestart,
-                N_("ALSA Device Name"), NULL, false );
-        change_string_list( ppsz_devices, ppsz_devices_text, FindDevicesCallback );
-        change_action_add( FindDevicesCallback, N_("Refresh list") );
+vlc_module_begin ()
+    set_shortname( "ALSA" )
+    set_description( N_("ALSA audio output") )
+    set_category( CAT_AUDIO )
+    set_subcategory( SUBCAT_AUDIO_AOUT )
+    add_string( "alsa-audio-device", DEFAULT_ALSA_DEVICE, aout_FindAndRestart,
+                N_("ALSA Device Name"), NULL, false )
+        add_deprecated_alias( "alsadev" )   /* deprecated since 0.9.3 */
+        change_string_list( ppsz_devices, ppsz_devices_text, FindDevicesCallback )
+        change_action_add( FindDevicesCallback, N_("Refresh list") )
 
-    set_capability( "audio output", 150 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+    set_capability( "audio output", 150 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Probe: probe the audio device for available formats and channels
@@ -186,26 +187,26 @@ static void Probe( aout_instance_t * p_aout,
                 {
                 case 1:
                     val.i_int = AOUT_VAR_MONO;
-                    text.psz_string = (char*)N_("Mono");
+                    text.psz_string = _("Mono");
                     var_Change( p_aout, "audio-device",
                                 VLC_VAR_ADDCHOICE, &val, &text );
                     break;
                 case 2:
                     val.i_int = AOUT_VAR_STEREO;
-                    text.psz_string = (char*)N_("Stereo");
+                    text.psz_string = _("Stereo");
                     var_Change( p_aout, "audio-device",
                                 VLC_VAR_ADDCHOICE, &val, &text );
                     var_Set( p_aout, "audio-device", val );
                     break;
                 case 4:
                     val.i_int = AOUT_VAR_2F2R;
-                    text.psz_string = (char*)N_("2 Front 2 Rear");
+                    text.psz_string = _("2 Front 2 Rear");
                     var_Change( p_aout, "audio-device",
                                 VLC_VAR_ADDCHOICE, &val, &text );
                     break;
                 case 6:
                     val.i_int = AOUT_VAR_5_1;
-                    text.psz_string = (char*)"5.1";
+                    text.psz_string = "5.1";
                     var_Change( p_aout, "audio-device",
                                 VLC_VAR_ADDCHOICE, &val, &text );
                     break;
@@ -316,11 +317,11 @@ static int Open( vlc_object_t *p_this )
         return VLC_ENOMEM;
     p_sys->b_playing = false;
     p_sys->start_date = 0;
-    vlc_cond_init( p_aout, &p_sys->wait );
+    vlc_cond_init( &p_sys->wait );
     vlc_mutex_init( &p_sys->lock );
 
     /* Get device name */
-    if( (psz_device = config_GetPsz( p_aout, "alsadev" )) == NULL )
+    if( (psz_device = config_GetPsz( p_aout, "alsa-audio-device" )) == NULL )
     {
         msg_Err( p_aout, "no audio device given (maybe \"default\" ?)" );
         intf_UserFatal( p_aout, false, _("No Audio Device"),
@@ -684,7 +685,7 @@ static int Open( vlc_object_t *p_this )
 
     /* Create ALSA thread and wait for its readiness. */
     if( vlc_thread_create( p_aout, "aout", ALSAThread,
-                           VLC_THREAD_PRIORITY_OUTPUT, false ) )
+                           VLC_THREAD_PRIORITY_OUTPUT ) )
     {
         msg_Err( p_aout, "cannot create ALSA thread (%m)" );
         goto error;
@@ -764,6 +765,7 @@ static void* ALSAThread( vlc_object_t* p_this )
 {
     aout_instance_t * p_aout = (aout_instance_t*)p_this;
     struct aout_sys_t * p_sys = p_aout->output.p_sys;
+    int canc = vlc_savecancel ();
     p_sys->p_status = (snd_pcm_status_t *)malloc(snd_pcm_status_sizeof());
 
     /* Wait for the exact time to start playing (avoids resampling) */
@@ -785,6 +787,7 @@ static void* ALSAThread( vlc_object_t* p_this )
 cleanup:
     snd_pcm_drop( p_sys->p_snd_pcm );
     free( p_aout->output.p_sys->p_status );
+    vlc_restorecancel (canc);
     return NULL;
 }
 

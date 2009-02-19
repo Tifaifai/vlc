@@ -861,3 +861,31 @@ VLC development is NOT about being a sed god.
 <thresh> yeah, it needs up to four black men to kill vlc for me
  -- #videolan
 %
+< sam> 16:52 <&timecop> sam: can that homosexual volume slider please go away in next vlc
+< sam> 16:52 <&timecop> this is a fucking joke
+< sam> 16:52 <&timecop> who made that UI
+< sam> because I know you like positive feedback
+< ivoire> mouarf
+< ivoire> -positiv +constructiv feedback
+< ivoire> sam: you can configure the color sheme of the volume slider
+< ivoire> if you xant pink slide bar you can
+< ivoire> -x+w
+< sam> I see homosexuality as positive
+< sam> look at what it did to Apple sales
+< thedj> LMAO
+ -- #videolan
+%
+< Daught> wait cygwin does not even have qt4...
+< Daught> if I have to disable more stuff I will end up with windows media player
+%
+< thedj> no, captcha are reasonably easy to crack.
+< ILEoo> just put up a porn site and ask user to check that captcha before showing video/images -> captcha cracked easily ;)
+< thedj> that's one way :D
+< thedj> MadlyMad: from our own sam..... http://caca.zoy.org/wiki/PWNtcha
+< MadlyMad> oh okey, impressive
+< thresh> sam was probably tired checking captchas on porn sites
+< sam> I saw that
+< thresh> wasnt me
+< thresh> a coworker of mine typed that, really
+ -- #videolan
+%

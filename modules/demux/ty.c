@@ -6,7 +6,7 @@
  * based on code by Christopher Wingert for tivo-mplayer
  * tivo(at)wingert.org, February 2003
  *
- * $Id: a86e400f61da50bc82dbb15a5cb006c07ed58781 $
+ * $Id$
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,20 +55,20 @@
 static int  Open ( vlc_object_t * );
 static void Close( vlc_object_t * );
 
-vlc_module_begin();
-    set_shortname( N_("TY") );
-    set_description(N_("TY Stream audio/video demux"));
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_DEMUX );
-    set_capability("demux", 6);
+vlc_module_begin ()
+    set_shortname( N_("TY") )
+    set_description(N_("TY Stream audio/video demux"))
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_DEMUX )
+    set_capability("demux", 6)
     /* FIXME: there seems to be a segfault when using PVR access
      * and TY demux has a bigger priority than PS
      * Something must be wrong.
      */
-    set_callbacks( Open, Close );
-    add_shortcut("ty");
-    add_shortcut("tivo");
-vlc_module_end();
+    set_callbacks( Open, Close )
+    add_shortcut("ty")
+    add_shortcut("tivo")
+vlc_module_end ()
 
 /*****************************************************************************
  * Local prototypes
@@ -505,7 +505,7 @@ static int Control(demux_t *p_demux, int i_query, va_list args)
         if( ( i64 = p_sys->i_stream_size ) > 0 )
         {
             pf = (double*) va_arg( args, double* );
-            *pf = (double)stream_Tell( p_demux->s ) / (double) i64;
+            *pf = ((double)1.0) * stream_Tell( p_demux->s ) / (double) i64;
             return VLC_SUCCESS;
         }
         return VLC_EGENERIC;
@@ -789,24 +789,17 @@ static int DemuxRecVideo( demux_t *p_demux, ty_rec_hdr_t *rec_hdr, block_t *p_bl
     /* Send the CC data */
     if( p_block_in->i_pts > 0 && p_sys->cc.i_data > 0 )
     {
-        int i_cc_count;
-
-        block_t *p_cc = block_New( p_demux, p_sys->cc.i_data );
-        p_cc->i_flags |= BLOCK_FLAG_TYPE_I;
-        p_cc->i_pts = p_block_in->i_pts;
-        memcpy( p_cc->p_buffer, p_sys->cc.p_data, p_sys->cc.i_data );
-
-        for( i = 0, i_cc_count = 0; i < 4; i++ )
-            i_cc_count += p_sys->p_cc[i] ? 1 : 0;
-
         for( i = 0; i < 4; i++ )
         {
-            if( !p_sys->p_cc[i] )
-                continue;
-            if( i_cc_count > 1 )
-                es_out_Send( p_demux->out, p_sys->p_cc[i], block_Duplicate( p_cc ) );
-            else
+            if( p_sys->p_cc[i] )
+            {
+                block_t *p_cc = block_New( p_demux, p_sys->cc.i_data );
+                p_cc->i_flags |= BLOCK_FLAG_TYPE_I;
+                p_cc->i_pts = p_block_in->i_pts;
+                memcpy( p_cc->p_buffer, p_sys->cc.p_data, p_sys->cc.i_data );
+
                 es_out_Send( p_demux->out, p_sys->p_cc[i], p_cc );
+            }
         }
         cc_Flush( &p_sys->cc );
     }
@@ -1105,7 +1098,6 @@ static int ty_stream_seek_pct(demux_t *p_demux, double seek_pct)
 
     /* to hell with syncing any audio or video, just start reading records... :) */
     /*p_sys->lastAudioPTS = p_sys->lastVideoPTS = 0;*/
-    es_out_Control( p_demux->out, ES_OUT_RESET_PCR );
     return VLC_SUCCESS;
 }
 

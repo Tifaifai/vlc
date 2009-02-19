@@ -4,7 +4,7 @@
  * interface, such as message output.
  *****************************************************************************
  * Copyright (C) 1999, 2000, 2001, 2002 the VideoLAN team
- * $Id: c0b8ee5e178ee6bd185bb20f83e0c3da4ea03316 $
+ * $Id$
  *
  * Authors: Vincent Seguin <seguin@via.ecp.fr>
  *          Samuel Hocevar <sam@zoy.org>
@@ -48,13 +48,14 @@
 typedef struct
 {
     int     i_type;                             /**< message type, see below */
-    int     i_object_id;
+    uintptr_t   i_object_id;
     const char *psz_object_type;
     char *  psz_module;
     char *  psz_msg;                            /**< the message itself */
     char *  psz_header;                         /**< Additional header */
 
     mtime_t date;                               /**< Message date */
+    gc_object_t vlc_gc_data;
 } msg_item_t;
 
 /* Message types */
@@ -67,17 +68,21 @@ typedef struct
 /** debug messages */
 #define VLC_MSG_DBG   3
 
+static inline msg_item_t *msg_Hold (msg_item_t *msg)
+{
+    vlc_hold (&msg->vlc_gc_data);
+    return msg;
+}
+
+static inline void msg_Release (msg_item_t *msg)
+{
+    vlc_release (&msg->vlc_gc_data);
+}
+
 /**
  * Used by interface plugins which subscribe to the message bank.
  */
-struct msg_subscription_t
-{
-    int   i_start;
-    int*  pi_stop;
-
-    msg_item_t*  p_msg;
-    vlc_mutex_t* p_lock;
-};
+typedef struct msg_subscription_t msg_subscription_t;
 
 /*****************************************************************************
  * Prototypes
@@ -85,10 +90,6 @@ struct msg_subscription_t
 VLC_EXPORT( void, __msg_Generic, ( vlc_object_t *, int, const char *, const char *, ... ) LIBVLC_FORMAT( 4, 5 ) );
 VLC_EXPORT( void, __msg_GenericVa, ( vlc_object_t *, int, const char *, const char *, va_list args ) );
 #define msg_GenericVa(a, b, c, d, e) __msg_GenericVa(VLC_OBJECT(a), b, c, d, e)
-VLC_EXPORT( void, __msg_Info,    ( vlc_object_t *, const char *, ... ) LIBVLC_FORMAT( 2, 3 ) );
-VLC_EXPORT( void, __msg_Err,     ( vlc_object_t *, const char *, ... ) LIBVLC_FORMAT( 2, 3 ) );
-VLC_EXPORT( void, __msg_Warn,    ( vlc_object_t *, const char *, ... ) LIBVLC_FORMAT( 2, 3 ) );
-VLC_EXPORT( void, __msg_Dbg,    ( vlc_object_t *, const char *, ... ) LIBVLC_FORMAT( 2, 3 ) );
 
 #define msg_Info( p_this, ... ) \
       __msg_Generic( VLC_OBJECT(p_this), VLC_MSG_INFO, \
@@ -103,10 +104,22 @@ VLC_EXPORT( void, __msg_Dbg,    ( vlc_object_t *, const char *, ... ) LIBVLC_FOR
       __msg_Generic( VLC_OBJECT(p_this), VLC_MSG_DBG, \
                      MODULE_STRING, __VA_ARGS__ )
 
-#define msg_Subscribe(a) __msg_Subscribe(VLC_OBJECT(a))
-#define msg_Unsubscribe(a,b) __msg_Unsubscribe(VLC_OBJECT(a),b)
-VLC_EXPORT( msg_subscription_t*, __msg_Subscribe, ( vlc_object_t * ) );
-VLC_EXPORT( void, __msg_Unsubscribe, ( vlc_object_t *, msg_subscription_t * ) );
+typedef struct msg_cb_data_t msg_cb_data_t;
+
+/**
+ * Message logging callback signature.
+ * Accepts one private data pointer, the message, and an overrun counter.
+ */
+typedef void (*msg_callback_t) (msg_cb_data_t *, msg_item_t *, unsigned);
+
+VLC_EXPORT( msg_subscription_t*, msg_Subscribe, ( libvlc_int_t *, msg_callback_t, msg_cb_data_t * ) );
+VLC_EXPORT( void, msg_Unsubscribe, ( msg_subscription_t * ) );
+
+/* Enable or disable a certain object debug messages */
+#define msg_EnableObjectPrinting(a,b) __msg_EnableObjectPrinting(VLC_OBJECT(a),b)
+#define msg_DisableObjectPrinting(a,b) __msg_DisableObjectPrinting(VLC_OBJECT(a),b)
+VLC_EXPORT( void, __msg_EnableObjectPrinting, ( vlc_object_t *, char * psz_object ) );
+VLC_EXPORT( void, __msg_DisableObjectPrinting, ( vlc_object_t *, char * psz_object ) );
 
 /**
  * @}

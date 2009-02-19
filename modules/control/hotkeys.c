@@ -2,7 +2,7 @@
  * hotkeys.c: Hotkey handling for vlc
  *****************************************************************************
  * Copyright (C) 2005 the VideoLAN team
- * $Id: 22a08870ffbcce9cf7f5897645180cf7ef7b1b87 $
+ * $Id$
  *
  * Authors: Sigmund Augdal Helberg <dnumgis@videolan.org>
  *          Jean-Paul Saman <jpsaman #_at_# m2x.nl>
@@ -59,6 +59,8 @@ struct intf_sys_t
                                                         * channel IDs */
     input_thread_t *    p_input;       /* pointer to input */
     vout_thread_t *     p_vout;        /* pointer to vout object */
+    vlc_mutex_t         lock; /* callback lock */
+    vlc_cond_t          wait; /* callback event */
 };
 
 /*****************************************************************************
@@ -93,12 +95,12 @@ static void ClearChannels  ( intf_thread_t *, vout_thread_t * );
 #define BOOKMARK10_TEXT   N_("Playlist bookmark 10")
 #define BOOKMARK_LONGTEXT N_("Define playlist bookmarks.")
 
-vlc_module_begin();
-    set_shortname( N_("Hotkeys") );
-    set_description( N_("Hotkeys management interface") );
-    set_capability( "interface", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+vlc_module_begin ()
+    set_shortname( N_("Hotkeys") )
+    set_description( N_("Hotkeys management interface") )
+    set_capability( "interface", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: initialize interface
@@ -106,10 +108,17 @@ vlc_module_end();
 static int Open( vlc_object_t *p_this )
 {
     intf_thread_t *p_intf = (intf_thread_t *)p_this;
-    MALLOC_ERR( p_intf->p_sys, intf_sys_t );
+    intf_sys_t *p_sys;
+    p_sys = malloc( sizeof( intf_sys_t ) );
+    if( !p_sys )
+        return VLC_ENOMEM;
 
-    p_intf->p_sys->i_size = 0;
+    p_intf->p_sys = p_sys;
     p_intf->pf_run = Run;
+
+    p_sys->i_size = 0;
+    vlc_mutex_init( &p_sys->lock );
+    vlc_cond_init( &p_sys->wait );
 
     var_AddCallback( p_intf->p_libvlc, "key-pressed", SpecialKeyEvent, p_intf );
     var_AddCallback( p_intf->p_libvlc, "key-action", ActionEvent, p_intf );
@@ -122,9 +131,13 @@ static int Open( vlc_object_t *p_this )
 static void Close( vlc_object_t *p_this )
 {
     intf_thread_t *p_intf = (intf_thread_t *)p_this;
+    intf_sys_t *p_sys = p_intf->p_sys;
 
     var_DelCallback( p_intf->p_libvlc, "key-action", ActionEvent, p_intf );
     var_DelCallback( p_intf->p_libvlc, "key-pressed", SpecialKeyEvent, p_intf );
+
+    vlc_cond_destroy( &p_sys->wait );
+    vlc_mutex_destroy( &p_sys->lock );
 
     /* Destroy structure */
     free( p_intf->p_sys );
@@ -138,7 +151,10 @@ static void Run( intf_thread_t *p_intf )
     vout_thread_t *p_vout = NULL;
     vlc_value_t val;
     int i;
-    playlist_t *p_playlist = pl_Yield( p_intf );
+    playlist_t *p_playlist = pl_Hold( p_intf );
+    int canc = vlc_savecancel();
+
+    vlc_cleanup_push( __pl_Release, p_intf );
 
     /* Initialize hotkey structure */
     for( struct hotkey *p_hotkey = p_intf->p_libvlc->p_hotkeys;
@@ -152,17 +168,15 @@ static void Run( intf_thread_t *p_intf )
     {
         input_thread_t *p_input;
         vout_thread_t *p_last_vout;
-        int i_action = GetAction( p_intf );
+        int i_action;
 
-        if( i_action == -1 )
-            break; /* die */
+        vlc_restorecancel( canc );
+        i_action = GetAction( p_intf );
+
+        canc = vlc_savecancel();
 
         /* Update the input */
-        PL_LOCK;
-        p_input = p_playlist->p_input;
-        if( p_input )
-            vlc_object_yield( p_input );
-        PL_UNLOCK;
+        p_input = playlist_CurrentInput( p_playlist );
 
         /* Update the vout */
         p_last_vout = p_vout;
@@ -181,10 +195,8 @@ static void Run( intf_thread_t *p_intf )
         /* Quit */
         if( i_action == ACTIONID_QUIT )
         {
-            if( p_playlist )
-                playlist_Stop( p_playlist );
-            vlc_object_kill( p_intf->p_libvlc );
-            vlc_object_kill( p_intf );
+            libvlc_Quit( p_intf->p_libvlc );
+
             ClearChannels( p_intf, p_vout );
             vout_OSDMessage( p_intf, DEFAULT_CHAN, _( "Quit" ) );
             if( p_vout )
@@ -232,7 +244,7 @@ static void Run( intf_thread_t *p_intf )
         /* Video Output actions */
         else if( i_action == ACTIONID_SNAPSHOT )
         {
-            if( p_vout ) vout_Control( p_vout, VOUT_SNAPSHOT );
+            if( p_vout ) var_TriggerCallback( p_vout, "video-snapshot" );
         }
         else if( i_action == ACTIONID_TOGGLE_FULLSCREEN )
         {
@@ -397,7 +409,7 @@ static void Run( intf_thread_t *p_intf )
         /* Input options */
         else if( p_input )
         {
-            bool b_seekable = var_GetBool( p_input, "seekable" );
+            bool b_seekable = var_GetBool( p_input, "can-seek" );
             int i_interval =0;
 
             if( i_action == ACTIONID_PAUSE )
@@ -597,6 +609,45 @@ static void Run( intf_thread_t *p_intf )
                 }
                 free( val.psz_string );
             }
+            else if( i_action == ACTIONID_TOGGLE_AUTOSCALE && p_vout )
+            {
+                float f_scalefactor = var_GetFloat( p_vout, "scale" );
+                if ( f_scalefactor != 1.0 )
+                {
+                    var_SetFloat( p_vout, "scale", 1.0 );
+                    vout_OSDMessage( VLC_OBJECT(p_input), DEFAULT_CHAN,
+                                         _("Zooming reset") );
+                }
+                else
+                {
+                    bool b_autoscale = !var_GetBool( p_vout, "autoscale" );
+                    var_SetBool( p_vout, "autoscale", b_autoscale );
+                    if( b_autoscale )
+                        vout_OSDMessage( VLC_OBJECT(p_input), DEFAULT_CHAN,
+                                         _("Scaled to screen") );
+                    else
+                        vout_OSDMessage( VLC_OBJECT(p_input), DEFAULT_CHAN,
+                                         _("Original Size") );
+                }
+            }
+            else if( i_action == ACTIONID_SCALE_UP && p_vout )
+            {
+               float f_scalefactor;
+
+               f_scalefactor = var_GetFloat( p_vout, "scale" );
+               if( f_scalefactor < 10. )
+                   f_scalefactor += .1;
+               var_SetFloat( p_vout, "scale", f_scalefactor );
+            }
+            else if( i_action == ACTIONID_SCALE_DOWN && p_vout )
+            {
+               float f_scalefactor;
+
+               f_scalefactor = var_GetFloat( p_vout, "scale" );
+               if( f_scalefactor > .3 )
+                   f_scalefactor -= .1;
+               var_SetFloat( p_vout, "scale", f_scalefactor );
+            }
             else if( i_action == ACTIONID_DEINTERLACE && p_vout )
             {
                 vlc_value_t val={0}, val_list, text_list;
@@ -688,6 +739,12 @@ static void Run( intf_thread_t *p_intf )
             {
                 playlist_Stop( p_playlist );
             }
+            else if( i_action == ACTIONID_FRAME_NEXT )
+            {
+                var_SetVoid( p_input, "frame-next" );
+                vout_OSDMessage( VLC_OBJECT(p_input), DEFAULT_CHAN,
+                                 _("Next frame") );
+            }
             else if( i_action == ACTIONID_FASTER )
             {
                 var_SetVoid( p_input, "rate-faster" );
@@ -699,6 +756,12 @@ static void Run( intf_thread_t *p_intf )
                 var_SetVoid( p_input, "rate-slower" );
                 vout_OSDMessage( VLC_OBJECT(p_input), DEFAULT_CHAN,
                                  _("Slower") );
+            }
+            else if( i_action == ACTIONID_RATE_NORMAL )
+            {
+                var_SetInteger( p_input, "rate", INPUT_RATE_DEFAULT );
+                vout_OSDMessage( VLC_OBJECT(p_input), DEFAULT_CHAN,
+                                 _("1x") );
             }
             else if( i_action == ACTIONID_POSITION && b_seekable )
             {
@@ -810,35 +873,48 @@ static void Run( intf_thread_t *p_intf )
             {
                 osd_MenuActivate( VLC_OBJECT(p_intf) );
             }
+            else if( i_action == ACTIONID_RECORD )
+            {
+                if( var_GetBool( p_input, "can-record" ) )
+                {
+                    const bool b_record = !var_GetBool( p_input, "record" );
+
+                    if( b_record )
+                        vout_OSDMessage( p_intf, DEFAULT_CHAN, _("Recording") );
+                    else
+                        vout_OSDMessage( p_intf, DEFAULT_CHAN, _("Recording done") );
+                    var_SetBool( p_input, "record", b_record );
+                }
+            }
         }
         if( p_vout )
             vlc_object_release( p_vout );
         if( p_input )
             vlc_object_release( p_input );
     }
-    pl_Release( p_intf );
+
+    /* dead code */
+    abort();
+    vlc_cleanup_pop();
 }
 
 static int GetAction( intf_thread_t *p_intf )
 {
     intf_sys_t *p_sys = p_intf->p_sys;
-    int i_ret = -1;
+    int i_ret;
 
-    vlc_object_lock( p_intf );
+    vlc_mutex_lock( &p_sys->lock );
+    mutex_cleanup_push( &p_sys->lock );
+
     while( p_sys->i_size == 0 )
-    {
-        if( !vlc_object_alive( p_intf ) )
-            goto out;
-        vlc_object_wait( p_intf );
-    }
+        vlc_cond_wait( &p_sys->wait, &p_sys->lock );
 
     i_ret = p_sys->p_actions[ 0 ];
     p_sys->i_size--;
     for( int i = 0; i < p_sys->i_size; i++ )
         p_sys->p_actions[i] = p_sys->p_actions[i + 1];
 
-out:
-    vlc_object_unlock( p_intf );
+    vlc_cleanup_run();
     return i_ret;
 }
 
@@ -847,14 +923,14 @@ static int PutAction( intf_thread_t *p_intf, int i_action )
     intf_sys_t *p_sys = p_intf->p_sys;
     int i_ret = VLC_EGENERIC;
 
-    vlc_object_lock( p_intf );
+    vlc_mutex_lock( &p_sys->lock );
     if ( p_sys->i_size >= BUFFER_SIZE )
         msg_Warn( p_intf, "event buffer full, dropping key actions" );
     else
         p_sys->p_actions[p_sys->i_size++] = i_action;
 
-    vlc_object_signal_unlocked( p_intf );
-    vlc_object_unlock( p_intf );
+    vlc_cond_signal( &p_sys->wait );
+    vlc_mutex_unlock( &p_sys->lock );
     return i_ret;
 }
 
@@ -866,9 +942,8 @@ static int SpecialKeyEvent( vlc_object_t *libvlc, char const *psz_var,
                             void *p_data )
 {
     intf_thread_t *p_intf = (intf_thread_t *)p_data;
-    int i_action;
+    int i_action = 0;
 
-    (void)libvlc;
     (void)psz_var;
     (void)oldval;
 
@@ -889,6 +964,9 @@ static int SpecialKeyEvent( vlc_object_t *libvlc, char const *psz_var,
             break;
         case KEY_MOUSEWHEELRIGHT:
             i_action = ACTIONID_JUMP_FORWARD_EXTRASHORT;
+            break;
+        case KEY_MENU:
+            var_SetBool( libvlc, "intf-popupmenu", true );
             break;
         default:
           return VLC_SUCCESS;
@@ -916,15 +994,13 @@ static int ActionEvent( vlc_object_t *libvlc, char const *psz_var,
 
 static void PlayBookmark( intf_thread_t *p_intf, int i_num )
 {
-    vlc_value_t val;
-    char psz_bookmark_name[11];
-    playlist_t *p_playlist = pl_Yield( p_intf );
+    char *psz_bookmark_name;
+    if( asprintf( &psz_bookmark_name, "bookmark%i", i_num ) == -1 )
+        return;
 
-    sprintf( psz_bookmark_name, "bookmark%i", i_num );
-    var_Create( p_intf, psz_bookmark_name, VLC_VAR_STRING|VLC_VAR_DOINHERIT );
-    var_Get( p_intf, psz_bookmark_name, &val );
+    playlist_t *p_playlist = pl_Hold( p_intf );
+    char *psz_bookmark = var_CreateGetString( p_intf, psz_bookmark_name );
 
-    char *psz_bookmark = strdup( val.psz_string );
     PL_LOCK;
     FOREACH_ARRAY( playlist_item_t *p_item, p_playlist->items )
         char *psz_uri = input_item_GetURI( p_item->p_input );
@@ -939,25 +1015,33 @@ static void PlayBookmark( intf_thread_t *p_intf, int i_num )
             free( psz_uri );
     FOREACH_END();
     PL_UNLOCK;
-    vlc_object_release( p_playlist );
+
+    free( psz_bookmark );
+    free( psz_bookmark_name );
+    pl_Release( p_intf );
 }
 
 static void SetBookmark( intf_thread_t *p_intf, int i_num )
 {
-    playlist_t *p_playlist = pl_Yield( p_intf );
-    char psz_bookmark_name[11];
-    sprintf( psz_bookmark_name, "bookmark%i", i_num );
+    char *psz_bookmark_name;
+    if( asprintf( &psz_bookmark_name, "bookmark%i", i_num ) == -1 )
+        return;
+
+    playlist_t *p_playlist = pl_Hold( p_intf );
     var_Create( p_intf, psz_bookmark_name,
                 VLC_VAR_STRING|VLC_VAR_DOINHERIT );
-    if( p_playlist->status.p_item )
+    playlist_item_t * p_item = playlist_CurrentPlayingItem( p_playlist );
+    if( p_item )
     {
-        char *psz_uri = input_item_GetURI( p_playlist->status.p_item->p_input );
+        char *psz_uri = input_item_GetURI( p_item->p_input );
         config_PutPsz( p_intf, psz_bookmark_name, psz_uri);
         msg_Info( p_intf, "setting playlist bookmark %i to %s", i_num, psz_uri);
         free( psz_uri );
         config_SaveConfigFile( p_intf, "hotkeys" );
     }
+
     pl_Release( p_intf );
+    free( psz_bookmark_name );
 }
 
 static void DisplayPosition( intf_thread_t *p_intf, vout_thread_t *p_vout,
@@ -988,7 +1072,7 @@ static void DisplayPosition( intf_thread_t *p_intf, vout_thread_t *p_vout,
         vout_OSDMessage( p_input, POSITION_TEXT_CHAN, psz_time );
     }
 
-    if( !p_vout->p_window || p_vout->b_fullscreen )
+    if( p_vout->b_fullscreen )
     {
         var_Get( p_input, "position", &pos );
         vout_OSDSlider( VLC_OBJECT( p_input ), POSITION_WIDGET_CHAN,
@@ -1005,7 +1089,7 @@ static void DisplayVolume( intf_thread_t *p_intf, vout_thread_t *p_vout,
     }
     ClearChannels( p_intf, p_vout );
 
-    if( !p_vout->p_window || p_vout->b_fullscreen )
+    if( p_vout->b_fullscreen )
     {
         vout_OSDSlider( VLC_OBJECT( p_vout ), VOLUME_WIDGET_CHAN,
             i_vol*100/AOUT_VOLUME_MAX, OSD_VERT_SLIDER );

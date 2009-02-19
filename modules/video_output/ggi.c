@@ -62,12 +62,12 @@ static void SetPalette     ( vout_thread_t *, uint16_t *, uint16_t *, uint16_t *
             "By default, VLC will use the value of the DISPLAY " \
             "environment variable.")
 
-vlc_module_begin();
-    add_string( "ggi-display", NULL, NULL, DISPLAY_TEXT, DISPLAY_LONGTEXT, true );
-    set_description( "General Graphics Interface video output" );
-    set_capability( "video output", 30 );
-    set_callbacks( Create, Destroy );
-vlc_module_end();
+vlc_module_begin ()
+    add_string( "ggi-display", NULL, NULL, DISPLAY_TEXT, DISPLAY_LONGTEXT, true )
+    set_description( "General Graphics Interface video output" )
+    set_capability( "video output", 30 )
+    set_callbacks( Create, Destroy )
+vlc_module_end ()
 
 /*****************************************************************************
  * vout_sys_t: video output GGI method descriptor
@@ -293,7 +293,7 @@ static int Manage( vout_thread_t *p_vout )
                     case 'q':
                     case 'Q':
                     case GIIUC_Escape:
-                        vlc_object_kill( p_vout->p_libvlc );
+                        libvlc_Quit( p_vout->p_libvlc );
                         break;
 
                     default:
@@ -306,21 +306,11 @@ static int Manage( vout_thread_t *p_vout )
                 switch( event.pbutton.button )
                 {
                     case GII_PBUTTON_LEFT:
-                        val.b_bool = true;
-                        var_Set( p_vout, "mouse-clicked", val );
+                        var_SetBool( p_vout, "mouse-clicked", true );
                         break;
 
                     case GII_PBUTTON_RIGHT:
-                        {
-                            intf_thread_t *p_intf;
-                            p_intf = vlc_object_find( p_vout, VLC_OBJECT_INTF,
-                                                              FIND_ANYWHERE );
-                            if( p_intf )
-                            {
-                                p_intf->b_menu_change = 1;
-                                vlc_object_release( p_intf );
-                            }
-                        }
+                        var_SetBool( p_vout->p_libvlc, "intf-popupmenu", true );
                         break;
                 }
                 break;

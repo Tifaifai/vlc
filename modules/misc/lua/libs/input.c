@@ -2,7 +2,7 @@
  * input.c
  *****************************************************************************
  * Copyright (C) 2007-2008 the VideoLAN team
- * $Id: 7b2da567a382175a5fa3eb75fad8e3aaa7692479 $
+ * $Id$
  *
  * Authors: Antoine Cellerier <dionoea at videolan tod org>
  *
@@ -49,10 +49,7 @@
 input_thread_t * vlclua_get_input_internal( lua_State *L )
 {
     playlist_t *p_playlist = vlclua_get_playlist_internal( L );
-    vlc_object_lock( p_playlist );
-    input_thread_t *p_input = p_playlist->p_input;
-    if( p_input ) vlc_object_yield( p_input );
-    vlc_object_unlock( p_playlist );
+    input_thread_t *p_input = playlist_CurrentInput( p_playlist );
     vlclua_release_playlist_internal( p_playlist );
     return p_input;
 }

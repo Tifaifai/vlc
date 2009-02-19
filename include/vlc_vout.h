@@ -2,7 +2,7 @@
  * vlc_video.h: common video definitions
  *****************************************************************************
  * Copyright (C) 1999 - 2008 the VideoLAN team
- * $Id: 74e0db17e2f020b5625a010a6b16a5fd5779ceec $
+ * $Id$
  *
  * Authors: Vincent Seguin <seguin@via.ecp.fr>
  *          Samuel Hocevar <sam@via.ecp.fr>
@@ -81,7 +81,6 @@ struct picture_t
     int             i_status;                             /**< picture flags */
     int             i_type;                /**< is picture a direct buffer ? */
     bool            b_slow;                 /**< is picture in slow memory ? */
-    int             i_matrix_coefficients;   /**< in YUV type, encoding type */
     /**@}*/
 
     /** \name Picture management properties
@@ -100,6 +99,9 @@ struct picture_t
     bool            b_progressive;          /**< is it a progressive frame ? */
     unsigned int    i_nb_fields;                  /**< # of displayed fields */
     bool            b_top_field_first;             /**< which field is first */
+    uint8_t        *p_q;                           /**< quantification table */
+    int             i_qstride;                    /**< quantification stride */
+    int             i_qtype;                       /**< quantification style */
     /**@}*/
 
     /** The picture heap we are attached to */
@@ -123,7 +125,7 @@ struct picture_t
 /**
  * This function will create a new picture.
  * The picture created will implement a default release management compatible
- * with picture_Yield and picture_Release. This default management will release
+ * with picture_Hold and picture_Release. This default management will release
  * picture_sys_t *p_sys field if non NULL.
  */
 VLC_EXPORT( picture_t *, picture_New, ( vlc_fourcc_t i_chroma, int i_width, int i_height, int i_aspect ) );
@@ -141,7 +143,7 @@ VLC_EXPORT( void, picture_Delete, ( picture_t * ) );
  * This function will increase the picture reference count.
  * It will not have any effect on picture obtained from vout
  */
-static inline void picture_Yield( picture_t *p_picture )
+static inline void picture_Hold( picture_t *p_picture )
 {
     if( p_picture->pf_release )
         p_picture->i_refcount++;
@@ -158,6 +160,17 @@ static inline void picture_Release( picture_t *p_picture )
 }
 
 /**
+ * Cleanup quantization matrix data and set to 0
+ */
+static inline void picture_CleanupQuant( picture_t *p_pic )
+{
+    free( p_pic->p_q );
+    p_pic->p_q = NULL;
+    p_pic->i_qstride = 0;
+    p_pic->i_qtype = 0;
+}
+
+/**
  * This function will copy all picture dynamic properties.
  */
 static inline void picture_CopyProperties( picture_t *p_dst, const picture_t *p_src )
@@ -168,6 +181,8 @@ static inline void picture_CopyProperties( picture_t *p_dst, const picture_t *p_
     p_dst->b_progressive = p_src->b_progressive;
     p_dst->i_nb_fields = p_src->i_nb_fields;
     p_dst->b_top_field_first = p_src->b_top_field_first;
+
+    /* FIXME: copy ->p_q and ->p_qstride */
 }
 
 /**
@@ -180,9 +195,12 @@ VLC_EXPORT( void, plane_CopyPixels, ( plane_t *p_dst, const plane_t *p_src ) );
 
 /**
  * This function will copy both picture dynamic properties and pixels.
- * You have to notice that sometime a simple picture_Yield may do what
+ * You have to notice that sometime a simple picture_Hold may do what
  * you want without the copy overhead.
  * Provided for convenience.
+ *
+ * \param p_dst pointer to the destination picture.
+ * \param p_src pointer to the source picture.
  */
 static inline void picture_Copy( picture_t *p_dst, const picture_t *p_src )
 {
@@ -226,29 +244,47 @@ struct picture_heap_t
  * Flags used to describe the status of a picture
  *****************************************************************************/
 
-/* Picture type */
-#define EMPTY_PICTURE           0                            /* empty buffer */
-#define MEMORY_PICTURE          100                 /* heap-allocated buffer */
-#define DIRECT_PICTURE          200                         /* direct buffer */
+/* Picture type
+ * FIXME are the values meaningfull ? */
+enum
+{
+    EMPTY_PICTURE = 0,                             /* empty buffer */
+    MEMORY_PICTURE = 100,                 /* heap-allocated buffer */
+    DIRECT_PICTURE = 200,                         /* direct buffer */
+};
 
 /* Picture status */
-#define FREE_PICTURE            0                  /* free and not allocated */
-#define RESERVED_PICTURE        1                  /* allocated and reserved */
-#define RESERVED_DATED_PICTURE  2              /* waiting for DisplayPicture */
-#define RESERVED_DISP_PICTURE   3               /* waiting for a DatePicture */
-#define READY_PICTURE           4                       /* ready for display */
-#define DISPLAYED_PICTURE       5            /* been displayed but is linked */
-#define DESTROYED_PICTURE       6              /* allocated but no more used */
+enum
+{
+    FREE_PICTURE,                              /* free and not allocated */
+    RESERVED_PICTURE,                          /* allocated and reserved */
+    READY_PICTURE,                                  /* ready for display */
+    DISPLAYED_PICTURE,                   /* been displayed but is linked */
+    DESTROYED_PICTURE,                     /* allocated but no more used */
+};
+
+/* Quantification type */
+enum
+{
+    QTYPE_NONE,
+
+    QTYPE_MPEG1,
+    QTYPE_MPEG2,
+    QTYPE_H264,
+};
 
 /*****************************************************************************
  * Shortcuts to access image components
  *****************************************************************************/
 
 /* Plane indices */
-#define Y_PLANE      0
-#define U_PLANE      1
-#define V_PLANE      2
-#define A_PLANE      3
+enum
+{
+    Y_PLANE = 0,
+    U_PLANE = 1,
+    V_PLANE = 2,
+    A_PLANE = 3,
+};
 
 /* Shortcuts */
 #define Y_PIXELS     p[Y_PLANE].p_pixels
@@ -269,6 +305,11 @@ struct picture_heap_t
  */
 
 /**
+ * Video subtitle region spu core private
+ */
+typedef struct subpicture_region_private_t subpicture_region_private_t;
+
+/**
  * Video subtitle region
  *
  * A subtitle region is defined by a picture (graphic) and its rendering
@@ -278,7 +319,7 @@ struct picture_heap_t
 struct subpicture_region_t
 {
     video_format_t  fmt;                          /**< format of the picture */
-    picture_t       picture;             /**< picture comprising this region */
+    picture_t       *p_picture;          /**< picture comprising this region */
 
     int             i_x;                             /**< position of region */
     int             i_y;                             /**< position of region */
@@ -290,8 +331,39 @@ struct subpicture_region_t
     text_style_t    *p_style;        /**< a description of the text style formatting */
 
     subpicture_region_t *p_next;                /**< next region in the list */
-    subpicture_region_t *p_cache;       /**< modified version of this region */
+    subpicture_region_private_t *p_private;  /**< Private data for spu_t *only* */
 };
+
+/* Subpicture region position flags */
+#define SUBPICTURE_ALIGN_LEFT 0x1
+#define SUBPICTURE_ALIGN_RIGHT 0x2
+#define SUBPICTURE_ALIGN_TOP 0x4
+#define SUBPICTURE_ALIGN_BOTTOM 0x8
+#define SUBPICTURE_ALIGN_MASK ( SUBPICTURE_ALIGN_LEFT|SUBPICTURE_ALIGN_RIGHT| \
+                                SUBPICTURE_ALIGN_TOP |SUBPICTURE_ALIGN_BOTTOM )
+
+/**
+ * This function will create a new subpicture region.
+ *
+ * You must use subpicture_region_Delete to destroy it.
+ */
+VLC_EXPORT( subpicture_region_t *, subpicture_region_New, ( const video_format_t *p_fmt ) );
+
+/**
+ * This function will destroy a subpicture region allocated by
+ * subpicture_region_New.
+ *
+ * You may give it NULL.
+ */
+VLC_EXPORT( void, subpicture_region_Delete, ( subpicture_region_t *p_region ) );
+
+/**
+ * This function will destroy a list of subpicture regions allocated by
+ * subpicture_region_New.
+ *
+ * Provided for convenience.
+ */
+VLC_EXPORT( void, subpicture_region_ChainDelete, ( subpicture_region_t *p_head ) );
 
 /**
  * Video subtitle
@@ -311,8 +383,7 @@ struct subpicture_t
     /** \name Type and flags
        Should NOT be modified except by the vout thread */
     /**@{*/
-    int             i_type;                                        /**< type */
-    int             i_status;                                     /**< flags */
+    int64_t         i_order;                 /** an increasing unique number */
     subpicture_t *  p_next;               /**< next subtitle to be displayed */
     /**@}*/
 
@@ -323,8 +394,6 @@ struct subpicture_t
     bool            b_ephemer;    /**< If this flag is set to true the subtitle
                                 will be displayed untill the next one appear */
     bool            b_fade;                               /**< enable fading */
-    bool            b_pausable;               /**< subpicture will be paused if
-                                                            stream is paused */
     /**@}*/
 
     subpicture_region_t *p_region;  /**< region list composing this subtitle */
@@ -334,15 +403,11 @@ struct subpicture_t
      * changed by the video output thread, or simply ignored depending of the
      * subtitle type. */
     /**@{*/
-    int          i_x;                    /**< offset from alignment position */
-    int          i_y;                    /**< offset from alignment position */
-    int          i_width;                                 /**< picture width */
-    int          i_height;                               /**< picture height */
-    int          i_alpha;                                  /**< transparency */
     int          i_original_picture_width;  /**< original width of the movie */
     int          i_original_picture_height;/**< original height of the movie */
+    bool         b_subtitle;            /**< the picture is a movie subtitle */
     bool         b_absolute;                       /**< position is absolute */
-    int          i_flags;                                /**< position flags */
+    int          i_alpha;                                  /**< transparency */
      /**@}*/
 
     /** Pointer to function that renders this subtitle in a picture */
@@ -351,56 +416,35 @@ struct subpicture_t
     void ( *pf_destroy ) ( subpicture_t * );
 
     /** Pointer to functions for region management */
-    subpicture_region_t * ( *pf_create_region ) ( vlc_object_t *,
-                                                  video_format_t * );
-    subpicture_region_t * ( *pf_make_region ) ( vlc_object_t *,
-                                                video_format_t *, picture_t * );
-    void ( *pf_destroy_region ) ( vlc_object_t *, subpicture_region_t * );
-
-    void ( *pf_pre_render ) ( video_format_t *, spu_t *, subpicture_t * );
-    void ( *pf_update_regions ) ( video_format_t *, spu_t *,
-                                  subpicture_t *, mtime_t );
+    void (*pf_pre_render)    ( spu_t *, subpicture_t *, const video_format_t * );
+    void (*pf_update_regions)( spu_t *,
+                               subpicture_t *, const video_format_t *, mtime_t );
 
     /** Private data - the subtitle plugin might want to put stuff here to
      * keep track of the subpicture */
     subpicture_sys_t *p_sys;                              /* subpicture data */
 };
 
-/* Subpicture type */
-#define EMPTY_SUBPICTURE       0     /* subtitle slot is empty and available */
-#define MEMORY_SUBPICTURE      100            /* subpicture stored in memory */
+
+/**
+ * This function create a new empty subpicture.
+ *
+ * You must use subpicture_Delete to destroy it.
+ */
+VLC_EXPORT( subpicture_t *, subpicture_New, ( void ) );
+
+/**
+ * This function delete a subpicture created by subpicture_New.
+ * You may give it NULL.
+ */
+VLC_EXPORT( void,  subpicture_Delete, ( subpicture_t *p_subpic ) );
 
 /* Default subpicture channel ID */
 #define DEFAULT_CHAN           1
 
-/* Subpicture status */
-#define FREE_SUBPICTURE        0                   /* free and not allocated */
-#define RESERVED_SUBPICTURE    1                   /* allocated and reserved */
-#define READY_SUBPICTURE       2                        /* ready for display */
-
-/* Subpicture position flags */
-#define SUBPICTURE_ALIGN_LEFT 0x1
-#define SUBPICTURE_ALIGN_RIGHT 0x2
-#define SUBPICTURE_ALIGN_TOP 0x4
-#define SUBPICTURE_ALIGN_BOTTOM 0x8
-#define SUBPICTURE_ALIGN_MASK ( SUBPICTURE_ALIGN_LEFT|SUBPICTURE_ALIGN_RIGHT| \
-                                SUBPICTURE_ALIGN_TOP |SUBPICTURE_ALIGN_BOTTOM )
-
-/* Subpicture rendered flag - should only be used by vout_subpictures */
-#define SUBPICTURE_RENDERED  0x10
-
 /*****************************************************************************
  * Prototypes
  *****************************************************************************/
-
-/**
- * Copy the source picture onto the destination picture.
- * \param p_this a vlc object
- * \param p_dst pointer to the destination picture.
- * \param p_src pointer to the source picture.
- */
-#define vout_CopyPicture(a,b,c) __vout_CopyPicture(VLC_OBJECT(a),b,c)
-VLC_EXPORT( void, __vout_CopyPicture, ( vlc_object_t *p_this, picture_t *p_dst, picture_t *p_src ) );
 
 /**
  * Initialise different fields of a picture_t (but does not allocate memory).
@@ -438,6 +482,11 @@ VLC_EXPORT( int, __vout_AllocatePicture,( vlc_object_t *p_this, picture_t *p_pic
  */
 
 /**
+ * Video ouput thread private structure
+ */
+typedef struct vout_thread_sys_t vout_thread_sys_t;
+
+/**
  * Video output thread descriptor
  *
  * Any independent video output device, such as an X11 window or a GGI device,
@@ -451,9 +500,7 @@ struct vout_thread_t
     /** \name Thread properties and locks */
     /**@{*/
     vlc_mutex_t         picture_lock;                 /**< picture heap lock */
-    vlc_mutex_t         subpicture_lock;           /**< subpicture heap lock */
     vlc_mutex_t         change_lock;                 /**< thread change lock */
-    vlc_mutex_t         vfilter_lock;         /**< video filter2 change lock */
     vout_sys_t *        p_sys;                     /**< system output method */
     /**@}*/
 
@@ -461,20 +508,14 @@ struct vout_thread_t
     /**@{*/
     uint16_t            i_changes;          /**< changes made to the thread.
                                                       \see \ref vout_changes */
-    float               f_gamma;                                  /**< gamma */
-    bool                b_grayscale;         /**< color or grayscale display */
-    bool                b_info;            /**< print additional information */
-    bool                b_interface;                   /**< render interface */
-    bool                b_scale;                  /**< allow picture scaling */
-    bool                b_fullscreen;         /**< toogle fullscreen display */
-    uint32_t            render_time;           /**< last picture render time */
+    unsigned            b_fullscreen:1;       /**< toogle fullscreen display */
+    unsigned            b_autoscale:1;      /**< auto scaling picture or not */
+    unsigned            b_on_top:1; /**< stay always on top of other windows */
+    int                 i_zoom;               /**< scaling factor if no auto */
     unsigned int        i_window_width;              /**< video window width */
     unsigned int        i_window_height;            /**< video window height */
     unsigned int        i_alignment;          /**< video alignment in window */
-    unsigned int        i_par_num;           /**< monitor pixel aspect-ratio */
-    unsigned int        i_par_den;           /**< monitor pixel aspect-ratio */
 
-    struct vout_window_t *p_window;   /**< window for embedded vout (if any) */
     /**@}*/
 
     /** \name Plugin used and shortcuts to access its capabilities */
@@ -491,21 +532,11 @@ struct vout_thread_t
     int       ( *pf_control )    ( vout_thread_t *, int, va_list );
     /**@}*/
 
-    /** \name Statistics
-     * These numbers are not supposed to be accurate, but are a
-     * good indication of the thread status */
-    /**@{*/
-    count_t       c_fps_samples;                         /**< picture counts */
-    mtime_t       p_fps_sample[VOUT_FPS_SAMPLES];     /**< FPS samples dates */
-    /**@}*/
-
     /** \name Video heap and translation tables */
     /**@{*/
     int                 i_heap_size;                          /**< heap size */
     picture_heap_t      render;                       /**< rendered pictures */
     picture_heap_t      output;                          /**< direct buffers */
-    bool                b_direct;            /**< rendered are like direct ? */
-    filter_t           *p_chroma;                    /**< translation tables */
 
     video_format_t      fmt_render;      /* render format (from the decoder) */
     video_format_t      fmt_in;            /* input (modified render) format */
@@ -518,34 +549,11 @@ struct vout_thread_t
     /* Subpicture unit */
     spu_t          *p_spu;
 
-    /* Statistics */
-    count_t         c_loops;
-    count_t         c_pictures, c_late_pictures;
-    mtime_t         display_jitter;    /**< average deviation from the PTS */
-    count_t         c_jitter_samples;  /**< number of samples used
-                                           for the calculation of the
-                                           jitter  */
-    /** delay created by internal caching */
-    int             i_pts_delay;
-
-    /* Filter chain */
-    char           *psz_filter_chain;
-    bool            b_filter_change;
-
-    /* Video filter2 chain */
-    filter_chain_t *p_vf2_chain;
-    char           *psz_vf2;
-
-    /* Misc */
-    bool            b_snapshot;     /**< take one snapshot on the next loop */
-
     /* Video output configuration */
     config_chain_t *p_cfg;
 
-    /* Show media title on videoutput */
-    bool            b_title_show;
-    mtime_t         i_title_timeout;
-    int             i_title_position;
+    /* Private vout_thread data */
+    vout_thread_sys_t *p;
 };
 
 #define I_OUTPUTPICTURES p_vout->output.i_pictures
@@ -560,18 +568,18 @@ struct vout_thread_t
  */
 /** b_info changed */
 #define VOUT_INFO_CHANGE        0x0001
-/** b_grayscale changed */
-#define VOUT_GRAYSCALE_CHANGE   0x0002
 /** b_interface changed */
 #define VOUT_INTF_CHANGE        0x0004
-/** b_scale changed */
+/** b_autoscale changed */
 #define VOUT_SCALE_CHANGE       0x0008
-/** gamma changed */
-#define VOUT_GAMMA_CHANGE       0x0010
+/** b_on_top changed */
+#define VOUT_ON_TOP_CHANGE	0x0010
 /** b_cursor changed */
 #define VOUT_CURSOR_CHANGE      0x0020
 /** b_fullscreen changed */
 #define VOUT_FULLSCREEN_CHANGE  0x0040
+/** i_zoom changed */
+#define VOUT_ZOOM_CHANGE        0x0080
 /** size changed */
 #define VOUT_SIZE_CHANGE        0x0200
 /** depth changed */
@@ -595,6 +603,9 @@ struct vout_thread_t
 #define VOUT_ALIGN_VMASK        0x000C
 
 #define MAX_JITTER_SAMPLES      20
+
+/* scaling factor (applied to i_zoom in vout_thread_t) */
+#define ZOOM_FP_FACTOR          1000
 
 /*****************************************************************************
  * Prototypes
@@ -664,24 +675,11 @@ VLC_EXPORT( picture_t *,     vout_CreatePicture,  ( vout_thread_t *, bool, bool,
 VLC_EXPORT( void,            vout_InitFormat,     ( video_frame_format_t *, uint32_t, int, int, int ) );
 VLC_EXPORT( void,            vout_DestroyPicture, ( vout_thread_t *, picture_t * ) );
 VLC_EXPORT( void,            vout_DisplayPicture, ( vout_thread_t *, picture_t * ) );
-VLC_EXPORT( void,            vout_DatePicture,    ( vout_thread_t *, picture_t *, mtime_t ) );
 VLC_EXPORT( void,            vout_LinkPicture,    ( vout_thread_t *, picture_t * ) );
 VLC_EXPORT( void,            vout_UnlinkPicture,  ( vout_thread_t *, picture_t * ) );
-VLC_EXPORT( void,            vout_PlacePicture,   ( vout_thread_t *, unsigned int, unsigned int, unsigned int *, unsigned int *, unsigned int *, unsigned int * ) );
+VLC_EXPORT( void,            vout_PlacePicture,   ( const vout_thread_t *, unsigned int, unsigned int, unsigned int *, unsigned int *, unsigned int *, unsigned int * ) );
 
-/* DO NOT use vout_RenderPicture unless you are in src/video_ouput */
-picture_t *     vout_RenderPicture  ( vout_thread_t *, picture_t *,
-                                                       subpicture_t * );
-
-/* DO NOT use vout_CountPictureAvailable unless your are in src/input/dec.c (no exception) */
-int vout_CountPictureAvailable( vout_thread_t * );
-
-VLC_EXPORT( int, vout_vaControlDefault, ( vout_thread_t *, int, va_list ) );
-VLC_EXPORT( void *, vout_RequestWindow, ( vout_thread_t *, int *, int *, unsigned int *, unsigned int * ) );
-VLC_EXPORT( void,   vout_ReleaseWindow, ( vout_thread_t *, void * ) );
-VLC_EXPORT( int, vout_ControlWindow, ( vout_thread_t *, void *, int, va_list ) );
 void vout_IntfInit( vout_thread_t * );
-VLC_EXPORT( int, vout_Snapshot, ( vout_thread_t *p_vout, picture_t *p_pic ) );
 VLC_EXPORT( void, vout_EnableFilter, ( vout_thread_t *, char *,bool , bool  ) );
 
 
@@ -707,13 +705,9 @@ static inline int vout_Control( vout_thread_t *p_vout, int i_query, ... )
 
 enum output_query_e
 {
-    VOUT_GET_SIZE,         /* arg1= unsigned int*, arg2= unsigned int*, res= */
     VOUT_SET_SIZE,         /* arg1= unsigned int, arg2= unsigned int, res= */
     VOUT_SET_STAY_ON_TOP,  /* arg1= bool       res=    */
     VOUT_REPARENT,
-    VOUT_SNAPSHOT,
-    VOUT_CLOSE,
-    VOUT_SET_FOCUS,         /* arg1= bool       res=    */
     VOUT_SET_VIEWPORT,      /* arg1= view rect, arg2=clip rect, res= */
     VOUT_REDRAW_RECT,       /* arg1= area rect, res= */
 };
@@ -725,6 +719,8 @@ typedef struct snapshot_t {
   int i_height;      /* In pixels */
   int i_datasize;    /* In bytes */
   mtime_t date;      /* Presentation time */
+  vlc_cond_t p_condvar;
+  vlc_mutex_t p_mutex;
 } snapshot_t;
 
 /**@}*/

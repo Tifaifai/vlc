@@ -2,7 +2,7 @@
  * mjpeg.c : demuxes mjpeg webcam http streams
  *****************************************************************************
  * Copyright (C) 2004 the VideoLAN team
- * $Id: 7f76650255d283bd67a3d5ee43a63473f651012a $
+ * $Id$
  *
  * Authors: Henry Jen (slowhog) <henryjen@ztune.net>
  *          Derk-Jan Hartman (thedj)
@@ -49,15 +49,15 @@ static void Close( vlc_object_t * );
     "playing MJPEG from a file. Use 0 (this is the default value) for a " \
     "live stream (from a camera).")
 
-vlc_module_begin();
-    set_shortname( "MJPEG");
-    set_description( N_("M-JPEG camera demuxer") );
-    set_capability( "demux", 5 );
-    set_callbacks( Open, Close );
-    set_category( CAT_INPUT );
-    set_subcategory( SUBCAT_INPUT_DEMUX );
-    add_float( "mjpeg-fps", 0.0, NULL, FPS_TEXT, FPS_LONGTEXT, false );
-vlc_module_end();
+vlc_module_begin ()
+    set_shortname( "MJPEG")
+    set_description( N_("M-JPEG camera demuxer") )
+    set_capability( "demux", 5 )
+    set_callbacks( Open, Close )
+    set_category( CAT_INPUT )
+    set_subcategory( SUBCAT_INPUT_DEMUX )
+    add_float( "mjpeg-fps", 0.0, NULL, FPS_TEXT, FPS_LONGTEXT, false )
+vlc_module_end ()
 
 /*****************************************************************************
  * Local prototypes
@@ -386,14 +386,11 @@ static int MjpgDemux( demux_t *p_demux )
     demux_sys_t *p_sys = p_demux->p_sys;
     int i;
 
-    if( p_sys->b_still && p_sys->i_still_end && p_sys->i_still_end < mdate() )
+    if( p_sys->b_still && p_sys->i_still_end )
     {
         /* Still frame, wait until the pause delay is gone */
+        mwait( p_sys->i_still_end );
         p_sys->i_still_end = 0;
-    }
-    else if( p_sys->b_still && p_sys->i_still_end )
-    {
-        msleep( 400 );
         return 1;
     }
 

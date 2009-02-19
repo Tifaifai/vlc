@@ -51,11 +51,11 @@
 #define HEIGHT_LONGTEXT N_( \
       "The height of the effects video window, in pixels." )
 
-#define NBBANDS_TEXT N_( "Number of bands" )
+#define NBBANDS_TEXT N_( "More bands : 80 / 20" )
 #define NBBANDS_LONGTEXT N_( \
-      "Number of bands used by spectrum analyzer, should be 20 or 80." )
+      "More bands for the spectrum analyzer : 80 if enabled else 20." )
 #define SPNBBANDS_LONGTEXT N_( \
-      "Number of bands used by the spectrometer, from 20 to 80." )
+      "More bands for the spectrometer : 80 if enabled else 20." )
 
 #define SEPAR_TEXT N_( "Band separator" )
 #define SEPAR_LONGTEXT N_( \
@@ -108,56 +108,56 @@
 static int  Open         ( vlc_object_t * );
 static void Close        ( vlc_object_t * );
 
-vlc_module_begin();
-    set_shortname( N_("Visualizer"));
-    set_category( CAT_AUDIO );
-    set_subcategory( SUBCAT_AUDIO_VISUAL );
-    set_description( N_("Visualizer filter") );
-    set_section( N_( "General") , NULL );
+vlc_module_begin ()
+    set_shortname( N_("Visualizer"))
+    set_category( CAT_AUDIO )
+    set_subcategory( SUBCAT_AUDIO_VISUAL )
+    set_description( N_("Visualizer filter") )
+    set_section( N_( "General") , NULL )
     add_string("effect-list", "spectrum", NULL,
-            ELIST_TEXT, ELIST_LONGTEXT, true );
+            ELIST_TEXT, ELIST_LONGTEXT, true )
     add_integer("effect-width",VOUT_WIDTH,NULL,
-             WIDTH_TEXT, WIDTH_LONGTEXT, false );
+             WIDTH_TEXT, WIDTH_LONGTEXT, false )
     add_integer("effect-height" , VOUT_HEIGHT , NULL,
-             HEIGHT_TEXT, HEIGHT_LONGTEXT, false );
-    set_section( N_("Spectrum analyser") , NULL );
-    add_integer("visual-nbbands", 80, NULL,
+             HEIGHT_TEXT, HEIGHT_LONGTEXT, false )
+    set_section( N_("Spectrum analyser") , NULL )
+    add_obsolete_integer( "visual-nbbands" ) /* Since 1.0.0 */
+    add_bool("visual-80-bands", 1, NULL,
              NBBANDS_TEXT, NBBANDS_LONGTEXT, true );
-    add_integer("visual-separ", 1, NULL,
-             SEPAR_TEXT, SEPAR_LONGTEXT, true );
-    add_integer("visual-amp", 3, NULL,
-             AMP_TEXT, AMP_LONGTEXT, true );
+    add_obsolete_integer( "visual-separ" ) /* Since 1.0.0 */
+    add_obsolete_integer( "visual-amp" ) /* Since 1.0.0 */
     add_bool("visual-peaks", true, NULL,
-             PEAKS_TEXT, PEAKS_LONGTEXT, true );
-    set_section( N_("Spectrometer") , NULL );
+             PEAKS_TEXT, PEAKS_LONGTEXT, true )
+    set_section( N_("Spectrometer") , NULL )
     add_bool("spect-show-original", false, NULL,
-             ORIG_TEXT, ORIG_LONGTEXT, true );
+             ORIG_TEXT, ORIG_LONGTEXT, true )
     add_bool("spect-show-base", true, NULL,
-             BASE_TEXT, BASE_LONGTEXT, true );
+             BASE_TEXT, BASE_LONGTEXT, true )
     add_integer("spect-radius", 42, NULL,
-             RADIUS_TEXT, RADIUS_LONGTEXT, true );
+             RADIUS_TEXT, RADIUS_LONGTEXT, true )
     add_integer("spect-sections", 3, NULL,
-             SSECT_TEXT, SSECT_LONGTEXT, true );
+             SSECT_TEXT, SSECT_LONGTEXT, true )
     add_integer("spect-color", 80, NULL,
-             COLOR1_TEXT, COLOR1_LONGTEXT, true );
+             COLOR1_TEXT, COLOR1_LONGTEXT, true )
     add_bool("spect-show-bands", true, NULL,
              BANDS_TEXT, BANDS_LONGTEXT, true );
-    add_integer("spect-nbbands", 32, NULL,
-             NBBANDS_TEXT, SPNBBANDS_LONGTEXT, true );
+    add_obsolete_integer( "spect-nbbands" ) /* Since 1.0.0 */
+    add_bool("spect-80-bands", 1, NULL,
+             NBBANDS_TEXT, SPNBBANDS_LONGTEXT, true )
     add_integer("spect-separ", 1, NULL,
-             SEPAR_TEXT, SEPAR_LONGTEXT, true );
+             SEPAR_TEXT, SEPAR_LONGTEXT, true )
     add_integer("spect-amp", 8, NULL,
-             AMP_TEXT, AMP_LONGTEXT, true );
+             AMP_TEXT, AMP_LONGTEXT, true )
     add_bool("spect-show-peaks", true, NULL,
-             PEAKS_TEXT, PEAKS_LONGTEXT, true );
+             PEAKS_TEXT, PEAKS_LONGTEXT, true )
     add_integer("spect-peak-width", 61, NULL,
-             PEAK_WIDTH_TEXT, PEAK_WIDTH_LONGTEXT, true );
+             PEAK_WIDTH_TEXT, PEAK_WIDTH_LONGTEXT, true )
     add_integer("spect-peak-height", 1, NULL,
-             PEAK_HEIGHT_TEXT, PEAK_HEIGHT_LONGTEXT, true );
-    set_capability( "visualization", 0 );
-    set_callbacks( Open, Close );
-    add_shortcut( "visualizer");
-vlc_module_end();
+             PEAK_HEIGHT_TEXT, PEAK_HEIGHT_LONGTEXT, true )
+    set_capability( "visualization", 0 )
+    set_callbacks( Open, Close )
+    add_shortcut( "visualizer")
+vlc_module_end ()
 
 
 /*****************************************************************************
@@ -208,8 +208,8 @@ static int Open( vlc_object_t *p_this )
     p_sys->i_height = config_GetInt( p_filter , "effect-height");
     p_sys->i_width  = config_GetInt( p_filter , "effect-width");
 
-    if( p_sys->i_height < 20 ) p_sys->i_height =  20;
-    if( p_sys->i_width  < 20 ) p_sys->i_width  =  20;
+    if( p_sys->i_height < 400 ) p_sys->i_height = 400;
+    if( p_sys->i_width  < 532 ) p_sys->i_width  = 532;
     if( (p_sys->i_height % 2 ) != 0 ) p_sys->i_height--;
     if( (p_sys->i_width % 2 )  != 0 ) p_sys->i_width--;
 
@@ -311,7 +311,7 @@ static int Open( vlc_object_t *p_this )
     fmt.i_aspect = VOUT_ASPECT_FACTOR * p_sys->i_width/p_sys->i_height;
     fmt.i_sar_num = fmt.i_sar_den = 1;
 
-    p_sys->p_vout = vout_Request( p_filter, NULL, &fmt );
+    p_sys->p_vout = aout_filter_RequestVout( p_filter, NULL, &fmt );
     if( p_sys->p_vout == NULL )
     {
         msg_Err( p_filter, "no suitable vout module" );
@@ -370,8 +370,7 @@ static void DoWork( aout_instance_t *p_aout, aout_filter_t *p_filter,
 #undef p_effect
     }
 
-    vout_DatePicture( p_sys->p_vout, p_outpic,
-                      ( p_in_buf->start_date + p_in_buf->end_date ) / 2 );
+    p_outpic->date = ( p_in_buf->start_date + p_in_buf->end_date ) / 2;
 
     vout_DisplayPicture( p_sys->p_vout, p_outpic );
 }
@@ -388,13 +387,18 @@ static void Close( vlc_object_t *p_this )
 
     if( p_filter->p_sys->p_vout )
     {
-        vout_Request( p_filter, p_filter->p_sys->p_vout, 0 );
+        aout_filter_RequestVout( p_filter, p_filter->p_sys->p_vout, 0 );
     }
 
     /* Free the list */
     for( i = 0; i < p_sys->i_effect; i++ )
     {
 #define p_effect p_sys->effect[i]
+        if( !strncmp( p_effect->psz_name, "spectrum", strlen( "spectrum" ) ) )
+        {
+            free( ( ( spectrum_data * )p_effect->p_data )->peaks );
+            free( ( ( spectrum_data * )p_effect->p_data )->prev_heights );
+        }
         free( p_effect->p_data );
         free( p_effect->psz_name );
         free( p_effect->psz_args );

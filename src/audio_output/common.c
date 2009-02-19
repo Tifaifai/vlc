@@ -33,6 +33,7 @@
 #include <vlc_common.h>
 #include <vlc_aout.h>
 #include "aout_internal.h"
+#include "libvlc.h"
 
 /*
  * Instances management (internal and external)
@@ -514,7 +515,8 @@ mtime_t aout_DateGet( const audio_date_t * p_date )
  *****************************************************************************/
 mtime_t aout_DateIncrement( audio_date_t * p_date, uint32_t i_nb_samples )
 {
-    mtime_t i_dividend = (mtime_t)i_nb_samples * 1000000;
+    mtime_t i_dividend = INT64_C(1000000) * i_nb_samples;
+    assert( p_date->i_divider > 0 ); /* uninitialized audio_data_t ? */
     p_date->date += i_dividend / p_date->i_divider;
     p_date->i_remainder += (int)(i_dividend % p_date->i_divider);
     if ( p_date->i_remainder >= p_date->i_divider )

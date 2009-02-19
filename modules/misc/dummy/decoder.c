@@ -67,7 +67,7 @@ static void *DecodeBlock( decoder_t *p_dec, block_t **pp_block );
 /*****************************************************************************
  * OpenDecoder: Open the decoder
  *****************************************************************************/
-int OpenDecoder ( vlc_object_t *p_this )
+static int OpenDecoderCommon( vlc_object_t *p_this, bool b_force_dump )
 {
     decoder_t *p_dec = (decoder_t*)p_this;
     decoder_sys_t *p_sys;
@@ -78,22 +78,26 @@ int OpenDecoder ( vlc_object_t *p_this )
     if( ( p_dec->p_sys = p_sys =
           (decoder_sys_t *)malloc(sizeof(decoder_sys_t)) ) == NULL )
     {
-        msg_Err( p_dec, "out of memory" );
-        return VLC_EGENERIC;
+        return VLC_ENOMEM;
     }
 
-    sprintf( psz_file, "stream.%i", p_dec->i_object_id );
+    snprintf( psz_file, sizeof( psz_file), "stream.%p", p_dec );
 
 #ifndef UNDER_CE
-    var_Create( p_dec, "dummy-save-es", VLC_VAR_BOOL | VLC_VAR_DOINHERIT );
-    var_Get( p_dec, "dummy-save-es", &val );
-    if( val.b_bool )
+    if( !b_force_dump )
+    {
+        var_Create( p_dec, "dummy-save-es", VLC_VAR_BOOL | VLC_VAR_DOINHERIT );
+        var_Get( p_dec, "dummy-save-es", &val );
+        b_force_dump = val.b_bool;
+    }
+    if( b_force_dump )
     {
         p_sys->i_fd = open( psz_file, O_WRONLY | O_CREAT | O_TRUNC, 00644 );
 
         if( p_sys->i_fd == -1 )
         {
             msg_Err( p_dec, "cannot create `%s'", psz_file );
+            free( p_sys );
             return VLC_EGENERIC;
         }
 
@@ -114,6 +118,15 @@ int OpenDecoder ( vlc_object_t *p_this )
         DecodeBlock;
 
     return VLC_SUCCESS;
+}
+
+int OpenDecoder( vlc_object_t *p_this )
+{
+    return OpenDecoderCommon( p_this, false );
+}
+int  OpenDecoderDump( vlc_object_t *p_this )
+{
+    return OpenDecoderCommon( p_this, true );
 }
 
 /****************************************************************************
@@ -151,8 +164,10 @@ void CloseDecoder ( vlc_object_t *p_this )
     decoder_sys_t *p_sys = p_dec->p_sys;
 
 #ifndef UNDER_CE
-    if( p_sys->i_fd >= 0 ) close( p_sys->i_fd );
+    if( p_sys->i_fd >= 0 )
+        close( p_sys->i_fd );
 #endif
 
     free( p_sys );
 }
+

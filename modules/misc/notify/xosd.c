@@ -2,7 +2,7 @@
  * xosd.c : X On Screen Display interface
  *****************************************************************************
  * Copyright (C) 2001 the VideoLAN team
- * $Id: a65b7c5922e5d91d4269ec1d78925bc3b58cdc1e $
+ * $Id$
  *
  * Authors: Loïc Minier <lool@videolan.org>
  *
@@ -83,23 +83,23 @@ static int PlaylistNext( vlc_object_t *p_this, const char *psz_variable,
 #define COLOUR_TEXT N_("Color")
 #define COLOUR_LONGTEXT N_("Color used to display text in the XOSD output.")
 
-vlc_module_begin();
-    set_category( CAT_INTERFACE );
-    set_subcategory( SUBCAT_INTERFACE_CONTROL );
-    set_description( N_("XOSD interface") );
-    set_shortname( "XOSD" );
-    add_bool( "xosd-position", 1, NULL, POSITION_TEXT, POSITION_LONGTEXT, true );
-    add_integer( "xosd-text-offset", 30, NULL, TXT_OFS_TEXT, TXT_OFS_LONGTEXT, true );
+vlc_module_begin ()
+    set_category( CAT_INTERFACE )
+    set_subcategory( SUBCAT_INTERFACE_CONTROL )
+    set_description( N_("XOSD interface") )
+    set_shortname( "XOSD" )
+    add_bool( "xosd-position", 1, NULL, POSITION_TEXT, POSITION_LONGTEXT, true )
+    add_integer( "xosd-text-offset", 30, NULL, TXT_OFS_TEXT, TXT_OFS_LONGTEXT, true )
     add_integer( "xosd-shadow-offset", 2, NULL,
-                 SHD_OFS_TEXT, SHD_OFS_LONGTEXT, true );
+                 SHD_OFS_TEXT, SHD_OFS_LONGTEXT, true )
     add_string( "xosd-font",
                 "-adobe-helvetica-bold-r-normal-*-*-160-*-*-p-*-iso8859-1",
-                NULL, FONT_TEXT, FONT_LONGTEXT, true );
+                NULL, FONT_TEXT, FONT_LONGTEXT, true )
     add_string( "xosd-colour", "LawnGreen",
-                    NULL, COLOUR_TEXT, COLOUR_LONGTEXT, true );
-    set_capability( "interface", 10 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+                    NULL, COLOUR_TEXT, COLOUR_LONGTEXT, true )
+    set_capability( "interface", 10 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: initialize and create stuff
@@ -113,14 +113,12 @@ static int Open( vlc_object_t *p_this )
     /* Allocate instance and initialize some members */
     p_intf->p_sys = (intf_sys_t *)malloc( sizeof( intf_sys_t ) );
     if( p_intf->p_sys == NULL )
-    {
-        msg_Err( p_intf, "out of memory" );
         return VLC_ENOMEM;
-    }
 
     if( getenv( "DISPLAY" ) == NULL )
     {
         msg_Err( p_intf, "no display, please set the DISPLAY variable" );
+        free( p_intf->p_sys );
         return VLC_EGENERIC;
     }
 
@@ -136,6 +134,7 @@ static int Open( vlc_object_t *p_this )
     if( p_intf->p_sys->p_osd == NULL )
     {
         msg_Err( p_intf, "couldn't initialize libxosd" );
+        free( p_intf->p_sys );
         return VLC_EGENERIC;
     }
 #else
@@ -143,6 +142,7 @@ static int Open( vlc_object_t *p_this )
     if( p_osd == NULL )
     {
         msg_Err( p_intf, "couldn't initialize libxosd" );
+        free( p_intf->p_sys );
         return VLC_EGENERIC;
     }
 
@@ -153,8 +153,8 @@ static int Open( vlc_object_t *p_this )
 #endif
 
 
-    playlist_t *p_playlist = pl_Yield( p_intf );
-    var_AddCallback( p_playlist, "playlist-current", PlaylistNext, p_this );
+    playlist_t *p_playlist = pl_Hold( p_intf );
+    var_AddCallback( p_playlist, "item-current", PlaylistNext, p_this );
     var_AddCallback( p_playlist, "item-change", PlaylistNext, p_this );
     pl_Release( p_intf );
 
@@ -194,8 +194,8 @@ static int Open( vlc_object_t *p_this )
 static void Close( vlc_object_t *p_this )
 {
     intf_thread_t *p_intf = (intf_thread_t *)p_this;
-    playlist_t *p_playlist = pl_Yield( p_intf );
-    var_DelCallback( p_playlist, "playlist-current", PlaylistNext, p_this );
+    playlist_t *p_playlist = pl_Hold( p_intf );
+    var_DelCallback( p_playlist, "item-current", PlaylistNext, p_this );
     var_DelCallback( p_playlist, "item-change", PlaylistNext, p_this );
     pl_Release( p_intf );
 
@@ -219,12 +219,13 @@ static void Run( intf_thread_t *p_intf )
     char psz_duration[MSTRTIME_MAX_SIZE+2];
     char *psz_display = NULL;
 
-    while( vlc_object_alive (p_intf) )
+    for( ;; )
     {
+        int canc = vlc_savecancel();
         if( p_intf->p_sys->b_need_update == true )
         {
             p_intf->p_sys->b_need_update = false;
-            p_playlist = pl_Yield( p_intf );
+            p_playlist = pl_Hold( p_intf );
 
             if( playlist_IsEmpty( p_playlist ) )
             {
@@ -233,19 +234,20 @@ static void Run( intf_thread_t *p_intf )
             }
             free( psz_display );
             psz_display = NULL;
-            if( p_playlist->status.i_status == PLAYLIST_STOPPED )
+            int i_status = playlist_Status( p_playlist );
+            if( i_status == PLAYLIST_STOPPED )
             {
                 psz_display = strdup(_("Stop"));
                 pl_Release( p_intf );
             }
-            else if( p_playlist->status.i_status == PLAYLIST_PAUSED )
+            else if( i_status == PLAYLIST_PAUSED )
             {
                 psz_display = strdup(_("Pause"));
                 pl_Release( p_intf );
             }
             else
             {
-                p_item = p_playlist->status.p_item;
+                p_item = playlist_CurrentPlayingItem( p_playlist );
                 p_input = p_item->p_input;
 
                 pl_Release( p_intf );
@@ -264,7 +266,7 @@ static void Run( intf_thread_t *p_intf )
                     sprintf( psz_duration," " );
                 }
 
-                psz_display = (char *)malloc( sizeof(char )*
+                psz_display = (char *)malloc(
                                           (strlen( p_input->psz_name ) +
                                           MSTRTIME_MAX_SIZE + 2+6 + 10 +10 ));
                 sprintf( psz_display,"%s %s",
@@ -278,6 +280,7 @@ static void Run( intf_thread_t *p_intf )
                             psz_display );
         }
 
+        vlc_restorecancel( canc );
         msleep( INTF_IDLE_SLEEP );
     }
 }

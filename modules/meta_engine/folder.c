@@ -31,10 +31,7 @@
 
 #include <vlc_common.h>
 #include <vlc_plugin.h>
-#include <vlc_interface.h>
-#include <vlc_meta.h>
 #include <vlc_playlist.h>
-#include <vlc_input.h>
 #include <vlc_charset.h>
 
 #ifdef HAVE_SYS_STAT_H
@@ -54,13 +51,13 @@ static int FindMeta( vlc_object_t * );
  * Module descriptor
  *****************************************************************************/
 
-vlc_module_begin();
-    set_shortname( N_( "Folder" ) );
-    set_description( N_("Folder meta data") );
+vlc_module_begin ()
+    set_shortname( N_( "Folder" ) )
+    set_description( N_("Folder meta data") )
 
-    set_capability( "art finder", 90 );
-    set_callbacks( FindMeta, NULL );
-vlc_module_end();
+    set_capability( "art finder", 90 )
+    set_callbacks( FindMeta, NULL )
+vlc_module_end ()
 
 /*****************************************************************************
  *****************************************************************************/

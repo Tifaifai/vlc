@@ -2,7 +2,7 @@
  * vout.c: Windows DirectX video output display method
  *****************************************************************************
  * Copyright (C) 2001-2004 the VideoLAN team
- * $Id: a38a8d1612e62d546b07af376bc1c10e4c9f9bdc $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *
@@ -160,33 +160,33 @@ static int WallpaperCallback( vlc_object_t *, char const *,
 static const char *const ppsz_dev[] = { "" };
 static const char *const ppsz_dev_text[] = { N_("Default") };
 
-vlc_module_begin();
-    set_shortname( "DirectX" );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VOUT );
+vlc_module_begin ()
+    set_shortname( "DirectX" )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VOUT )
     add_bool( "directx-hw-yuv", 1, NULL, HW_YUV_TEXT, HW_YUV_LONGTEXT,
-              true );
+              true )
     add_bool( "directx-use-sysmem", 0, NULL, SYSMEM_TEXT, SYSMEM_LONGTEXT,
-              true );
+              true )
     add_bool( "directx-3buffering", 1, NULL, TRIPLEBUF_TEXT,
-              TRIPLEBUF_LONGTEXT, true );
+              TRIPLEBUF_LONGTEXT, true )
 
     add_string( "directx-device", "", NULL, DEVICE_TEXT, DEVICE_LONGTEXT,
-                true );
-        change_string_list( ppsz_dev, ppsz_dev_text, FindDevicesCallback );
-        change_action_add( FindDevicesCallback, N_("Refresh list") );
+                true )
+        change_string_list( ppsz_dev, ppsz_dev_text, FindDevicesCallback )
+        change_action_add( FindDevicesCallback, N_("Refresh list") )
 
     add_bool( "directx-wallpaper", 0, NULL, WALLPAPER_TEXT, WALLPAPER_LONGTEXT,
-              true );
+              true )
 
-    set_description( N_("DirectX video output") );
-    set_capability( "video output", 100 );
-    add_shortcut( "directx" );
-    set_callbacks( OpenVideo, CloseVideo );
+    set_description( N_("DirectX video output") )
+    set_capability( "video output", 100 )
+    add_shortcut( "directx" )
+    set_callbacks( OpenVideo, CloseVideo )
 
     /* FIXME: Hack to avoid unregistering our window class */
-    linked_with_a_crap_library_which_uses_atexit( );
-vlc_module_end();
+    linked_with_a_crap_library_which_uses_atexit ()
+vlc_module_end ()
 
 #if 0 /* FIXME */
     /* check if we registered a window class because we need to
@@ -277,14 +277,18 @@ static int OpenVideo( vlc_object_t *p_this )
     p_vout->p_sys->p_event =
         vlc_object_create( p_vout, sizeof(event_thread_t) );
     p_vout->p_sys->p_event->p_vout = p_vout;
+    p_vout->p_sys->p_event->window_ready = CreateEvent( NULL, TRUE, FALSE, NULL );
     if( vlc_thread_create( p_vout->p_sys->p_event, "Vout Events Thread",
-                           EventThread, 0, 1 ) )
+                           EventThread, 0 ) )
     {
         msg_Err( p_vout, "cannot create Vout EventThread" );
+        CloseHandle( p_vout->p_sys->p_event->window_ready );
         vlc_object_release( p_vout->p_sys->p_event );
         p_vout->p_sys->p_event = NULL;
         goto error;
     }
+    WaitForSingleObject( p_vout->p_sys->p_event->window_ready, INFINITE );
+    CloseHandle( p_vout->p_sys->p_event->window_ready );
 
     if( p_vout->p_sys->p_event->b_error )
     {
@@ -596,6 +600,28 @@ static int Manage( vout_thread_t *p_vout )
             /* This will force the vout core to recreate the picture buffers */
             p_vout->i_changes |= VOUT_PICTURE_BUFFERS_CHANGE;
         }
+    }
+
+    /* autoscale toggle */
+    if( p_vout->i_changes & VOUT_SCALE_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_SCALE_CHANGE;
+
+        p_vout->b_autoscale = var_GetBool( p_vout, "autoscale" );
+        p_vout->i_zoom = (int) ZOOM_FP_FACTOR;
+
+        UpdateRects( p_vout, true );
+    }
+
+    /* scaling factor */
+    if( p_vout->i_changes & VOUT_ZOOM_CHANGE )
+    {
+        p_vout->i_changes &= ~VOUT_ZOOM_CHANGE;
+
+        p_vout->b_autoscale = false;
+        p_vout->i_zoom =
+            (int)( ZOOM_FP_FACTOR * var_GetFloat( p_vout, "scale" ) );
+        UpdateRects( p_vout, true );
     }
 
     /* Check for cropping / aspect changes */
@@ -2129,7 +2155,7 @@ static int WallpaperCallback( vlc_object_t *p_this, char const *psz_cmd,
     if( (newval.b_bool && !p_vout->p_sys->b_wallpaper) ||
         (!newval.b_bool && p_vout->p_sys->b_wallpaper) )
     {
-        playlist_t *p_playlist = pl_Yield( p_vout );
+        playlist_t *p_playlist = pl_Hold( p_vout );
 
         if( p_playlist )
         {

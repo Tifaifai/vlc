@@ -4,7 +4,7 @@
  *****************************************************************************
  * Copyright (C) 1998-2007 the VideoLAN team
  * Copyright © 2006-2007 Rémi Denis-Courmont
- * $Id: 6c13eacc49b4d578321a2d164020cf5f77d8a99d $
+ * $Id$
  *
  * Authors: Vincent Seguin <seguin@via.ecp.fr>
  *          Rémi Denis-Courmont <rem$videolan,org>
@@ -50,10 +50,6 @@
 #if defined( WIN32 ) || defined( UNDER_CE )
 #   include <windows.h>
 #   include <mmsystem.h>
-#endif
-
-#if defined( UNDER_CE )
-#   include <windows.h>
 #endif
 
 #if defined(HAVE_SYS_TIME_H)
@@ -265,7 +261,7 @@ mtime_t mdate( void )
     }
     else
     {
-        /* Fallback on timeGetTime() which has a milisecond resolution
+        /* Fallback on timeGetTime() which has a millisecond resolution
          * (actually, best case is about 5 ms resolution)
          * timeGetTime() only returns a DWORD thus will wrap after
          * about 49.7 days so we try to detect the wrapping. */
@@ -314,6 +310,7 @@ mtime_t mdate( void )
     return res;
 }
 
+#undef mwait
 /**
  * Wait for a date
  *
@@ -340,8 +337,39 @@ void mwait( mtime_t date )
         ts.tv_sec = d.quot; ts.tv_nsec = d.rem * 1000;
         while( clock_nanosleep( CLOCK_REALTIME, 0, &ts, NULL ) == EINTR );
     }
-#else
 
+#elif defined (WIN32)
+    mtime_t i_total;
+
+    while( (i_total = (date - mdate())) > 0 )
+    {
+        const mtime_t i_sleep = i_total / 1000;
+        DWORD i_delay = (i_sleep > 0x7fffffff) ? 0x7fffffff : i_sleep;
+        vlc_testcancel();
+        SleepEx( i_delay, TRUE );
+    }
+    vlc_testcancel();
+
+#elif defined( __APPLE__ )
+    /* Explicit hack: OSX does not cancel at nanosleep() */
+    vlc_mutex_t lock;
+    vlc_cond_t  wait;
+
+    vlc_mutex_init (&lock);
+    vlc_cond_init (&wait);
+    vlc_mutex_lock (&lock);
+
+    vlc_cleanup_push (vlc_mutex_destroy, &lock);
+    vlc_cleanup_push (vlc_cond_destroy, &wait);
+    vlc_cleanup_push (vlc_mutex_unlock, &lock);
+
+    vlc_cond_timedwait (&wait, &lock, date);
+
+    vlc_cleanup_run ();
+    vlc_cleanup_run ();
+    vlc_cleanup_run ();
+
+#else
     mtime_t delay = date - mdate();
     if( delay > 0 )
         msleep( delay );
@@ -349,10 +377,27 @@ void mwait( mtime_t date )
 #endif
 }
 
+
+#include "libvlc.h" /* vlc_backtrace() */
+#undef msleep
+
+#if defined(__APPLE__) && defined( HAVE_NANOSLEEP )
+/* Mac OS X 10.5's nanosleep is not a cancellation point */
+static inline int
+semi_testcancelable_nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
+{
+    int ret;
+    pthread_testcancel();
+    ret = nanosleep(rqtp, rmtp);
+    pthread_testcancel();
+    return ret;
+}
+#define nanosleep semi_testcancelable_nanosleep
+#endif
+
 /**
- * More precise sleep()
+ * Portable usleep(). Cancellation point.
  *
- * Portable usleep() function.
  * \param delay the amount of time to sleep
  */
 void msleep( mtime_t delay )
@@ -372,10 +417,8 @@ void msleep( mtime_t delay )
 #elif defined( HAVE_KERNEL_OS_H )
     snooze( delay );
 
-#elif defined( WIN32 ) || defined( UNDER_CE )
-    for (delay /= 1000; delay > 0x7fffffff; delay -= 0x7fffffff)
-        Sleep (0x7fffffff);
-    Sleep (delay);
+#elif defined( WIN32 ) || defined( UNDER_CE ) || defined( __APPLE__ )
+    mwait (mdate () + delay);
 
 #elif defined( HAVE_NANOSLEEP )
     struct timespec ts_delay;

@@ -63,11 +63,6 @@ static int AccessControl( access_t *p_access, int i_query, va_list args )
             break;
 
         /* */
-        case ACCESS_GET_MTU:
-            pi_int = (int*)va_arg( args, int * );
-            *pi_int = 0;
-            break;
-
         case ACCESS_GET_PTS_DELAY:
             pi_64 = (int64_t*)va_arg( args, int64_t * );
             *pi_64 = DEFAULT_PTS_DELAY * 1000;
@@ -208,7 +203,7 @@ static int Demux( demux_t *p_demux )
     {
         case COMMAND_QUIT:
             b_eof = true;
-            vlc_object_kill( p_demux->p_libvlc );
+            libvlc_Quit( p_demux->p_libvlc );
             break;
 
         case COMMAND_PAUSE:

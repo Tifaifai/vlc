@@ -2,7 +2,7 @@
  * vlm_internal.h: Internal vlm structures
  *****************************************************************************
  * Copyright (C) 1998-2006 the VideoLAN team
- * $Id: a751cf3f81f26a7e77b247d67715ddae334ed79b $
+ * $Id$
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *
@@ -41,9 +41,9 @@ typedef struct
 
     bool      b_sout_keep;
 
-    input_item_t    *p_item;
-    input_thread_t  *p_input;
-    sout_instance_t *p_sout;
+    input_item_t      *p_item;
+    input_thread_t    *p_input;
+    input_ressource_t *p_input_ressource;
 
 } vlm_media_instance_sys_t;
 
@@ -87,7 +87,8 @@ struct vlm_t
 {
     VLC_COMMON_MEMBERS
 
-    vlc_mutex_t lock;
+    vlc_mutex_t  lock;
+    vlc_thread_t thread;
 
     /* */
     int64_t        i_id;

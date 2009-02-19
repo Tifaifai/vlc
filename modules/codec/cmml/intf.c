@@ -5,7 +5,7 @@
  *                         Organisation (CSIRO) Australia
  * Copyright (C) 2004 the VideoLAN team
  *
- * $Id: 97040969b2222b16fda313f2f82dd912eb866249 $
+ * $Id$
  *
  * Authors: Andre Pang <Andre.Pang@csiro.au>
  *
@@ -53,7 +53,7 @@
 #include "xstrcat.h"
 #include "xurl.h"
 
-#undef  CMML_INTF_USE_TIMED_URIS
+#undef CMML_INTF_USE_TIMED_URIS
 
 #undef  CMML_INTF_DEBUG
 #undef  CMML_INTF_HISTORY_DEBUG
@@ -100,8 +100,10 @@ static int   GoForwardCallback          ( vlc_object_t *, char const *,
                                           vlc_value_t, vlc_value_t, void * );
 
 static char *GetTimedURLFromPlaylistItem( intf_thread_t *, playlist_item_t * );
-static char *GetTimedURIFragmentForTime ( int );
+#ifdef CMML_INTF_USE_TIMED_URIS
 static int   GetCurrentTimeInSeconds    ( input_thread_t * );
+static char *GetTimedURIFragmentForTime ( int );
+#endif
 static int   DisplayAnchor              ( intf_thread_t *, vout_thread_t *,
                                           char *, char * );
 static int   DisplayPendingAnchor       ( intf_thread_t *, vout_thread_t * );
@@ -120,9 +122,7 @@ int OpenIntf ( vlc_object_t *p_this )
 
     p_intf->p_sys = malloc( sizeof( intf_sys_t ) );
     if( p_intf->p_sys == NULL )
-    {
-        return( 1 );
-    };
+        return VLC_ENOMEM;
 
     p_intf->pf_run = RunIntf;
 
@@ -140,7 +140,7 @@ int OpenIntf ( vlc_object_t *p_this )
     var_AddCallback( p_intf->p_libvlc, "browse-follow-anchor",
                      FollowAnchorCallback, p_intf );
 
-    return( 0 );
+    return VLC_SUCCESS;
 }
 
 /*****************************************************************************
@@ -177,6 +177,7 @@ void CloseIntf ( vlc_object_t *p_this )
  *****************************************************************************/
 static void RunIntf( intf_thread_t *p_intf )
 {
+    int canc = vlc_savecancel();
     vout_thread_t * p_vout = NULL;
 
     if( InitThread( p_intf ) < 0 )
@@ -250,6 +251,7 @@ static void RunIntf( intf_thread_t *p_intf )
     }
 
     vlc_object_release( p_intf->p_sys->p_input );
+    vlc_restorecancel( canc );
 }
 
 /*****************************************************************************
@@ -285,25 +287,6 @@ static int DisplayPendingAnchor( intf_thread_t *p_intf, vout_thread_t *p_vout )
 
     if( p_vout != NULL )
     {
-        /* don't display anchor if main interface can display it */
-        p_primary_intf = vlc_object_find( p_intf->p_libvlc, VLC_OBJECT_INTF,
-                FIND_CHILD );
-
-        if( p_primary_intf )
-        {
-            if( var_Get( p_primary_intf, "intf-displays-cmml-description", &val )
-                    == VLC_SUCCESS )
-            {
-                if( val.b_bool == true )
-                {
-                    vlc_object_release( p_primary_intf );
-                    return true;
-                }
-            }
-
-            vlc_object_release( p_primary_intf );
-        }
-
         /* display anchor as subtitle on-screen */
         if( DisplayAnchor( p_intf, p_vout, psz_description, psz_url )
                 != VLC_SUCCESS )
@@ -435,10 +418,10 @@ static void FollowAnchor ( intf_thread_t *p_intf )
         mtime_t i_seconds;
         vlc_value_t time;
 
-        p_playlist = pl_Yield( p_intf );
+        p_playlist = pl_Hold( p_intf );
 
         /* Get new URL */
-        p_current_item = p_playlist->status.p_item;
+        p_current_item = playlist_CurrentPlayingItem( p_playlist );
         char *psz_uri = input_item_GetURI( p_current_item->p_input );
 #ifdef CMML_INTF_DEBUG
         msg_Dbg( p_intf, "Current playlist item URL is \"%s\"", psz_uri );
@@ -552,17 +535,14 @@ char *GetTimedURLFromPlaylistItem( intf_thread_t *p_intf,
     return psz_return_value;
 #else
     VLC_UNUSED(p_intf);
-    void *p;
-
-    /* Suppress warning messages about unused functions */
-    p = GetTimedURIFragmentForTime; /* unused */
-    p = GetCurrentTimeInSeconds;    /* unused */
 
     return input_item_GetURI( p_current_item->p_input );
 #endif
 }
 
 
+
+#ifdef CMML_INTF_USE_TIMED_URIS
 /*
  * Get the current time, rounded down to the nearest second
  *
@@ -588,6 +568,7 @@ char *GetTimedURIFragmentForTime( int seconds )
         return NULL;
     return psz_time;
 }
+#endif
 
 static
 int GoBackCallback( vlc_object_t *p_this, char const *psz_var,
@@ -639,7 +620,7 @@ void GoBack( intf_thread_t *p_intf )
 #endif
 
     /* Find the playlist */
-    p_playlist = pl_Yield( p_intf );
+    p_playlist = pl_Hold( p_intf );
 
     /* Retrieve navigation history from playlist */
     if( var_Get( p_playlist, "navigation-history", &history ) != VLC_SUCCESS ||
@@ -666,7 +647,7 @@ void GoBack( intf_thread_t *p_intf )
         return;
     }
 
-    p_current_item = p_playlist->status.p_item;
+    p_current_item = playlist_CurrentPlayingItem( p_playlist );
 
     /* Save the currently-playing media in a new history item */
     psz_timed_url = GetTimedURLFromPlaylistItem( p_intf, p_current_item );
@@ -711,7 +692,7 @@ void GoForward( intf_thread_t *p_intf )
 #endif
 
     /* Find the playlist */
-    p_playlist = pl_Yield( p_intf );
+    p_playlist = pl_Hold( p_intf );
 
     /* Retrieve navigation history from playlist */
     if( var_Get( p_playlist, "navigation-history", &history ) != VLC_SUCCESS ||
@@ -748,7 +729,7 @@ void GoForward( intf_thread_t *p_intf )
         vlc_object_release( p_playlist );
         return;
     }
-    p_current_item = p_playlist->status.p_item;
+    p_current_item = playlist_CurrentPlayingItem( p_playlist );
     p_new_history_item->psz_uri = GetTimedURLFromPlaylistItem( p_intf,
             p_current_item );
     p_new_history_item->psz_name = p_new_history_item->psz_uri;

@@ -458,6 +458,7 @@ RuntimeNPObject::InvokeResult LibvlcInputNPObject::getProperty(int index, NPVari
             {
                 /* for input state, return CLOSED rather than an exception */
                 INT32_TO_NPVARIANT(0, result);
+                libvlc_exception_clear(&ex);
                 return INVOKERESULT_NO_ERROR;
             }
         }
@@ -1130,7 +1131,7 @@ RuntimeNPObject::InvokeResult LibvlcLogNPObject::setProperty(int index, const NP
                     int verbosity = numberValue(value);
                     if( verbosity >= 0 )
                     {
-                        if( ! p_log )
+                        if( !p_log )
                         {
                             p_log = libvlc_log_open(p_libvlc, &ex);
                             if( libvlc_exception_raised(&ex) )
@@ -1207,7 +1208,9 @@ RuntimeNPObject::InvokeResult LibvlcPlaylistItemsNPObject::getProperty(int index
         {
             case ID_playlistitems_count:
             {
+                libvlc_playlist_lock(p_plugin->getVLC());
                 int val = libvlc_playlist_items_count(p_plugin->getVLC(), &ex);
+                libvlc_playlist_unlock(p_plugin->getVLC());
                 if( libvlc_exception_raised(&ex) )
                 {
                     NPN_SetException(this, libvlc_exception_get_message(&ex));
@@ -1332,7 +1335,9 @@ RuntimeNPObject::InvokeResult LibvlcPlaylistNPObject::getProperty(int index, NPV
         {
             case ID_playlist_itemcount: /* deprecated */
             {
+                libvlc_playlist_lock(p_plugin->getVLC());
                 int val = libvlc_playlist_items_count(p_plugin->getVLC(), &ex);
+                libvlc_playlist_unlock(p_plugin->getVLC());
                 if( libvlc_exception_raised(&ex) )
                 {
                     NPN_SetException(this, libvlc_exception_get_message(&ex));
@@ -1344,7 +1349,9 @@ RuntimeNPObject::InvokeResult LibvlcPlaylistNPObject::getProperty(int index, NPV
             }
             case ID_playlist_isplaying:
             {
+                libvlc_playlist_lock(p_plugin->getVLC());
                 int val = libvlc_playlist_isplaying(p_plugin->getVLC(), &ex);
+                libvlc_playlist_unlock(p_plugin->getVLC());
                 if( libvlc_exception_raised(&ex) )
                 {
                     NPN_SetException(this, libvlc_exception_get_message(&ex));
@@ -1423,7 +1430,7 @@ RuntimeNPObject::InvokeResult LibvlcPlaylistNPObject::invoke(int index, const NP
                     {
                         url = p_plugin->getAbsoluteURL(s);
                         if( url )
-			    free(s);
+                            free(s);
                         else
                             // problem with combining url, use argument
                             url = s;
@@ -1481,17 +1488,17 @@ RuntimeNPObject::InvokeResult LibvlcPlaylistNPObject::invoke(int index, const NP
                     }
                 }
 
-                int item = libvlc_playlist_add_extended(p_plugin->getVLC(),
-                                                        url,
-                                                        name,
-                                                        i_options,
-                                                        const_cast<const char **>(ppsz_options),
-                                                        &ex);
+                int item = libvlc_playlist_add_extended_untrusted(p_plugin->getVLC(),
+                                                                  url,
+                                                                  name,
+                                                                  i_options,
+                                                                  const_cast<const char **>(ppsz_options),
+                                                                  &ex);
                 free(url);
                 free(name);
                 for( int i=0; i< i_options; ++i )
                 {
-		    free(ppsz_options[i]);
+                    free(ppsz_options[i]);
                 }
                 free(ppsz_options);
 
@@ -2162,4 +2169,3 @@ RuntimeNPObject::InvokeResult LibvlcVideoNPObject::invoke(int index, const NPVar
     }
     return INVOKERESULT_GENERIC_ERROR;
 }
-

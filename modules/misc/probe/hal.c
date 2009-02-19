@@ -2,7 +2,7 @@
  * hal.c :  HAL probing module
  *****************************************************************************
  * Copyright (C) 2004 the VideoLAN team
- * $Id: b131b73c660ae6fead5b8347c7366b834c61e774 $
+ * $Id$
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *
@@ -54,11 +54,11 @@ static device_t * ParseDisc( device_probe_t *p_probe,  char *psz_device );
 /*****************************************************************************
  * Module descriptor
  *****************************************************************************/
-vlc_module_begin();
-    set_description( N_("HAL devices detection") );
-    set_capability( "devices probe", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+vlc_module_begin ()
+    set_description( N_("HAL devices detection") )
+    set_capability( "devices probe", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 
 /*****************************************************************************
@@ -130,6 +130,7 @@ static void Update( device_probe_t * p_probe )
     int i, i_devices, j;
     char **devices;
     bool b_exists;
+    int canc = vlc_savecancel();
 
     for ( j = 0 ; j < p_sys->i_devices; j++ )
         p_sys->pp_devices[j]->b_seen = false;
@@ -160,6 +161,7 @@ static void Update( device_probe_t * p_probe )
         }
     }
     /// \todo Remove unseen devices
+    vlc_restorecancel( canc );
 }
 
 

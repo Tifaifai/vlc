@@ -2,7 +2,7 @@
  * telepathy.c : changes Telepathy Presence information using MissionControl
  *****************************************************************************
  * Copyright © 2007 the VideoLAN team
- * $Id: 4921d4641758af5b84e91eefb3ccd514910b9a40 $
+ * $Id$
  *
  * Author: Rafaël Carré <funman@videoanorg>
  *
@@ -74,18 +74,18 @@ static int SendToTelepathy( intf_thread_t *, const char * );
 "$I Video Title, $L Time Remaining, $N Name, $O Audio language, $P Position, " \
 "$R Rate, $S Sample rate, $T Time elapsed, $U Publisher, $V Volume")
 
-vlc_module_begin();
-    set_category( CAT_INTERFACE );
-    set_subcategory( SUBCAT_INTERFACE_CONTROL );
-    set_shortname( "Telepathy" );
-    set_description( N_("Telepathy \"Now Playing\" using MissionControl") );
+vlc_module_begin ()
+    set_category( CAT_INTERFACE )
+    set_subcategory( SUBCAT_INTERFACE_CONTROL )
+    set_shortname( "Telepathy" )
+    set_description( N_("Telepathy \"Now Playing\" (MissionControl)") )
 
     add_string( "telepathy-format", FORMAT_DEFAULT, NULL,
-                FORMAT_TEXT, FORMAT_LONGTEXT, false );
+                FORMAT_TEXT, FORMAT_LONGTEXT, false )
 
-    set_capability( "interface", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+    set_capability( "interface", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: initialize and create stuff
@@ -97,7 +97,9 @@ static int Open( vlc_object_t *p_this )
     DBusConnection  *p_conn;
     DBusError       error;
 
-    MALLOC_ERR( p_intf->p_sys, intf_sys_t );
+    p_intf->p_sys = malloc( sizeof( intf_sys_t ) );
+    if( !p_intf->p_sys )
+        return VLC_ENOMEM;
 
     /* connect to the session bus */
     dbus_error_init( &error );
@@ -122,9 +124,9 @@ static int Open( vlc_object_t *p_this )
 
     p_intf->p_sys->i_id = -1;
 
-    p_playlist = pl_Yield( p_intf );
+    p_playlist = pl_Hold( p_intf );
     var_AddCallback( p_playlist, "item-change", ItemChange, p_intf );
-    var_AddCallback( p_playlist, "playlist-current", ItemChange, p_intf );
+    var_AddCallback( p_playlist, "item-current", ItemChange, p_intf );
     pl_Release( p_intf );
 
     return VLC_SUCCESS;
@@ -135,23 +137,24 @@ static int Open( vlc_object_t *p_this )
  *****************************************************************************/
 static void Close( vlc_object_t *p_this )
 {
-    p_this->b_dead = true;
     intf_thread_t *p_intf = (intf_thread_t *)p_this;
-    playlist_t *p_playlist = pl_Yield( p_this );
+    playlist_t *p_playlist = pl_Hold( p_this );
+    input_thread_t *p_input = NULL;
+
+    var_DelCallback( p_playlist, "item-change", ItemChange, p_intf );
+    var_DelCallback( p_playlist, "item-current", ItemChange, p_intf );
+    if( (p_input = playlist_CurrentInput( p_playlist )) )
+    {
+        var_DelCallback( p_input, "state", StateChange, p_intf );
+        vlc_object_release( p_input );
+    }
+    pl_Release( p_this );
 
     /* Clears the Presence message ... else it looks like we're still playing
      * something although VLC (or the Telepathy plugin) is closed */
 
     /* Do not check for VLC_ENOMEM as we're closing */
     SendToTelepathy( p_intf, "" );
-
-    PL_LOCK;
-    var_DelCallback( p_playlist, "item-change", ItemChange, p_intf );
-    var_DelCallback( p_playlist, "playlist-current", ItemChange, p_intf );
-    if( p_playlist->p_input )
-        var_DelCallback( p_playlist->p_input, "state", StateChange, p_intf );
-    PL_UNLOCK;
-    pl_Release( p_this );
 
     /* we won't use the DBus connection anymore */
     dbus_connection_unref( p_intf->p_sys->p_conn );
@@ -173,11 +176,8 @@ static int ItemChange( vlc_object_t *p_this, const char *psz_var,
     char *psz_buf = NULL;
     input_thread_t *p_input;
 
-    if( p_intf->b_dead )
-        return VLC_EGENERIC;
-
     /* Don't update Telepathy presence each time an item has been preparsed */
-    if( !strncmp( "playlist-current", psz_var, 16 ) )
+    if( !strncmp( "item-current", psz_var, 16 ) )
     { /* stores the current input item id */
         p_intf->p_sys->i_id = newval.i_int;
         p_intf->p_sys->i_item_changes = 0;
@@ -194,10 +194,9 @@ static int ItemChange( vlc_object_t *p_this, const char *psz_var,
         p_intf->p_sys->i_item_changes++;
     }
 
-    p_input = p_playlist->p_input;
+    p_input = playlist_CurrentInput( p_playlist );
 
     if( !p_input ) return VLC_SUCCESS;
-    vlc_object_yield( p_input );
 
     if( p_input->b_dead || !input_GetItem(p_input)->psz_name )
     {
@@ -212,7 +211,7 @@ static int ItemChange( vlc_object_t *p_this, const char *psz_var,
         }
     }
 
-    if( !strncmp( "playlist-current", psz_var, 16 ) )
+    if( !strncmp( "item-current", psz_var, 16 ) )
         var_AddCallback( p_input, "state", StateChange, p_intf );
 
     /* We format the string to be displayed */
@@ -239,8 +238,6 @@ static int StateChange( vlc_object_t *p_this, const char *psz_var,
 {
     VLC_UNUSED(p_this); VLC_UNUSED(psz_var); VLC_UNUSED(oldval);
     intf_thread_t *p_intf = (intf_thread_t *)param;
-    if( p_intf->b_dead )
-        return VLC_EGENERIC;
     if( newval.i_int >= END_S )
         return SendToTelepathy( p_intf, "" );
     return VLC_SUCCESS;

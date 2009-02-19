@@ -52,11 +52,15 @@
 #if defined (WIN32) || defined (UNDER_CE)
 #   undef EINPROGRESS
 #   define EINPROGRESS WSAEWOULDBLOCK
+#   undef EWOULDBLOCK
+#   define EWOULDBLOCK WSAEWOULDBLOCK
 #   undef EINTR
 #   define EINTR WSAEINTR
 #   undef ETIMEDOUT
 #   define ETIMEDOUT WSAETIMEDOUT
 #endif
+
+#include "libvlc.h" /* vlc_object_waitpipe */
 
 static int SocksNegotiate( vlc_object_t *, int fd, int i_socks_version,
                            const char *psz_user, const char *psz_passwd );
@@ -256,7 +260,7 @@ int net_AcceptSingle (vlc_object_t *obj, int lfd)
 
     if (fd == -1)
     {
-        if (net_errno != EAGAIN)
+        if (net_errno != EAGAIN && net_errno != EWOULDBLOCK)
             msg_Err (obj, "accept failed (from socket %d): %m", lfd);
         return -1;
     }
@@ -277,9 +281,6 @@ int __net_Accept( vlc_object_t *p_this, int *pi_fd, mtime_t i_wait )
     int timeout = (i_wait < 0) ? -1 : i_wait / 1000;
     int evfd = vlc_object_waitpipe (p_this);
 
-    if (evfd == -1)
-        return -1;
-
     assert( pi_fd != NULL );
 
     for (;;)
@@ -296,10 +297,8 @@ int __net_Accept( vlc_object_t *p_this, int *pi_fd, mtime_t i_wait )
             ufd[i].events = POLLIN;
             ufd[i].revents = 0;
         }
-        if (evfd == -1)
-            n--; /* avoid EBADF */
 
-        switch (poll (ufd, n, timeout))
+        switch (poll (ufd, n + (evfd != -1), timeout))
         {
             case -1:
                 if (net_errno == EINTR)
@@ -512,7 +511,7 @@ static int SocksHandshakeTCP( vlc_object_t *p_obj,
 
         if( buffer[1] != 0x00 )
         {
-            msg_Err( p_obj, "socks: CONNECT request failed\n" );
+            msg_Err( p_obj, "socks: CONNECT request failed" );
             return VLC_EGENERIC;
         }
 

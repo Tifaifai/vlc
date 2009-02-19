@@ -2,7 +2,7 @@
  * notify.c : libnotify notification plugin
  *****************************************************************************
  * Copyright (C) 2006-2007 the VideoLAN team
- * $Id: ccfb05a097da55e5c0434408ee00405a2b788d2a $
+ * $Id$
  *
  * Authors: Christophe Mutricy <xtophe -at- videolan -dot- org>
  *
@@ -64,18 +64,18 @@ struct intf_sys_t
 #define TIMEOUT_TEXT N_("Timeout (ms)")
 #define TIMEOUT_LONGTEXT N_("How long the notification will be displayed ")
 
-vlc_module_begin();
-    set_category( CAT_INTERFACE );
-    set_subcategory( SUBCAT_INTERFACE_CONTROL );
-    set_shortname( N_( "Notify" ) );
-    set_description( N_("LibNotify Notification Plugin") );
+vlc_module_begin ()
+    set_category( CAT_INTERFACE )
+    set_subcategory( SUBCAT_INTERFACE_CONTROL )
+    set_shortname( N_( "Notify" ) )
+    set_description( N_("LibNotify Notification Plugin") )
 
     add_integer( "notify-timeout", 4000,NULL,
-                TIMEOUT_TEXT, TIMEOUT_LONGTEXT, true );
+                TIMEOUT_TEXT, TIMEOUT_LONGTEXT, true )
 
-    set_capability( "interface", 0 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+    set_capability( "interface", 0 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 /*****************************************************************************
  * Open: initialize and create stuff
@@ -87,10 +87,7 @@ static int Open( vlc_object_t *p_this )
     intf_sys_t      *p_sys  = malloc( sizeof( intf_sys_t ) );
 
     if( !p_sys )
-    {
-        msg_Err( p_intf, "Out of memory" );
         return VLC_ENOMEM;
-    }
 
     if( !notify_init( APPLICATION_NAME ) )
     {
@@ -105,8 +102,8 @@ static int Open( vlc_object_t *p_this )
 
     p_intf->p_sys->notification = NULL;
 
-    p_playlist = pl_Yield( p_intf );
-    var_AddCallback( p_playlist, "playlist-current", ItemChange, p_intf );
+    p_playlist = pl_Hold( p_intf );
+    var_AddCallback( p_playlist, "item-current", ItemChange, p_intf );
     pl_Release( p_intf );
 
     return VLC_SUCCESS;
@@ -120,8 +117,8 @@ static void Close( vlc_object_t *p_this )
     intf_thread_t   *p_intf = ( intf_thread_t* ) p_this;
     intf_sys_t      *p_sys  = p_intf->p_sys;
 
-    playlist_t *p_playlist = pl_Yield( p_this );
-    var_DelCallback( p_playlist, "playlist-current", ItemChange, p_this );
+    playlist_t *p_playlist = pl_Hold( p_this );
+    var_DelCallback( p_playlist, "item-current", ItemChange, p_this );
     pl_Release( p_this );
 
     if( p_intf->p_sys->notification )
@@ -145,12 +142,12 @@ static int ItemChange( vlc_object_t *p_this, const char *psz_var,
     char                *psz_artist     = NULL;
     char                *psz_album      = NULL;
     char                *psz_arturl     = NULL;
-    input_thread_t      *p_input        = ((playlist_t*) p_this)->p_input;
+    input_thread_t      *p_input        =  playlist_CurrentInput(
+                                                    (playlist_t*) p_this );
     intf_thread_t       *p_intf         = ( intf_thread_t* ) param;
     intf_sys_t          *p_sys          = p_intf->p_sys;
 
     if( !p_input ) return VLC_SUCCESS;
-    vlc_object_yield( p_input );
 
     if( p_input->b_dead )
     {
@@ -258,7 +255,7 @@ static void Next( NotifyNotification *notification, gchar *psz, gpointer p )
 { /* libnotify callback, called when the "Next" button is pressed */
     VLC_UNUSED(psz);
     notify_notification_close (notification, NULL);
-    playlist_t *p_playlist = pl_Yield( ((vlc_object_t*) p) );
+    playlist_t *p_playlist = pl_Hold( ((vlc_object_t*) p) );
     playlist_Next( p_playlist );
     pl_Release( ((vlc_object_t*) p) );
 }
@@ -267,7 +264,7 @@ static void Prev( NotifyNotification *notification, gchar *psz, gpointer p )
 { /* libnotify callback, called when the "Previous" button is pressed */
     VLC_UNUSED(psz);
     notify_notification_close (notification, NULL);
-    playlist_t *p_playlist = pl_Yield( ((vlc_object_t*) p) );
+    playlist_t *p_playlist = pl_Hold( ((vlc_object_t*) p) );
     playlist_Prev( p_playlist );
     pl_Release( ((vlc_object_t*) p) );
 }

@@ -2,7 +2,7 @@
  r playlistinfo.m: MacOS X interface module
  *****************************************************************************
  * Copyright (C) 2002-2008 the VideoLAN team
- * $Id: f0f84553d7805308cab210ff82333051b4c9ff11 $
+ * $Id$
  *
  * Authors: Benjamin Pracht <bigben at videolan dot org>
  *          Felix Paul Kühne <fkuehne at videolan dot org>
@@ -248,8 +248,8 @@ static VLCInfo *_o_sharedInstance = nil;
     {
         if( !input_item_IsPreparsed( p_item ) )
         {
-            playlist_t * p_playlist = pl_Yield( VLCIntf );
-            playlist_PreparseEnqueue( p_playlist, p_item );
+            playlist_t * p_playlist = pl_Hold( VLCIntf );
+            playlist_PreparseEnqueue( p_playlist, p_item, pl_Unlocked );
             pl_Release( VLCIntf );
         }
 
@@ -363,7 +363,7 @@ static VLCInfo *_o_sharedInstance = nil;
 
 - (IBAction)saveMetaData:(id)sender
 {
-    playlist_t * p_playlist = pl_Yield( VLCIntf );
+    playlist_t * p_playlist = pl_Hold( VLCIntf );
     vlc_value_t val;
 
     if( !p_item ) goto error;
@@ -405,9 +405,9 @@ static VLCInfo *_o_sharedInstance = nil;
     PL_LOCK;
     p_playlist->p_private = &p_export;
 
-    module_t *p_mod = module_Need( p_playlist, "meta writer", NULL, 0 );
+    module_t *p_mod = module_need( p_playlist, "meta writer", NULL, false );
     if( p_mod )
-        module_Unneed( p_playlist, p_mod );
+        module_unneed( p_playlist, p_mod );
     PL_UNLOCK;
 
     val.b_bool = true;
@@ -427,8 +427,8 @@ error:
 
 - (IBAction)downloadCoverArt:(id)sender
 {
-    playlist_t * p_playlist = pl_Yield( VLCIntf );
-    if( p_item) playlist_AskForArtEnqueue( p_playlist, p_item );
+    playlist_t * p_playlist = pl_Hold( VLCIntf );
+    if( p_item) playlist_AskForArtEnqueue( p_playlist, p_item, pl_Unlocked );
     pl_Release( VLCIntf );
 }
 
@@ -458,7 +458,7 @@ error:
 
 @implementation VLCInfo (NSTableDataSource)
 
-- (int)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
+- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
     return (item == nil) ? [rootItem numberOfChildren] : [item numberOfChildren];
 }
@@ -467,7 +467,7 @@ error:
     return ([item numberOfChildren] > 0);
 }
 
-- (id)outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
     return (item == nil) ? [rootItem childAtIndex:index] : (id)[item childAtIndex:index];
 }
@@ -580,13 +580,12 @@ error:
 
 - (void)refresh
 {
-    if( p_item ) vlc_gc_decref( p_item );
+    input_item_t * oldItem = p_item;
     p_item = [[[VLCMain sharedInstance] getInfo] item];
-    if( o_children != NULL )
-    {
-        [o_children release];
-        o_children = NULL;
-    }
+    if( oldItem && oldItem != p_item ) vlc_gc_decref( oldItem );
+
+    [o_children release];
+    o_children = nil;
 }
 
 - (VLCInfoTreeItem *)childAtIndex:(int)i_index {

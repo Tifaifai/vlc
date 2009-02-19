@@ -44,12 +44,54 @@ static inline char *strdup (const char *str)
 # include <stdarg.h>
 static inline int vasprintf (char **strp, const char *fmt, va_list ap)
 {
+#ifndef UNDER_CE
     int len = vsnprintf (NULL, 0, fmt, ap) + 1;
     char *res = (char *)malloc (len);
     if (res == NULL)
         return -1;
     *strp = res;
-    return vsprintf (res, fmt, ap);
+    return vsnprintf (res, len, fmt, ap);
+#else
+    /* HACK: vsnprintf in the WinCE API behaves like
+     * the one in glibc 2.0 and doesn't return the number of characters
+     * it needed to copy the string.
+     * cf http://msdn.microsoft.com/en-us/library/1kt27hek.aspx
+     * and cf the man page of vsnprintf
+     *
+     Guess we need no more than 50 bytes. */
+    int n, size = 50;
+    char *res, *np;
+
+    if ((res = (char *) malloc (size)) == NULL)
+        return -1;
+
+    while (1)
+    {
+        n = vsnprintf (res, size, fmt, ap);
+
+        /* If that worked, return the string. */
+        if (n > -1 && n < size)
+        {
+            *strp = res;
+            return n;
+        }
+
+        /* Else try again with more space. */
+        if (n == -1)
+            size *= 2;  /* twice the old size */
+
+        if ((np = (char *) realloc (res, size)) == NULL)
+        {
+            free(res);
+            return -1;
+        }
+        else
+        {
+            res = np;
+        }
+
+    }
+#endif /* UNDER_CE */
 }
 #endif
 
@@ -108,6 +150,26 @@ static inline char *strndup (const char *str, size_t max)
 # define strtoll vlc_strtoll
 #endif
 
+#ifndef HAVE_STRSEP
+static inline char *strsep( char **ppsz_string, const char *psz_delimiters )
+{
+    char *psz_string = *ppsz_string;
+    if( !psz_string )
+        return NULL;
+
+    char *p = strpbrk( psz_string, psz_delimiters );
+    if( !p )
+    {
+        *ppsz_string = NULL;
+        return psz_string;
+    }
+    *p++ = '\0';
+
+    *ppsz_string = p;
+    return psz_string;
+}
+#endif
+
 #ifndef HAVE_ATOLL
 # define atoll( str ) (strtoll ((str), (char **)NULL, 10))
 #endif
@@ -131,7 +193,7 @@ static inline lldiv_t lldiv (long long numer, long long denom)
 #endif
 
 #ifndef HAVE_GETENV
-static inline getenv (const char *name)
+static inline char *getenv (const char *name)
 {
     (void)name;
     return NULL;
@@ -234,5 +296,13 @@ typedef void *locale_t;
 
 #define N_(str) gettext_noop (str)
 #define gettext_noop(str) (str)
+
+#ifdef UNDER_CE
+static inline void rewind ( FILE *stream )
+{
+    fseek(stream, 0L, SEEK_SET);
+    clearerr(stream);
+}
+#endif
 
 #endif /* !LIBVLC_FIXUPS_H */

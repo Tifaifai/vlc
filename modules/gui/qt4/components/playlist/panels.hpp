@@ -28,8 +28,6 @@
 # include "config.h"
 #endif
 
-#include <vlc_common.h>
-
 #include "qt4.hpp"
 #include "components/playlist/playlist.hpp"
 
@@ -42,7 +40,6 @@ class QTreeView;
 class PLModel;
 class QPushButton;
 class QKeyEvent;
-class ClickLineEdit;
 
 class PLPanel: public QWidget
 {
@@ -77,7 +74,6 @@ protected:
 private:
     QTreeView *view;
     QPushButton *repeatButton, *randomButton, *addButton, *gotoPlayingButton;
-    ClickLineEdit *searchLine;
     int currentRootId;
     QSignalMapper *ContextUpdateMapper;
 public slots:
@@ -91,7 +87,6 @@ private slots:
     void gotoPlayingItem();
     void doPopup( QModelIndex index, QPoint point );
     void search( QString search );
-    void clearFilter();
     void setCurrentRootId( int );
     void popupAdd();
     void popupSelectColumn( QPoint );

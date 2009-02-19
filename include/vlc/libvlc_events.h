@@ -45,6 +45,8 @@ extern "C" {
  */
 
 typedef enum libvlc_event_type_t {
+    /* Append new event types at the end.
+     * Do not remove, insert or re-order any entry. */
     libvlc_MediaMetaChanged,
     libvlc_MediaSubItemAdded,
     libvlc_MediaDurationChanged,
@@ -82,8 +84,11 @@ typedef enum libvlc_event_type_t {
     libvlc_MediaListPlayerStopped,
 
     libvlc_MediaDiscovererStarted,
-    libvlc_MediaDiscovererEnded
+    libvlc_MediaDiscovererEnded,
 
+    libvlc_MediaPlayerTitleChanged,
+    libvlc_MediaPlayerSnapshotTaken,
+    /* New event types HERE */
 } libvlc_event_type_t;
 
 /**
@@ -134,6 +139,10 @@ typedef struct libvlc_event_t
         {
             libvlc_time_t new_time;
         } media_player_time_changed;
+        struct
+        {
+            int new_title;
+        } media_player_title_changed;
         struct
         {
             libvlc_time_t new_seekable;
@@ -196,6 +205,12 @@ typedef struct libvlc_event_t
         {
             void * unused;
         } media_media_discoverer_ended;
+
+        /* snapshot taken */
+        struct
+        {
+             char* psz_filename ;
+        } media_player_snapshot_taken ;
 
     } u;
 } libvlc_event_t;

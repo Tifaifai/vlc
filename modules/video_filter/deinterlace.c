@@ -122,29 +122,29 @@ static const char *const mode_list[] = {
 static const char *const mode_list_text[] = {
     N_("Discard"), N_("Blend"), N_("Mean"), N_("Bob"), N_("Linear"), "X" };
 
-vlc_module_begin();
-    set_description( N_("Deinterlacing video filter") );
-    set_shortname( N_("Deinterlace" ));
-    set_capability( "video filter", 0 );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_VFILTER );
+vlc_module_begin ()
+    set_description( N_("Deinterlacing video filter") )
+    set_shortname( N_("Deinterlace" ))
+    set_capability( "video filter", 0 )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_VFILTER )
 
-    set_section( N_("Display"),NULL);
+    set_section( N_("Display"),NULL)
     add_string( "deinterlace-mode", "discard", NULL, MODE_TEXT,
-                MODE_LONGTEXT, false );
-        change_string_list( mode_list, mode_list_text, 0 );
+                MODE_LONGTEXT, false )
+        change_string_list( mode_list, mode_list_text, 0 )
 
-    add_shortcut( "deinterlace" );
-    set_callbacks( Create, Destroy );
+    add_shortcut( "deinterlace" )
+    set_callbacks( Create, Destroy )
 
-    add_submodule();
-    set_capability( "video filter2", 0 );
-    set_section( N_("Streaming"),NULL);
+    add_submodule ()
+    set_capability( "video filter2", 0 )
+    set_section( N_("Streaming"),NULL)
     add_string( FILTER_CFG_PREFIX "mode", "blend", NULL, SOUT_MODE_TEXT,
-                SOUT_MODE_LONGTEXT, false );
-        change_string_list( mode_list, mode_list_text, 0 );
-    set_callbacks( OpenFilter, CloseFilter );
-vlc_module_end();
+                SOUT_MODE_LONGTEXT, false )
+        change_string_list( mode_list, mode_list_text, 0 )
+    set_callbacks( OpenFilter, CloseFilter )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "mode", NULL
@@ -308,13 +308,14 @@ static void SetFilterMethod( vout_thread_t *p_vout, char *psz_method )
     }
     else
     {
+        const bool b_i422 = p_vout->render.i_chroma == VLC_FOURCC('I','4','2','2');
         if( strcmp( psz_method, "discard" ) )
             msg_Err( p_vout, "no valid deinterlace mode provided, "
                      "using \"discard\"" );
 
         p_vout->p_sys->i_mode = DEINTERLACE_DISCARD;
         p_vout->p_sys->b_double_rate = false;
-        p_vout->p_sys->b_half_height = true;
+        p_vout->p_sys->b_half_height = !b_i422;
     }
 
     msg_Dbg( p_vout, "using %s deinterlace method", psz_method );
@@ -384,22 +385,32 @@ static vout_thread_t *SpawnRealVout( vout_thread_t *p_vout )
     msg_Dbg( p_vout, "spawning the real video output" );
 
     fmt = p_vout->fmt_out;
+    if( p_vout->p_sys->b_half_height )
+    {
+        fmt.i_height /= 2; fmt.i_visible_height /= 2; fmt.i_y_offset /= 2;
+        fmt.i_sar_den *= 2;
+    }
 
     switch( p_vout->render.i_chroma )
     {
     case VLC_FOURCC('I','4','2','0'):
     case VLC_FOURCC('I','Y','U','V'):
     case VLC_FOURCC('Y','V','1','2'):
-        if( p_vout->p_sys->b_half_height )
-        {
-            fmt.i_height /= 2; fmt.i_visible_height /= 2; fmt.i_y_offset /= 2;
-            fmt.i_sar_den *= 2;
-        }
         p_real_vout = vout_Create( p_vout, &fmt );
         break;
 
     case VLC_FOURCC('I','4','2','2'):
-        fmt.i_chroma = VLC_FOURCC('I','4','2','0');
+        switch( p_vout->p_sys->i_mode )
+        {
+        case DEINTERLACE_MEAN:
+        case DEINTERLACE_LINEAR:
+        case DEINTERLACE_X:
+            fmt.i_chroma = VLC_FOURCC('I','4','2','2');
+            break;
+        default:
+            fmt.i_chroma = VLC_FOURCC('I','4','2','0');
+            break;
+        }
         p_real_vout = vout_Create( p_vout, &fmt );
         break;
 
@@ -511,7 +522,7 @@ static void Render ( vout_thread_t *p_vout, picture_t *p_pic )
         msleep( VOUT_OUTMEM_SLEEP );
     }
 
-    vout_DatePicture( p_vout->p_sys->p_vout, pp_outpic[0], p_pic->date );
+    pp_outpic[0]->date = p_pic->date;
 
     /* If we are using double rate, get an additional new picture */
     if( p_vout->p_sys->b_double_rate )
@@ -531,15 +542,9 @@ static void Render ( vout_thread_t *p_vout, picture_t *p_pic )
 
         /* 20ms is a bit arbitrary, but it's only for the first image we get */
         if( !p_vout->p_sys->last_date )
-        {
-            vout_DatePicture( p_vout->p_sys->p_vout, pp_outpic[1],
-                              p_pic->date + 20000 );
-        }
+            pp_outpic[1]->date = p_pic->date + 20000;
         else
-        {
-            vout_DatePicture( p_vout->p_sys->p_vout, pp_outpic[1],
-                      (3 * p_pic->date - p_vout->p_sys->last_date) / 2 );
-        }
+            pp_outpic[1]->date = (3 * p_pic->date - p_vout->p_sys->last_date) / 2;
         p_vout->p_sys->last_date = p_pic->date;
     }
 
@@ -2004,16 +2009,8 @@ static int SendEvents( vlc_object_t *p_this, char const *psz_var,
     vout_thread_t *p_vout = (vout_thread_t *)_p_vout;
     vlc_value_t sentval = newval;
 
-    if( !strcmp( psz_var, "mouse-y" ) )
-    {
-        switch( p_vout->p_sys->i_mode )
-        {
-            case DEINTERLACE_MEAN:
-            case DEINTERLACE_DISCARD:
-                sentval.i_int *= 2;
-                break;
-        }
-    }
+    if( !strcmp( psz_var, "mouse-y" ) && p_vout->p_sys->b_half_height )
+        sentval.i_int *= 2;
 
     var_Set( p_vout, psz_var, sentval );
 
@@ -2029,52 +2026,18 @@ static int FilterCallback( vlc_object_t *p_this, char const *psz_cmd,
 {
     VLC_UNUSED(psz_cmd); VLC_UNUSED(p_data); VLC_UNUSED(oldval);
     vout_thread_t * p_vout = (vout_thread_t *)p_this;
-    int i_old_mode = p_vout->p_sys->i_mode;
 
     msg_Dbg( p_vout, "using %s deinterlace mode", newval.psz_string );
 
     vlc_mutex_lock( &p_vout->p_sys->filter_lock );
+    const bool b_old_half_height = p_vout->p_sys->b_half_height;
 
     SetFilterMethod( p_vout, newval.psz_string );
 
-    switch( p_vout->render.i_chroma )
+    if( !b_old_half_height == !p_vout->p_sys->b_half_height )
     {
-    case VLC_FOURCC('I','4','2','2'):
         vlc_mutex_unlock( &p_vout->p_sys->filter_lock );
         return VLC_SUCCESS;
-        break;
-
-    case VLC_FOURCC('I','4','2','0'):
-    case VLC_FOURCC('I','Y','U','V'):
-    case VLC_FOURCC('Y','V','1','2'):
-        switch( p_vout->p_sys->i_mode )
-        {
-        case DEINTERLACE_MEAN:
-        case DEINTERLACE_DISCARD:
-            if( ( i_old_mode == DEINTERLACE_MEAN )
-                || ( i_old_mode == DEINTERLACE_DISCARD ) )
-            {
-                vlc_mutex_unlock( &p_vout->p_sys->filter_lock );
-                return VLC_SUCCESS;
-            }
-            break;
-
-        case DEINTERLACE_BOB:
-        case DEINTERLACE_BLEND:
-        case DEINTERLACE_LINEAR:
-            if( ( i_old_mode == DEINTERLACE_BOB )
-                || ( i_old_mode == DEINTERLACE_BLEND )
-                || ( i_old_mode == DEINTERLACE_LINEAR ) )
-            {
-                vlc_mutex_unlock( &p_vout->p_sys->filter_lock );
-                return VLC_SUCCESS;
-            }
-            break;
-        }
-        break;
-
-    default:
-        break;
     }
 
     /* We need to kill the old vout */

@@ -25,10 +25,9 @@
 # include "config.h"
 #endif
 
-#include <vlc_common.h>
-#include <vlc_network.h>
-
 #ifdef HAVE_POLL
+#include <stdlib.h>
+
 struct pollfd;
 
 int vlc_poll (struct pollfd *fds, unsigned nfds, int timeout)
@@ -37,6 +36,8 @@ int vlc_poll (struct pollfd *fds, unsigned nfds, int timeout)
     abort ();
 }
 #else /* !HAVE_POLL */
+
+#include <vlc_common.h>
 #include <string.h>
 #include <stdlib.h>
 #include <vlc_network.h>
@@ -45,7 +46,11 @@ int vlc_poll (struct pollfd *fds, unsigned nfds, int timeout)
 {
     fd_set rdset, wrset, exset;
     struct timeval tv = { 0, 0 };
-    int val = -1;
+    int val;
+
+resume:
+    val = -1;
+    vlc_testcancel ();
 
     FD_ZERO (&rdset);
     FD_ZERO (&wrset);
@@ -84,6 +89,15 @@ int vlc_poll (struct pollfd *fds, unsigned nfds, int timeout)
             FD_SET (fd, &exset);
     }
 
+#ifndef HAVE_ALERTABLE_SELECT
+# warning FIXME! Fix cancellation and remove this crap.
+    if ((timeout < 0) || (timeout > 50))
+    {
+        tv.tv_sec = 0;
+        tv.tv_usec = 50000;
+    }
+    else
+#endif
     if (timeout >= 0)
     {
         div_t d = div (timeout, 1000);
@@ -92,7 +106,18 @@ int vlc_poll (struct pollfd *fds, unsigned nfds, int timeout)
     }
 
     val = select (val + 1, &rdset, &wrset, &exset,
-                  (timeout >= 0) ? &tv : NULL);
+                  /*(timeout >= 0) ?*/ &tv /*: NULL*/);
+
+#ifndef HAVE_ALERTABLE_SELECT
+    if (val == 0)
+    {
+        if (timeout > 0)
+            timeout -= (timeout > 50) ? 50 : timeout;
+        if (timeout != 0)
+            goto resume;
+    }
+#endif
+
     if (val == -1)
         return -1;
 

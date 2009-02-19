@@ -2,7 +2,7 @@
  * logo.c : logo video plugin for vlc
  *****************************************************************************
  * Copyright (C) 2003-2006 the VideoLAN team
- * $Id: aada47ab5f3ab16c2e4d4d4e7426e4404e0901b8 $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *          Simon Latapie <garf@videolan.org>
@@ -100,32 +100,32 @@ static const char *const ppsz_pos_descriptions[] =
 { N_("Center"), N_("Left"), N_("Right"), N_("Top"), N_("Bottom"),
   N_("Top-Left"), N_("Top-Right"), N_("Bottom-Left"), N_("Bottom-Right") };
 
-vlc_module_begin();
-    set_capability( "sub filter", 0 );
-    set_callbacks( CreateFilter, DestroyFilter );
-    set_description( N_("Logo sub filter") );
-    set_shortname( N_("Logo overlay") );
-    set_category( CAT_VIDEO );
-    set_subcategory( SUBCAT_VIDEO_SUBPIC );
-    add_shortcut( "logo" );
+vlc_module_begin ()
+    set_capability( "sub filter", 0 )
+    set_callbacks( CreateFilter, DestroyFilter )
+    set_description( N_("Logo sub filter") )
+    set_shortname( N_("Logo overlay") )
+    set_category( CAT_VIDEO )
+    set_subcategory( SUBCAT_VIDEO_SUBPIC )
+    add_shortcut( "logo" )
 
-    add_file( CFG_PREFIX "file", NULL, NULL, FILE_TEXT, FILE_LONGTEXT, false );
-    add_integer( CFG_PREFIX "x", 0, NULL, POSX_TEXT, POSX_LONGTEXT, true );
-    add_integer( CFG_PREFIX "y", 0, NULL, POSY_TEXT, POSY_LONGTEXT, true );
+    add_file( CFG_PREFIX "file", NULL, NULL, FILE_TEXT, FILE_LONGTEXT, false )
+    add_integer( CFG_PREFIX "x", 0, NULL, POSX_TEXT, POSX_LONGTEXT, true )
+    add_integer( CFG_PREFIX "y", 0, NULL, POSY_TEXT, POSY_LONGTEXT, true )
     /* default to 1000 ms per image, continuously cycle through them */
-    add_integer( CFG_PREFIX "delay", 1000, NULL, DELAY_TEXT, DELAY_LONGTEXT, true );
-    add_integer( CFG_PREFIX "repeat", -1, NULL, REPEAT_TEXT, REPEAT_LONGTEXT, true );
+    add_integer( CFG_PREFIX "delay", 1000, NULL, DELAY_TEXT, DELAY_LONGTEXT, true )
+    add_integer( CFG_PREFIX "repeat", -1, NULL, REPEAT_TEXT, REPEAT_LONGTEXT, true )
     add_integer_with_range( CFG_PREFIX "transparency", 255, 0, 255, NULL,
-        TRANS_TEXT, TRANS_LONGTEXT, false );
-    add_integer( CFG_PREFIX "position", -1, NULL, POS_TEXT, POS_LONGTEXT, false );
-        change_integer_list( pi_pos_values, ppsz_pos_descriptions, NULL );
+        TRANS_TEXT, TRANS_LONGTEXT, false )
+    add_integer( CFG_PREFIX "position", -1, NULL, POS_TEXT, POS_LONGTEXT, false )
+        change_integer_list( pi_pos_values, ppsz_pos_descriptions, NULL )
 
     /* video output filter submodule */
-    add_submodule();
-    set_capability( "video filter", 0 );
-    set_callbacks( Create, Destroy );
-    set_description( N_("Logo video filter") );
-vlc_module_end();
+    add_submodule ()
+    set_capability( "video filter", 0 )
+    set_callbacks( Create, Destroy )
+    set_description( N_("Logo video filter") )
+vlc_module_end ()
 
 static const char *const ppsz_filter_options[] = {
     "file", "x", "y", "delay", "repeat", "transparency", "position", NULL
@@ -411,7 +411,7 @@ static int Init( vout_thread_t *p_vout )
             p_vout->output.i_height;
 
     p_sys->p_blend->p_module =
-        module_Need( p_sys->p_blend, "video blending", 0, 0 );
+        module_need( p_sys->p_blend, "video blending", NULL, false );
     if( !p_sys->p_blend->p_module )
     {
         msg_Err( p_vout, "can't open blending filter, aborting" );
@@ -494,7 +494,7 @@ static void End( vout_thread_t *p_vout )
     vout_CloseAndRelease( p_sys->p_vout );
 
     if( p_sys->p_blend->p_module )
-        module_Unneed( p_sys->p_blend, p_sys->p_blend->p_module );
+        module_unneed( p_sys->p_blend, p_sys->p_blend->p_module );
     vlc_object_detach( p_sys->p_blend );
     vlc_object_release( p_sys->p_blend );
 }
@@ -583,14 +583,13 @@ static void Render( vout_thread_t *p_vout, picture_t *p_inpic )
         msleep( VOUT_OUTMEM_SLEEP );
     }
 
-    vout_CopyPicture( p_vout, p_outpic, p_inpic );
-    vout_DatePicture( p_sys->p_vout, p_outpic, p_inpic->date );
+    picture_Copy( p_outpic, p_inpic );
 
     if( p_pic )
-    p_sys->p_blend->pf_video_blend( p_sys->p_blend, p_outpic, p_outpic,
-                                    p_pic, p_sys->posx, p_sys->posy,
-                                    p_logo->i_alpha != -1 ? p_logo->i_alpha
-                                    : p_logo_list->i_alpha );
+        p_sys->p_blend->pf_video_blend( p_sys->p_blend, p_outpic,
+                                        p_pic, p_sys->posx, p_sys->posy,
+                                        p_logo->i_alpha != -1 ? p_logo->i_alpha
+                                        : p_logo_list->i_alpha );
 
     vout_DisplayPicture( p_sys->p_vout, p_outpic );
 }
@@ -864,7 +863,7 @@ static subpicture_t *Filter( filter_t *p_filter, mtime_t date )
     fmt.i_width = fmt.i_visible_width = p_pic->p[Y_PLANE].i_visible_pitch;
     fmt.i_height = fmt.i_visible_height = p_pic->p[Y_PLANE].i_visible_lines;
     fmt.i_x_offset = fmt.i_y_offset = 0;
-    p_region = p_spu->pf_create_region( VLC_OBJECT(p_filter), &fmt );
+    p_region = subpicture_region_New( &fmt );
     if( !p_region )
     {
         msg_Err( p_filter, "cannot allocate SPU region" );
@@ -873,7 +872,8 @@ static subpicture_t *Filter( filter_t *p_filter, mtime_t date )
         return NULL;
     }
 
-    vout_CopyPicture( p_filter, &p_region->picture, p_pic );
+    /* FIXME the copy is probably not needed anymore */
+    picture_Copy( p_region->p_picture, p_pic );
     vlc_mutex_unlock( &p_logo_list->lock );
 
     /*  where to locate the logo: */
@@ -888,8 +888,8 @@ static subpicture_t *Filter( filter_t *p_filter, mtime_t date )
         p_spu->b_absolute = false;
     }
 
-    p_spu->i_x = p_sys->posx;
-    p_spu->i_y = p_sys->posy;
+    p_region->i_x = p_sys->posx;
+    p_region->i_y = p_sys->posy;
 
     p_spu->p_region = p_region;
 

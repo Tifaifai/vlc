@@ -2,7 +2,7 @@
  * libxml.c: XML parser using libxml2
  *****************************************************************************
  * Copyright (C) 2004 the VideoLAN team
- * $Id: 1b25a828c54b221ff0db7c0bc3b800b77a576426 $
+ * $Id$
  *
  * Authors: Gildas Bazin <gbazin@videolan.org>
  *
@@ -41,11 +41,11 @@
 static int  Open ( vlc_object_t * );
 static void Close( vlc_object_t * );
 
-vlc_module_begin();
-    set_description( N_("XML Parser (using libxml2)") );
-    set_capability( "xml", 10 );
-    set_callbacks( Open, Close );
-vlc_module_end();
+vlc_module_begin ()
+    set_description( N_("XML Parser (using libxml2)") )
+    set_capability( "xml", 10 )
+    set_callbacks( Open, Close )
+vlc_module_end ()
 
 struct xml_reader_sys_t
 {
