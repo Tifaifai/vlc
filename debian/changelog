@@ -1,3 +1,15 @@
+vlc (1.0.0-git-1) UNRELEASED; urgency=low
+
+  * libvlccore soname bumped
+  * New modules:
+    + vlc-nox: aes3, scene, yuv, libass, yuvp, invmem, stream_filter/*,
+               access_alsa, access_oss
+  * Modules removed:
+    + vlc-nox: cinepack, image
+  * Remove esd and arts plugin packages
+
+ -- Christophe Mutricy <xtophe@videolan.org>  Thu, 08 Jan 2009 11:08:16 +0100
+
 vlc (0.9.8a-1) experimental; urgency=low
 
   * New upstream release
