@@ -1,3 +1,16 @@
+vlc (0.9.8a-3~bpo50+1~1.gbp1d1317) UNRELEASED; urgency=low
+
+  ** SNAPSHOT build @1d131794388353f26402134c62bda1d3a8f7178d **
+
+  * Rebuild for lenny-backports.
+  * Don't use libraries not in lenny:
+      libass, libdca, libv4l2
+  * Build imgresample module rather than swscale
+  * Temporary disable live555 for testing until it get into backports
+  * Reflect new branch name in debian/gbp.conf
+
+ -- Christophe Mutricy <xtophe@videolan.org>  Thu, 23 Apr 2009 16:01:05 +0200
+
 vlc (0.9.8a-3) unstable; urgency=low
 
   [ Reinhard Tartler ]
