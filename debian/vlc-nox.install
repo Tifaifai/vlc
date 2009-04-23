@@ -123,7 +123,7 @@ usr/lib/vlc/video_filter/librss_plugin.so
 usr/lib/vlc/video_filter/librv32_plugin.so
 usr/lib/vlc/video_filter/libscale_plugin.so
 usr/lib/vlc/video_filter/libsharpen_plugin.so
-usr/lib/vlc/video_filter/libswscale_plugin.so
+usr/lib/vlc/video_filter/libimgresample_plugin.so
 usr/lib/vlc/video_filter/libtransform_plugin.so
 usr/lib/vlc/video_filter/libwall_plugin.so
 usr/lib/vlc/video_filter/libwave_plugin.so
