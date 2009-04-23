@@ -96,8 +96,6 @@ confflags += \
 	--disable-x264 \
 	--disable-atmo \
 	--enable-taglib \
-	--enable-libass \
-	--enable-libdca \
 	--enable-realrtsp \
 	--disable-dv \
 	$(NULL)
