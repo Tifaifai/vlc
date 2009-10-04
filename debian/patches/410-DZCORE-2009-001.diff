@@ -14,7 +14,7 @@ Index: vlc/modules/access/rtsp/real.c
  
    int n;
    rmff_dump_pheader(ph, *buffer);
-+  if (pf->length<12) return 0;
++  if (ph->length<12) return 0;
    n=rtsp_read_data(rtsp_session, *buffer + 12, ph->length - 12);
    return (n <= 0) ? 0 : n+12;
  }
