@@ -1,4 +1,4 @@
-vlc (0.8.6.h-4+lenny3) testing-security; urgency=low
+vlc (0.8.6.h-4+lenny3) stable-security; urgency=high
 
   * Security upload
   * Fix integer underflow in Real RTSP access module (DZCORE-2009-001)
