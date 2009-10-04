@@ -1,0 +1,136 @@
+commit c5b02d011b8c634d041167f4d2936b55eca4d18d
+Author: Laurent Aimar <fenrir@videolan.org>
+Date:   Tue Sep 15 21:03:42 2009 +0200
+
+    Fixed potential stack overflow in mp4 demuxer.
+    
+    Reported by Sebastian Apelt, Siberas.
+
+commit 861e374d03e6c60c7d3c98428c632fe3b9e371b2
+Author: Laurent Aimar <fenrir@videolan.org>
+Date:   Tue Sep 15 21:02:40 2009 +0200
+
+    Fixed potential stack overflow in avi demuxer.
+    
+    Reported by Sebastian Apelt, Siberas.
+
+commit dfe7084e8cc64e9b7a87cd37065b59cba2064823
+Author: Laurent Aimar <fenrir@videolan.org>
+Date:   Tue Sep 15 21:00:14 2009 +0200
+
+    Fixed potential stack overflow in asf demuxer.
+    
+    Reported by Sebastian Apelt, Siberas.
+diff --git a/modules/demux/asf/libasf.c b/modules/demux/asf/libasf.c
+index 4f26a31..ee50cd2 100644
+--- a/modules/demux/asf/libasf.c
++++ b/modules/demux/asf/libasf.c
+@@ -1415,10 +1415,9 @@ static const struct
+ 
+ 
+ static void ASF_ObjectDumpDebug( vlc_object_t *p_obj,
+-                                 asf_object_common_t *p_node, int i_level )
++                                 asf_object_common_t *p_node, unsigned i_level )
+ {
+-    char str[1024];
+-    int i;
++    unsigned i;
+     union asf_object_u *p_child;
+     char *psz_name;
+ 
+@@ -1431,13 +1430,17 @@ static void ASF_ObjectDumpDebug( vlc_object_t *p_obj,
+     }
+     psz_name = ASF_ObjectDumpDebugInfo[i].psz_name;
+ 
++    char str[512];
++    if( i_level * 5 + 1 >= sizeof(str) )
++        return;
++
+     memset( str, ' ', sizeof( str ) );
+     for( i = 1; i < i_level; i++ )
+     {
+         str[i * 5] = '|';
+     }
+-    snprintf( str + 5*i_level, 1024,
+-             "+ '%s' GUID "GUID_FMT" size:"I64Fu"pos:"I64Fu,
++    snprintf( &str[5*i_level], sizeof(str) - 5*i_level,
++             "+ '%s' GUID "GUID_FMT" size:"I64Fu"pos:%"I64Fu,
+              psz_name,
+              GUID_PRINT( p_node->i_object_id ),
+              p_node->i_object_size, p_node->i_object_pos );
+diff --git a/modules/demux/avi/libavi.c b/modules/demux/avi/libavi.c
+index 6133741..14f495d 100644
+--- a/modules/demux/avi/libavi.c
++++ b/modules/demux/avi/libavi.c
+@@ -785,12 +785,15 @@ void _AVI_ChunkFree( stream_t *s,
+ }
+ 
+ static void AVI_ChunkDumpDebug_level( vlc_object_t *p_obj,
+-                                      avi_chunk_t  *p_chk, int i_level )
++                                      avi_chunk_t  *p_chk, unsigned i_level )
+ {
+-    char str[1024];
+-    int i;
++    unsigned i;
+     avi_chunk_t *p_child;
+ 
++    char str[512];
++    if( i_level * 5 + 1 >= sizeof(str) )
++        return;
++
+     memset( str, ' ', sizeof( str ) );
+     for( i = 1; i < i_level; i++ )
+     {
+@@ -799,8 +802,8 @@ static void AVI_ChunkDumpDebug_level( vlc_object_t *p_obj,
+     if( p_chk->common.i_chunk_fourcc == AVIFOURCC_RIFF||
+         p_chk->common.i_chunk_fourcc == AVIFOURCC_LIST )
+     {
+-        sprintf( str + i_level * 5,
+-                 "%c %4.4s-%4.4s size:"I64Fu" pos:"I64Fu,
++        snprintf( &str[i_level * 5], sizeof(str) - 5*i_level,
++                 "%c %4.4s-%4.4s size:"I64Fu" pos:"I64Fu,
+                  i_level ? '+' : '*',
+                  (char*)&p_chk->common.i_chunk_fourcc,
+                  (char*)&p_chk->list.i_type,
+@@ -809,8 +812,8 @@ static void AVI_ChunkDumpDebug_level( vlc_object_t *p_obj,
+     }
+     else
+     {
+-        sprintf( str + i_level * 5,
+-                 "+ %4.4s size:"I64Fu" pos:"I64Fu,
++        snprintf( &str[i_level * 5], sizeof(str) - 5*i_level,
++                 "+ %4.4s size:%"I64Fu" pos:%"I64Fu,
+                  (char*)&p_chk->common.i_chunk_fourcc,
+                  p_chk->common.i_chunk_size,
+                  p_chk->common.i_chunk_pos );
+diff --git a/modules/demux/mp4/libmp4.c b/modules/demux/mp4/libmp4.c
+index 61ca9f3..f32e8df 100644
+--- a/modules/demux/mp4/libmp4.c
++++ b/modules/demux/mp4/libmp4.c
+@@ -2608,16 +2608,21 @@ static void __MP4_BoxDumpStructure( stream_t *s,
+     }
+     else
+     {
+-        char str[512];
+         unsigned int i;
+-        memset( str, (uint8_t)' ', 512 );
++
++        char str[512];
++        if( i_level * 5 + 1 >= sizeof(str) )
++            return;
++
++        memset( str, ' ', sizeof(str) );
+         for( i = 0; i < i_level; i++ )
+         {
+             str[i*5] = '|';
+         }
+-        sprintf( str + i_level * 5, "+ %4.4s size %d",
+-                      (char*)&p_box->i_type,
+-                      (uint32_t)p_box->i_size );
++
++        snprintf( &str[i_level * 5], sizeof(str) - 5*i_level,
++                  "+ %4.4s size %d",
++                   (char*)&p_box->i_type+1, (uint32_t)p_box->i_size );
+ 
+         msg_Dbg( s, "%s", str );
+     }
