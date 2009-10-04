@@ -1,0 +1,20 @@
+commit dc74600c97eb834c08674676e209afa842053aca
+Author: Rémi Denis-Courmont <remi@remlab.net>
+Date:   Sun Jul 26 18:39:42 2009 +0300
+
+    Real pseudo-RTSP: prevent integer underflow
+    
+    Pointed-out-by: tixxDZ <tixxdz@gmail.com> - DZCORE Labs, Algeria
+
+Index: vlc/modules/access/rtsp/real.c
+===================================================================
+--- vlc.orig/modules/access/rtsp/real.c	2009-10-03 23:12:26.000000000 +0000
++++ vlc/modules/access/rtsp/real.c	2009-10-03 23:12:45.000000000 +0000
+@@ -598,6 +598,7 @@
+ 
+   int n;
+   rmff_dump_pheader(ph, *buffer);
++  if (pf->length<12) return 0;
+   n=rtsp_read_data(rtsp_session, *buffer + 12, ph->length - 12);
+   return (n <= 0) ? 0 : n+12;
+ }
