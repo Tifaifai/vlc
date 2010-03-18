@@ -4,7 +4,7 @@ vlc (0.8.6.h-4+lenny3) stable-security; urgency=high
   * Fix integer underflow in Real RTSP access module (DZCORE-2009-001)
   * Fix stack overflow in AVI, ASF and MP4 demuxers (VideoLAN-SA-0901)
 
- -- Christophe Mutricy <xtophe@videolan.org>  Sun, 04 Oct 2009 00:12:28 +0200
+ -- Christophe Mutricy <xtophe@videolan.org>  Thu, 18 Mar 2010 17:14:24 +0100
 
 vlc (0.8.6.h-4+lenny2) testing-security; urgency=high
 
