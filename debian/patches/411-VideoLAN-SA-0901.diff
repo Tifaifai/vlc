@@ -43,7 +43,7 @@ index 4f26a31..ee50cd2 100644
      psz_name = ASF_ObjectDumpDebugInfo[i].psz_name;
  
 +    char str[512];
-+    if( i_level * 5 + 1 >= sizeof(str) )
++    if( i_level >= (sizeof(str) - 1)/5 )
 +        return;
 +
      memset( str, ' ', sizeof( str ) );
@@ -75,7 +75,7 @@ index 6133741..14f495d 100644
      avi_chunk_t *p_child;
  
 +    char str[512];
-+    if( i_level * 5 + 1 >= sizeof(str) )
++    if( i_level >= (sizeof(str) - 1)/5 )
 +        return;
 +
      memset( str, ' ', sizeof( str ) );
@@ -116,7 +116,7 @@ index 61ca9f3..f32e8df 100644
 -        memset( str, (uint8_t)' ', 512 );
 +
 +        char str[512];
-+        if( i_level * 5 + 1 >= sizeof(str) )
++        if( i_level >= (sizeof(str) - 1)/5 )
 +            return;
 +
 +        memset( str, ' ', sizeof(str) );
