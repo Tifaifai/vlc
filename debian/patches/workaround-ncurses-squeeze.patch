@@ -4,7 +4,7 @@ Index: pkg-multimedia-vlc/configure.ac
 ===================================================================
 --- pkg-multimedia-vlc.orig/configure.ac	2012-10-15 22:49:58.879818619 -0400
 +++ pkg-multimedia-vlc/configure.ac	2012-10-15 22:50:44.214769829 -0400
-@@ -3801,19 +3801,31 @@
+@@ -3806,19 +3806,31 @@
  dnl  ncurses module
  dnl
  AC_ARG_ENABLE(ncurses,
