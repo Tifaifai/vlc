@@ -1,3 +1,16 @@
+vlc (2.0.7-1~bpo60+1) squeeze-backports-sloppy; urgency=low
+
+  [ Edward Wang ]
+  * New upstream release. (Closes: #691957)
+  * Rebuild for squeeze-backports-sloppy.
+
+  [ Benjamin Drung ]
+  * Update watch file.
+  * Fix build failure on powerpcspe. Thanks to Roland Stigge. (Closes: #701830)
+  * Fix apport hook. Thanks to Dmitry Shachnev. (Closes: #702942)
+
+ -- Edward Wang <edward.c.wang@compdigitec.com>  Sun, 09 Jun 2013 15:14:52 -0400
+
 vlc (2.0.5-1~bpo60+1) squeeze-backports-sloppy; urgency=low
 
   [ Benjamin Drung ]
