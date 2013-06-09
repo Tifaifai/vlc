@@ -2,7 +2,7 @@
  * intf.m: MacOS X interface module
  *****************************************************************************
  * Copyright (C) 2002-2012 VLC authors and VideoLAN
- * $Id: 601e89b98afcfc6cda1d641bbe277ea65054ddaf $
+ * $Id: 448e7380d6e07667346cc5bb9f5fbb4903b87d3c $
  *
  * Authors: Jon Lech Johansen <jon-vl@nanocrew.net>
  *          Christophe Massiot <massiot@via.ecp.fr>
@@ -750,6 +750,10 @@ static VLCMain *_o_sharedMainInstance = nil;
 
     msg_Dbg( p_intf, "Terminating" );
 
+    /* HACK: the playlist will re-start on quit because of a core vs. UI module limitation
+     * in turn, items created by transcoding can and will be over-written with garbage */
+    playlist_Clear(p_playlist, false);
+
     /* unsubscribe from the interactive dialogues */
     dialog_Unregister( p_intf );
     var_DelCallback( p_intf, "dialog-error", DialogCallback, self );
@@ -1366,8 +1370,6 @@ unsigned int CocoaKeyToVLC( unichar i_key )
                 case NSBackspaceCharacter:
                 case NSUpArrowFunctionKey:
                 case NSDownArrowFunctionKey:
-                case NSRightArrowFunctionKey:
-                case NSLeftArrowFunctionKey:
                 case NSEnterCharacter:
                 case NSCarriageReturnCharacter:
                     return NO;
@@ -1709,6 +1711,9 @@ unsigned int CocoaKeyToVLC( unichar i_key )
 
 - (void)setWindowLevel:(NSNumber*)state
 {
+    if ([[VLCMainWindow sharedInstance] isFullscreen])
+        return;
+
     if ([state unsignedIntValue] & VOUT_WINDOW_STATE_ABOVE)
         [[[[VLCMainWindow sharedInstance] videoView] window] setLevel: NSStatusWindowLevel];
     else

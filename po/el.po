@@ -5,12 +5,11 @@
 #
 # Simos Xenitellis <simos74@gmx.net>, 2005, 2010.
 # Manolis Stefanis <mstefanis@hotmail.com> 2012.
-#: modules/gui/macosx/prefs.m:490 modules/gui/macosx/simple_prefs.m:451
 msgid ""
 msgstr ""
 "Project-Id-Version: vlc\n"
 "Report-Msgid-Bugs-To: vlc-devel@videolan.org\n"
-"POT-Creation-Date: 2012-12-11 15:56+0100\n"
+"POT-Creation-Date: 2013-05-26 20:55+0200\n"
 "PO-Revision-Date: 2012-05-26 16:49+0200\n"
 "Last-Translator: Manolis Stefanis <mstefanis@hotmail.com>\n"
 "Language-Team: Greek <nls@tux.hellug.gr>\n"
@@ -22,7 +21,7 @@ msgstr ""
 "X-Language: el_GR\n"
 "X-Source-Language: en\n"
 
-#: include/vlc_common.h:1024
+#: include/vlc_common.h:1026
 msgid ""
 "This program comes with NO WARRANTY, to the extent permitted by law.\n"
 "You may redistribute it under the terms of the GNU General Public License;\n"
@@ -86,7 +85,7 @@ msgstr "Ρυθμίσεις πλήκτρων συντόμευσης"
 #: modules/gui/macosx/MainMenu.m:292 modules/gui/macosx/output.m:170
 #: modules/gui/macosx/playlistinfo.m:116 modules/gui/macosx/simple_prefs.m:182
 #: modules/gui/macosx/wizard.m:383
-#: modules/gui/qt4/components/info_panels.cpp:516
+#: modules/gui/qt4/components/info_panels.cpp:518
 #: modules/gui/qt4/components/simple_preferences.cpp:88
 #: modules/services_discovery/mediadirs.c:77 modules/stream_out/es.c:93
 #: modules/stream_out/transcode/transcode.c:191
@@ -143,7 +142,7 @@ msgstr "Διάφορες ρυθμίσεις και ενότητες ήχου."
 #: modules/gui/macosx/MainMenu.m:305 modules/gui/macosx/output.m:160
 #: modules/gui/macosx/playlistinfo.m:106 modules/gui/macosx/simple_prefs.m:186
 #: modules/gui/macosx/simple_prefs.m:319 modules/gui/macosx/wizard.m:384
-#: modules/gui/qt4/components/info_panels.cpp:517
+#: modules/gui/qt4/components/info_panels.cpp:519
 #: modules/gui/qt4/components/simple_preferences.cpp:90
 #: modules/services_discovery/mediadirs.c:70 modules/stream_out/es.c:101
 #: modules/stream_out/transcode/transcode.c:161
@@ -825,7 +824,7 @@ msgstr ""
 
 #: src/audio_output/common.c:85 src/audio_output/common.c:125
 #: src/input/es_out.c:934 src/libvlc-module.c:697
-#: src/video_output/postprocessing.c:98 modules/gui/macosx/MainWindow.m:2429
+#: src/video_output/postprocessing.c:98 modules/gui/macosx/MainWindow.m:2441
 #: modules/video_filter/postproc.c:228
 msgid "Disable"
 msgstr "Απενεργοποίηση"
@@ -1095,9 +1094,9 @@ msgid "decoder"
 msgstr "αποκωδικοποιητής"
 
 #: src/input/decoder.c:276 src/input/decoder.c:467
-#: modules/codec/avcodec/encoder.c:237 modules/codec/avcodec/encoder.c:245
-#: modules/codec/avcodec/encoder.c:282 modules/codec/avcodec/encoder.c:772
-#: modules/codec/avcodec/encoder.c:781 modules/stream_out/es.c:363
+#: modules/codec/avcodec/encoder.c:276 modules/codec/avcodec/encoder.c:284
+#: modules/codec/avcodec/encoder.c:321 modules/codec/avcodec/encoder.c:814
+#: modules/codec/avcodec/encoder.c:823 modules/stream_out/es.c:363
 #: modules/stream_out/es.c:378
 msgid "Streaming / Transcoding failed"
 msgstr "Η ροή δεδομένων / επανακωδικοποίηση απέτυχε"
@@ -1257,22 +1256,22 @@ msgstr "Ρυθμός καρέ"
 msgid "Decoded format"
 msgstr "Αποκωδικοποιημένος τύπος"
 
-#: src/input/input.c:2465
+#: src/input/input.c:2467
 msgid "Your input can't be opened"
 msgstr "Η είσοδός σας δεν μπορεί να ανοιχτεί"
 
-#: src/input/input.c:2466
+#: src/input/input.c:2468
 #, c-format
 msgid "VLC is unable to open the MRL '%s'. Check the log for details."
 msgstr ""
 "O VLC δεν είναι δυνατόν να ανοίξει το MRL '%s'. Ελέγξτε το καταγραφολόγιο "
 "για λεπτομέρειες."
 
-#: src/input/input.c:2583
+#: src/input/input.c:2585
 msgid "VLC can't recognize the input's format"
 msgstr "Ο VLC δεν μπορεί να αναγνωρίσει τον τύπο της εισόδου"
 
-#: src/input/input.c:2584
+#: src/input/input.c:2586
 #, c-format
 msgid ""
 "The format of '%s' cannot be detected. Have a look at the log for details."
@@ -2593,7 +2592,7 @@ msgid "Default"
 msgstr "Προεπιλογή"
 
 #: src/libvlc-module.c:697 modules/gui/macosx/AudioEffects.m:66
-#: modules/gui/macosx/MainWindow.m:2427 modules/gui/macosx/wizard.m:357
+#: modules/gui/macosx/MainWindow.m:2439 modules/gui/macosx/wizard.m:357
 msgid "Enable"
 msgstr "Ενεργοποίηση"
 
@@ -6150,7 +6149,7 @@ msgstr "Αναλογικό"
 
 #: modules/access/decklink.cpp:91 modules/access/linsys/linsys_hdsdi.c:78
 #: modules/access/linsys/linsys_sdi.c:73 modules/demux/rawvid.c:59
-#: modules/gui/qt4/dialogs/toolbar.cpp:451 modules/stream_out/switcher.c:92
+#: modules/gui/qt4/dialogs/toolbar.cpp:451 modules/stream_out/switcher.c:94
 msgid "Aspect ratio"
 msgstr "Συντελεστής αναλογίας"
 
@@ -8321,7 +8320,7 @@ msgstr "Είσοδος οθόνης"
 
 #: modules/access/screen/screen.c:88 modules/access/screen/xcb.c:65
 #: modules/gui/macosx/MainMenu.m:509 modules/gui/macosx/open.m:182
-#: modules/gui/macosx/open.m:424 modules/gui/macosx/open.m:1230
+#: modules/gui/macosx/open.m:424 modules/gui/macosx/open.m:1234
 #: modules/gui/macosx/simple_prefs.m:594
 msgid "Screen"
 msgstr "Οθόνη"
@@ -10166,7 +10165,7 @@ msgstr ""
 "ήχου\" στο /Εφαρμογές/Βοηθήματα. Τώρα χρησιμοποιείται η στερεοφωνική "
 "λειτουργία."
 
-#: modules/audio_output/auhal.c:1048
+#: modules/audio_output/auhal.c:1057
 #, c-format
 msgid "%s (Encoded Output)"
 msgstr "%s (Κωδικοποιημένη έξοδος)"
@@ -10328,11 +10327,11 @@ msgstr "Έξοδος ήχου PORTAUDIO"
 msgid "5.1"
 msgstr "5.1"
 
-#: modules/audio_output/pulse.c:45
+#: modules/audio_output/pulse.c:48
 msgid "Pulseaudio audio output"
 msgstr "Έξοδος ήχου Pulseaudio"
 
-#: modules/audio_output/pulse.c:957
+#: modules/audio_output/pulse.c:978
 msgid "Audio device"
 msgstr "Συσκευή ήχου"
 
@@ -10458,15 +10457,15 @@ msgstr "Κωδικοποιητής ήχου/βίντεο FFmpeg"
 msgid "FFmpeg deinterlace video filter"
 msgstr "Φίλτρο βίντεο αποδιαπλοκής FFmpeg"
 
-#: modules/codec/avcodec/avcodec.h:71 modules/codec/avcodec/avcodec.h:73
+#: modules/codec/avcodec/avcodec.h:80 modules/codec/avcodec/avcodec.h:82
 msgid "Direct rendering"
 msgstr "Άμεση αποτύπωση"
 
-#: modules/codec/avcodec/avcodec.h:75
+#: modules/codec/avcodec/avcodec.h:84
 msgid "Error resilience"
 msgstr "Ανοχή σφάλματος"
 
-#: modules/codec/avcodec/avcodec.h:77
+#: modules/codec/avcodec/avcodec.h:86
 msgid ""
 "FFmpeg can do error resilience.\n"
 "However, with a buggy encoder (such as the ISO MPEG-4 encoder from M$) this "
@@ -10479,11 +10478,11 @@ msgstr ""
 "Οι έγκυρες τιμές κυμαίνονται από 0 έως 4 (το 0 απενεργοποιεί την ανοχή όλων "
 "των σφαλμάτων)."
 
-#: modules/codec/avcodec/avcodec.h:82
+#: modules/codec/avcodec/avcodec.h:91
 msgid "Workaround bugs"
 msgstr "Σφάλματα παράκαμψης"
 
-#: modules/codec/avcodec/avcodec.h:84
+#: modules/codec/avcodec/avcodec.h:93
 msgid ""
 "Try to fix some bugs:\n"
 "1  autodetect\n"
@@ -10507,12 +10506,12 @@ msgstr ""
 "Αυτό πρέπει να είναι το άθροισμα των τιμών. Για παράδειγμα για να "
 "επιδιορθώσετε τα  \"ac vlc\" και \"ump4\", εισάγετε το 40."
 
-#: modules/codec/avcodec/avcodec.h:95 modules/codec/avcodec/avcodec.h:204
+#: modules/codec/avcodec/avcodec.h:104 modules/codec/avcodec/avcodec.h:213
 #: modules/demux/rawdv.c:40 modules/stream_out/transcode/transcode.c:139
 msgid "Hurry up"
 msgstr "Βιασύνη"
 
-#: modules/codec/avcodec/avcodec.h:97
+#: modules/codec/avcodec/avcodec.h:106
 msgid ""
 "The decoder can partially decode or skip frame(s) when there is not enough "
 "time. It's useful with low CPU power but it can produce distorted pictures."
@@ -10521,22 +10520,22 @@ msgstr ""
 "όταν δεν υπάρχει αρκετός χρόνος. Είναι χρήσιμο όταν υπάρχει χαμηλή ισχύς CPU "
 "αλλά μπορεί να παράγει διαταραγμένες εικόνες."
 
-#: modules/codec/avcodec/avcodec.h:101
+#: modules/codec/avcodec/avcodec.h:110
 msgid "Allow speed tricks"
 msgstr "Να επιτρέπονται τεχνάσματα ταχύτητας"
 
-#: modules/codec/avcodec/avcodec.h:103
+#: modules/codec/avcodec/avcodec.h:112
 msgid ""
 "Allow non specification compliant speedup tricks. Faster but error-prone."
 msgstr ""
 "Να επιτρέπονται τεχνάσματα επιτάχυνσης μη συμμορφούμενων προδιαγραφών. "
 "Γρηγορότερα, αλλά επιρρεπή σε λάθη."
 
-#: modules/codec/avcodec/avcodec.h:105
+#: modules/codec/avcodec/avcodec.h:114
 msgid "Skip frame (default=0)"
 msgstr "Παράλειψη idct (προεπιλογή=0)"
 
-#: modules/codec/avcodec/avcodec.h:107
+#: modules/codec/avcodec/avcodec.h:116
 msgid ""
 "Force skipping of frames to speed up decoding (-1=None, 0=Default, 1=B-"
 "frames, 2=P-frames, 3=B+P frames, 4=all frames)."
@@ -10544,11 +10543,11 @@ msgstr ""
 "Επιβολή παράλειψης καρέ για να επιταχυνθεί η κωδικοποίηση (-1=Καθόλου, "
 "0=Προεπιλογή, 1=Καρέ B, 2=Καρέ P, 3=Καρέ B+P, 4=όλα τα καρέ)."
 
-#: modules/codec/avcodec/avcodec.h:110
+#: modules/codec/avcodec/avcodec.h:119
 msgid "Skip idct (default=0)"
 msgstr "Παράλειψη idct (προεπιλογή=0)"
 
-#: modules/codec/avcodec/avcodec.h:112
+#: modules/codec/avcodec/avcodec.h:121
 msgid ""
 "Force skipping of idct to speed up decoding for frame types(-1=None, "
 "0=Default, 1=B-frames, 2=P-frames, 3=B+P frames, 4=all frames)."
@@ -10557,27 +10556,27 @@ msgstr ""
 "καρέ (-1=Καθόλου, 0=Προεπιλογή, 1=Καρέ B, 2=Καρέ P, 3=Καρέ B+P, 4=όλα τα "
 "καρέ)."
 
-#: modules/codec/avcodec/avcodec.h:115
+#: modules/codec/avcodec/avcodec.h:124
 msgid "Debug mask"
 msgstr "Μάσκα αποσφαλμάτωσης"
 
-#: modules/codec/avcodec/avcodec.h:116
+#: modules/codec/avcodec/avcodec.h:125
 msgid "Set FFmpeg debug mask"
 msgstr "Ρύθμιση μάσκας αποσφαλμάτωσης FFmpeg"
 
-#: modules/codec/avcodec/avcodec.h:118
+#: modules/codec/avcodec/avcodec.h:127
 msgid "Codec name"
 msgstr "Όνομα κωδικοποιητή"
 
-#: modules/codec/avcodec/avcodec.h:119
+#: modules/codec/avcodec/avcodec.h:128
 msgid "Internal libavcodec codec name"
 msgstr "Όνομα του εσωτερικού codec libavcodec"
 
-#: modules/codec/avcodec/avcodec.h:122
+#: modules/codec/avcodec/avcodec.h:131
 msgid "Visualize motion vectors"
 msgstr "Απεικόνιση διανυσμάτων κίνησης"
 
-#: modules/codec/avcodec/avcodec.h:124
+#: modules/codec/avcodec/avcodec.h:133
 msgid ""
 "You can overlay the motion vectors (arrows showing how the images move) on "
 "the image. This value is a mask, based on these values:\n"
@@ -10594,11 +10593,11 @@ msgstr ""
 "4 - απεικόνιση των προς τα πίσω προβλεπόμενων ΔΚ των καρέ B\n"
 "Για να απεικονίσετε όλα τα διανύσματα κίνησης, η τιμή θα πρέπει να είναι 7."
 
-#: modules/codec/avcodec/avcodec.h:131
+#: modules/codec/avcodec/avcodec.h:140
 msgid "Low resolution decoding"
 msgstr "Αποκωδικοποίηση χαμηλής ανάλυσης"
 
-#: modules/codec/avcodec/avcodec.h:132
+#: modules/codec/avcodec/avcodec.h:141
 msgid ""
 "Only decode a low resolution version of the video. This requires less "
 "processing power"
@@ -10606,11 +10605,11 @@ msgstr ""
 "Να γίνει η αποκωδικοποίηση μόνο μιας χαμηλής ανάλυσης έκδοσης του βίντεο. "
 "Αυτό απαιτεί λιγότερη ισχύ επεξεργαστή"
 
-#: modules/codec/avcodec/avcodec.h:135 modules/gui/macosx/simple_prefs.m:262
+#: modules/codec/avcodec/avcodec.h:144 modules/gui/macosx/simple_prefs.m:262
 msgid "Skip the loop filter for H.264 decoding"
 msgstr "Παράλειψη του φίλτρου βρόχου για αποκωδικοποίηση H.264 "
 
-#: modules/codec/avcodec/avcodec.h:136
+#: modules/codec/avcodec/avcodec.h:145
 msgid ""
 "Skipping the loop filter (aka deblocking) usually has a detrimental effect "
 "on quality. However it provides a big speedup for high definition streams."
@@ -10619,79 +10618,79 @@ msgstr ""
 "επιζήμια επίπτωση στην ποιότητα. Ωστόσο παρέχει μια μεγάλη επιτάχυνση σε "
 "ροές δεδομένων υψηλής ανάλυσης."
 
-#: modules/codec/avcodec/avcodec.h:140
+#: modules/codec/avcodec/avcodec.h:149
 msgid "Hardware decoding"
 msgstr "Αποκωδικοποίηση υλικού"
 
-#: modules/codec/avcodec/avcodec.h:141
+#: modules/codec/avcodec/avcodec.h:150
 msgid "This allows hardware decoding when available."
 msgstr "Αυτό επιτρέπει την αποκωδικοποίηση υλικού όταν είναι διαθέσιμη."
 
-#: modules/codec/avcodec/avcodec.h:143
+#: modules/codec/avcodec/avcodec.h:152
 msgid "Threads"
 msgstr "Νήματα"
 
-#: modules/codec/avcodec/avcodec.h:144
+#: modules/codec/avcodec/avcodec.h:153
 msgid "Number of threads used for decoding, 0 meaning auto"
 msgstr ""
 "Αριθμός νημάτων που χρησιμοποιούνται για την κωδικοποίηση, 0 σημαίνει "
 "αυτόματη"
 
-#: modules/codec/avcodec/avcodec.h:151
+#: modules/codec/avcodec/avcodec.h:160
 msgid "Ratio of key frames"
 msgstr "Αναλογία καρέ - κλειδιών"
 
-#: modules/codec/avcodec/avcodec.h:152
+#: modules/codec/avcodec/avcodec.h:161
 msgid "Number of frames that will be coded for one key frame."
 msgstr "Αριθμός καρέ που θα κωδικοποιηθούν για ένα καρέ - κλειδί."
 
-#: modules/codec/avcodec/avcodec.h:155
+#: modules/codec/avcodec/avcodec.h:164
 msgid "Ratio of B frames"
 msgstr "Αναλογία καρέ B"
 
-#: modules/codec/avcodec/avcodec.h:156
+#: modules/codec/avcodec/avcodec.h:165
 msgid "Number of B frames that will be coded between two reference frames."
 msgstr "Αριθμός καρέ B που θα κωδικοποιηθούν μεταξύ δύο καρέ αναφοράς."
 
-#: modules/codec/avcodec/avcodec.h:159
+#: modules/codec/avcodec/avcodec.h:168
 msgid "Video bitrate tolerance"
 msgstr "Ανοχή ρυθμού μετάδοσης δεδομένων"
 
-#: modules/codec/avcodec/avcodec.h:160
+#: modules/codec/avcodec/avcodec.h:169
 msgid "Video bitrate tolerance in kbit/s."
 msgstr "Ανοχή ρυθμού μετάδοσης δεδομένων βίντεο σε kbit/s."
 
-#: modules/codec/avcodec/avcodec.h:162
+#: modules/codec/avcodec/avcodec.h:171
 msgid "Interlaced encoding"
 msgstr "Διαπλεγμένη κωδικοποίηση"
 
-#: modules/codec/avcodec/avcodec.h:163
+#: modules/codec/avcodec/avcodec.h:172
 msgid "Enable dedicated algorithms for interlaced frames."
 msgstr "Ενεργοποίηση αποκλειστικών αλγόριθμων για διαπλεγμένα καρέ."
 
-#: modules/codec/avcodec/avcodec.h:166
+#: modules/codec/avcodec/avcodec.h:175
 msgid "Interlaced motion estimation"
 msgstr "Εκτίμηση διαπλεγμένης κίνησης"
 
-#: modules/codec/avcodec/avcodec.h:167
+#: modules/codec/avcodec/avcodec.h:176
 msgid "Enable interlaced motion estimation algorithms. This requires more CPU."
 msgstr ""
 "Ενεργοποίηση αλγόριθμων εκτίμησης διαπλεγμένης κίνησης. Αυτό απαιτεί "
 "καλύτερη CPU."
 
-#: modules/codec/avcodec/avcodec.h:170
+#: modules/codec/avcodec/avcodec.h:179
 msgid "Pre-motion estimation"
 msgstr "Εκτίμηση πριν από την κίνηση"
 
-#: modules/codec/avcodec/avcodec.h:171
+#: modules/codec/avcodec/avcodec.h:180
 msgid "Enable the pre-motion estimation algorithm."
 msgstr "Ενεργοποίηση του αλγόριθμου εκτίμησης πριν από την κίνηση."
 
-#: modules/codec/avcodec/avcodec.h:174
+#: modules/codec/avcodec/avcodec.h:183
 msgid "Rate control buffer size"
 msgstr "Μέγεθος ενδιάμεσης μνήμης ελέγχου ρυθμού"
 
-#: modules/codec/avcodec/avcodec.h:175
+#: modules/codec/avcodec/avcodec.h:184
 msgid ""
 "Rate control buffer size (in kbytes). A bigger buffer will allow for better "
 "rate control, but will cause a delay in the stream."
@@ -10700,19 +10699,19 @@ msgstr ""
 "μνήμη θα επιτρέψει ένα καλύτερο έλεγχο ρυθμού, αλλά θα προκαλέσει μία "
 "καθυστέρηση στη ροή δεδομένων."
 
-#: modules/codec/avcodec/avcodec.h:179
+#: modules/codec/avcodec/avcodec.h:188
 msgid "Rate control buffer aggressiveness"
 msgstr "Επιθετικότητα ενδιάμεσης μνήμης ελέγχου ρυθμού"
 
-#: modules/codec/avcodec/avcodec.h:180
+#: modules/codec/avcodec/avcodec.h:189
 msgid "Rate control buffer aggressiveness."
 msgstr "Επιθετικότητα ενδιάμεσης μνήμης ελέγχου ρυθμού."
 
-#: modules/codec/avcodec/avcodec.h:183
+#: modules/codec/avcodec/avcodec.h:192
 msgid "I quantization factor"
 msgstr "Συντελεστής κβαντισμού I"
 
-#: modules/codec/avcodec/avcodec.h:185
+#: modules/codec/avcodec/avcodec.h:194
 msgid ""
 "Quantization factor of I frames, compared with P frames (for instance 1.0 => "
 "same qscale for I and P frames)."
@@ -10720,12 +10719,12 @@ msgstr ""
 "Συντελεστής κβαντισμού για καρέ I, συγκρινόμενος με αυτόν για καρέ P (για "
 "παράδειγμα, 1,0 => ίδια κλίμακα κβαντιστή για τα καρέ I και P)."
 
-#: modules/codec/avcodec/avcodec.h:188 modules/codec/x264.c:344
+#: modules/codec/avcodec/avcodec.h:197 modules/codec/x264.c:344
 #: modules/demux/mod.c:78
 msgid "Noise reduction"
 msgstr "Μείωση θορύβου"
 
-#: modules/codec/avcodec/avcodec.h:189
+#: modules/codec/avcodec/avcodec.h:198
 msgid ""
 "Enable a simple noise reduction algorithm to lower the encoding length and "
 "bitrate, at the expense of lower quality frames."
@@ -10734,11 +10733,11 @@ msgstr ""
 "κωδικοποίησης και ο ρυθμός μετάδοσης δεδομένων, σε βάρος των καρέ "
 "χαμηλότερης ποιότητας."
 
-#: modules/codec/avcodec/avcodec.h:193
+#: modules/codec/avcodec/avcodec.h:202
 msgid "MPEG4 quantization matrix"
 msgstr "Πίνακας κβαντισμού MPEG4"
 
-#: modules/codec/avcodec/avcodec.h:194
+#: modules/codec/avcodec/avcodec.h:203
 msgid ""
 "Use the MPEG4 quantization matrix for MPEG2 encoding. This generally yields "
 "a better looking picture, while still retaining the compatibility with "
@@ -10748,11 +10747,11 @@ msgstr ""
 "αποδίδει μία εικόνα καλύτερης εμφάνισης, ενώ εξακολουθεί να διατηρεί τη "
 "συμβατότητα με τους πρότυπους αποκωδικοποιητές MPEG2."
 
-#: modules/codec/avcodec/avcodec.h:199
+#: modules/codec/avcodec/avcodec.h:208
 msgid "Quality level"
 msgstr "Επίπεδο ποιότητας"
 
-#: modules/codec/avcodec/avcodec.h:200
+#: modules/codec/avcodec/avcodec.h:209
 msgid ""
 "Quality level for the encoding of motions vectors (this can slow down the "
 "encoding very much)."
@@ -10760,7 +10759,7 @@ msgstr ""
 "Επίπεδο ποιότητας για την κωδικοποίηση των διανυσμάτων κίνησης (αυτό μπορεί "
 "να επιβραδύνει την κωδικοποίηση πάρα πολύ)."
 
-#: modules/codec/avcodec/avcodec.h:205
+#: modules/codec/avcodec/avcodec.h:214
 msgid ""
 "The encoder can make on-the-fly quality tradeoffs if your CPU can't keep up "
 "with the encoding rate. It will disable trellis quantization, then the rate "
@@ -10773,36 +10772,36 @@ msgstr ""
 "των διανυσμάτων κίνησης (hq) και θα αυξήσει το κατώφλι μείωσης θορύβου για "
 "να διευκολύνει το έργο του κωδικοποιητή."
 
-#: modules/codec/avcodec/avcodec.h:211
+#: modules/codec/avcodec/avcodec.h:220
 msgid "Minimum video quantizer scale"
 msgstr "Ελάχιστη κλίμακα κβαντιστή βίντεο"
 
-#: modules/codec/avcodec/avcodec.h:212
+#: modules/codec/avcodec/avcodec.h:221
 msgid "Minimum video quantizer scale."
 msgstr "Ελάχιστη κλίμακα κβαντιστή βίντεο."
 
-#: modules/codec/avcodec/avcodec.h:215
+#: modules/codec/avcodec/avcodec.h:224
 msgid "Maximum video quantizer scale"
 msgstr "Μέγιστη κλίμακα κβαντιστή βίντεο"
 
-#: modules/codec/avcodec/avcodec.h:216
+#: modules/codec/avcodec/avcodec.h:225
 msgid "Maximum video quantizer scale."
 msgstr "Μέγιστη κλίμακα κβαντιστή βίντεο."
 
-#: modules/codec/avcodec/avcodec.h:219
+#: modules/codec/avcodec/avcodec.h:228
 msgid "Trellis quantization"
 msgstr "Κβαντισμός Trellis"
 
-#: modules/codec/avcodec/avcodec.h:220
+#: modules/codec/avcodec/avcodec.h:229
 msgid "Enable trellis quantization (rate distortion for block coefficients)."
 msgstr ""
 "Ενεργοποίηση κβαντισμού trellis (διαστρέβλωση ρυθμού για ομάδες συντελεστών)."
 
-#: modules/codec/avcodec/avcodec.h:223
+#: modules/codec/avcodec/avcodec.h:232
 msgid "Fixed quantizer scale"
 msgstr "Προκαθορισμένη κλίμακα κβαντιστή"
 
-#: modules/codec/avcodec/avcodec.h:224
+#: modules/codec/avcodec/avcodec.h:233
 msgid ""
 "A fixed video quantizer scale for VBR encoding (accepted values: 0.01 to "
 "255.0)."
@@ -10810,42 +10809,42 @@ msgstr ""
 "Μία προκαθορισμένη κλίμακα κβαντιστή βίντεο για κωδικοποίηση VBR (αποδεκτές "
 "τιμές: 0,01 έως 255,0)."
 
-#: modules/codec/avcodec/avcodec.h:227
+#: modules/codec/avcodec/avcodec.h:236
 msgid "Strict standard compliance"
 msgstr "Αυστηρή συμμόρφωση στο πρότυπο"
 
-#: modules/codec/avcodec/avcodec.h:228
+#: modules/codec/avcodec/avcodec.h:237
 msgid ""
 "Force a strict standard compliance when encoding (accepted values: -2 to 2)."
 msgstr ""
 "Επιβολή αυστηρής συμμόρφωσης με το πρότυπο κατά την κωδικοποίηση (αποδεκτές "
 "τιμές: -2 έως 2)."
 
-#: modules/codec/avcodec/avcodec.h:231
+#: modules/codec/avcodec/avcodec.h:240
 msgid "Luminance masking"
 msgstr "Εφαρμογή μάσκας φωτεινότητας"
 
-#: modules/codec/avcodec/avcodec.h:232
+#: modules/codec/avcodec/avcodec.h:241
 msgid "Raise the quantizer for very bright macroblocks (default: 0.0)."
 msgstr ""
 "Αύξηση του κβαντιστή για πολύ φωτεινές μακροενότητες δεδομένων (προεπιλογή: "
 "0,0)."
 
-#: modules/codec/avcodec/avcodec.h:235
+#: modules/codec/avcodec/avcodec.h:244
 msgid "Darkness masking"
 msgstr "Εφαρμογή μάσκας σκότους"
 
-#: modules/codec/avcodec/avcodec.h:236
+#: modules/codec/avcodec/avcodec.h:245
 msgid "Raise the quantizer for very dark macroblocks (default: 0.0)."
 msgstr ""
 "Αύξηση του κβαντιστή για πολύ σκοτεινές μακροενότητες δεδομένων (προεπιλογή: "
 "0,0)."
 
-#: modules/codec/avcodec/avcodec.h:239
+#: modules/codec/avcodec/avcodec.h:248
 msgid "Motion masking"
 msgstr "Εφαρμογή μάσκας κίνησης"
 
-#: modules/codec/avcodec/avcodec.h:240
+#: modules/codec/avcodec/avcodec.h:249
 msgid ""
 "Raise the quantizer for macroblocks with a high temporal complexity "
 "(default: 0.0)."
@@ -10853,11 +10852,11 @@ msgstr ""
 "Αύξηση του κβαντιστή για μακροενότητες δεδομένων με υψηλή χρονική "
 "πολυπλοκότητα (προεπιλογή: 0,0)."
 
-#: modules/codec/avcodec/avcodec.h:243
+#: modules/codec/avcodec/avcodec.h:252
 msgid "Border masking"
 msgstr "Εφαρμογή μάσκας ορίου"
 
-#: modules/codec/avcodec/avcodec.h:244
+#: modules/codec/avcodec/avcodec.h:253
 msgid ""
 "Raise the quantizer for macroblocks at the border of the frame (default: "
 "0.0)."
@@ -10865,11 +10864,11 @@ msgstr ""
 "Αύξηση του κβαντιστή για μακροενότητες δεδομένων στο όριο του πλαισίου "
 "(προεπιλογή: 0,0)."
 
-#: modules/codec/avcodec/avcodec.h:247
+#: modules/codec/avcodec/avcodec.h:256
 msgid "Luminance elimination"
 msgstr "Εξάλειψη φωτεινότητας"
 
-#: modules/codec/avcodec/avcodec.h:248
+#: modules/codec/avcodec/avcodec.h:257
 msgid ""
 "Eliminates luminance blocks when the PSNR isn't much changed (default: 0.0). "
 "The H264 specification recommends -4."
@@ -10877,11 +10876,11 @@ msgstr ""
 "Εξάλειψη ορθογώνιων περιοχών φωτεινότητας όταν το PSNR δεν έχει αλλάξει "
 "αρκετά (προεπιλογή: 0,0). Η προδιαγραφή H264 συνιστά -4."
 
-#: modules/codec/avcodec/avcodec.h:252
+#: modules/codec/avcodec/avcodec.h:261
 msgid "Chrominance elimination"
 msgstr "Εξάλειψη χρωματικότητας"
 
-#: modules/codec/avcodec/avcodec.h:253
+#: modules/codec/avcodec/avcodec.h:262
 msgid ""
 "Eliminates chrominance blocks when the PSNR isn't much changed (default: "
 "0.0). The H264 specification recommends 7."
@@ -10889,11 +10888,11 @@ msgstr ""
 "Εξάλειψη ορθογώνιων περιοχών χρωματικότητας όταν το PSNR δεν έχει αλλάξει "
 "αρκετά (προεπιλογή: 0,0). Η προδιαγραφή H264 συνιστά 7."
 
-#: modules/codec/avcodec/avcodec.h:257
+#: modules/codec/avcodec/avcodec.h:266
 msgid "Specify AAC audio profile to use"
 msgstr "Προσδιορίστε το προφίλ ήχου AAC που θα χρησιμοποιηθεί"
 
-#: modules/codec/avcodec/avcodec.h:258
+#: modules/codec/avcodec/avcodec.h:267
 msgid ""
 "Specify the AAC audio profile to use for encoding the audio bitstream. It "
 "takes the following options: main, low, ssr (not supported) and ltp "
@@ -10903,17 +10902,17 @@ msgstr ""
 "δυφιορρευματική τεχνικής ήχου. Λαμβάνει τις ακόλουθες επιλογές: κύρια, "
 "χαμηλή, ssr (δεν υποστηρίζεται) και ltp (προεπιλογή: κύρια)"
 
-#: modules/codec/avcodec/encoder.c:238
+#: modules/codec/avcodec/encoder.c:277
 #, c-format
 msgid "\"%s\" is no video encoder."
 msgstr "\"%s\" δεν είναι κωδικοποιητής βίντεο."
 
-#: modules/codec/avcodec/encoder.c:246
+#: modules/codec/avcodec/encoder.c:285
 #, c-format
 msgid "\"%s\" is no audio encoder."
 msgstr "\"%s\" δεν είναι κωδικοποιητής ήχου."
 
-#: modules/codec/avcodec/encoder.c:287
+#: modules/codec/avcodec/encoder.c:326
 #, c-format
 msgid ""
 "It seems your FFMPEG (libavcodec) installation lacks the following encoder:\n"
@@ -10932,7 +10931,7 @@ msgstr ""
 "Αυτό δεν είναι σφάλμα εντός του αναπαραγωγού πολυμέσων VLC.\n"
 "Μην επικοινωνήστε με το σχέδιο VideoLAN για αυτό το θέμα.\n"
 
-#: modules/codec/avcodec/encoder.c:773 modules/codec/avcodec/encoder.c:782
+#: modules/codec/avcodec/encoder.c:815 modules/codec/avcodec/encoder.c:824
 msgid "VLC could not open the encoder."
 msgstr "Ο VLC δεν μπόρεσε να ανοίξει τον κωδικοποιητή."
 
@@ -13515,11 +13514,11 @@ msgstr "Κωδικοποιητής VBI και Teletext"
 msgid "VBI & Teletext"
 msgstr "VBI & Teletext"
 
-#: modules/control/dbus/dbus.c:138
+#: modules/control/dbus/dbus.c:139
 msgid "DBus"
 msgstr "DBus"
 
-#: modules/control/dbus/dbus.c:140
+#: modules/control/dbus/dbus.c:142
 msgid "D-Bus control interface"
 msgstr "Διεπαφή ελέγχου D-Bus"
 
@@ -13605,7 +13604,7 @@ msgstr "Έλεγχος θέσης"
 
 # #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
 #
-#: modules/control/hotkeys.c:97 modules/gui/macosx/intf.m:2062
+#: modules/control/hotkeys.c:97 modules/gui/macosx/intf.m:2067
 msgid "Ignore"
 msgstr "Αγνόηση"
 
@@ -16589,32 +16588,32 @@ msgstr ""
 "Μόνο η προεπιλεγμένη διεύθυνση e-maIl σας θα υποβληθεί, δεν θα συμπεριληφθεί "
 "καμία επιπλέον πληροφορία."
 
-#: modules/gui/macosx/intf.m:2021
+#: modules/gui/macosx/intf.m:2026
 msgid "No CrashLog found"
 msgstr "Δεν βρέθηκε αρχείο καταγραφής καταρρεύσεων"
 
-#: modules/gui/macosx/intf.m:2021 modules/gui/macosx/prefs.m:230
+#: modules/gui/macosx/intf.m:2026 modules/gui/macosx/prefs.m:230
 #: modules/gui/macosx/simple_prefs.m:758
 msgid "Continue"
 msgstr "Συνέχεια"
 
-#: modules/gui/macosx/intf.m:2021
+#: modules/gui/macosx/intf.m:2026
 msgid "Couldn't find any trace of a previous crash."
 msgstr "Αδύνατη η ανεύρεση ιχνών από προηγούμενη κατάρρευση."
 
-#: modules/gui/macosx/intf.m:2060
+#: modules/gui/macosx/intf.m:2065
 msgid "Remove old preferences?"
 msgstr "Να απομακρυνθούν οι παλιές προτιμήσεις;"
 
-#: modules/gui/macosx/intf.m:2061
+#: modules/gui/macosx/intf.m:2066
 msgid "We just found an older version of VLC's preferences files."
 msgstr "Μόλις βρήκαμε μία παλαιότερη έκδοση αρχείων προτιμήσεων του VLC."
 
-#: modules/gui/macosx/intf.m:2062
+#: modules/gui/macosx/intf.m:2067
 msgid "Move To Trash and Relaunch VLC"
 msgstr "Μεταφορά στα απορρίμματα και επανεκκίνηση του VLC"
 
-#: modules/gui/macosx/intf.m:2177
+#: modules/gui/macosx/intf.m:2182
 #, c-format
 msgid "VLC Debug Log (%s).rtfd"
 msgstr "Καταγραφολόγιο συμβάντων αποσφαλμάτωσης του VLC (%s).rtfd"
@@ -17185,8 +17184,8 @@ msgstr "Εντοπιστής πόρων πολυμέσων (MRL)"
 # #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
 #
 #: modules/gui/macosx/open.m:107 modules/gui/macosx/open.m:163
-#: modules/gui/macosx/open.m:625 modules/gui/macosx/open.m:935
-#: modules/gui/macosx/open.m:1159 modules/gui/macosx/open.m:1412
+#: modules/gui/macosx/open.m:625 modules/gui/macosx/open.m:934
+#: modules/gui/macosx/open.m:1163 modules/gui/macosx/open.m:1416
 #: modules/gui/qt4/components/controller.hpp:114
 msgid "Open"
 msgstr "Άνοιγμα"
@@ -17305,18 +17304,18 @@ msgstr "Πρωτόκολλο"
 msgid "Address"
 msgstr "Διεύθυνση"
 
-#: modules/gui/macosx/open.m:169 modules/gui/macosx/open.m:1055
-#: modules/gui/macosx/open.m:1113
+#: modules/gui/macosx/open.m:169 modules/gui/macosx/open.m:1059
+#: modules/gui/macosx/open.m:1117
 msgid "Unicast"
 msgstr "Μονοεκπομπή"
 
-#: modules/gui/macosx/open.m:170 modules/gui/macosx/open.m:1070
-#: modules/gui/macosx/open.m:1128
+#: modules/gui/macosx/open.m:170 modules/gui/macosx/open.m:1074
+#: modules/gui/macosx/open.m:1132
 msgid "Multicast"
 msgstr "Πολυεκπομπή"
 
 #: modules/gui/macosx/open.m:178 modules/gui/macosx/open.m:436
-#: modules/gui/macosx/open.m:1241
+#: modules/gui/macosx/open.m:1245
 msgid "Capture Device"
 msgstr "Συσκευή σύλληψης"
 
@@ -17360,7 +17359,7 @@ msgstr "Προηγούμενο κανάλι"
 msgid "Next Channel"
 msgstr "Επόμενο κανάλι"
 
-#: modules/gui/macosx/open.m:195 modules/gui/macosx/open.m:1339
+#: modules/gui/macosx/open.m:195 modules/gui/macosx/open.m:1343
 msgid "Retrieving Channel Info..."
 msgstr "Ανάκτηση πληροφοριών καναλιού..."
 
@@ -17433,8 +17432,8 @@ msgstr "Ιδιότητες γραμματοσειράς"
 msgid "Subtitle File"
 msgstr "Αρχείο υπότιτλου"
 
-#: modules/gui/macosx/open.m:624 modules/gui/macosx/open.m:1158
-#: modules/gui/macosx/open.m:1411
+#: modules/gui/macosx/open.m:624 modules/gui/macosx/open.m:1162
+#: modules/gui/macosx/open.m:1415
 msgid "Open File"
 msgstr "Άνοιγμα αρχείου"
 
@@ -17443,11 +17442,11 @@ msgstr "Άνοιγμα αρχείου"
 msgid "%i tracks"
 msgstr "%i κομμάτια"
 
-#: modules/gui/macosx/open.m:1345
+#: modules/gui/macosx/open.m:1349
 msgid "Composite input"
 msgstr "Σύνθετη είσοδος"
 
-#: modules/gui/macosx/open.m:1348
+#: modules/gui/macosx/open.m:1352
 msgid "S-Video input"
 msgstr "Είσοδος S-Video"
 
@@ -17561,7 +17560,7 @@ msgid "Read at media"
 msgstr "Ανάγνωση σε πολυμέσο"
 
 #: modules/gui/macosx/playlistinfo.m:102
-#: modules/gui/qt4/components/info_panels.cpp:523
+#: modules/gui/qt4/components/info_panels.cpp:525
 msgid "Input bitrate"
 msgstr "Ρυθμός μετάδοσης δεδομένων εισόδου"
 
@@ -19560,13 +19559,13 @@ msgstr "Επιβολή ενημέρωσης των τιμών αυτού του 
 msgid "Comments"
 msgstr "Σχόλια"
 
-#: modules/gui/qt4/components/info_panels.cpp:343
+#: modules/gui/qt4/components/info_panels.cpp:345
 msgid "Extra metadata and other information are shown in this panel.\n"
 msgstr ""
 "Σε αυτό το πλαίσιο προβάλλονται επιπρόσθετα μεταδεδομένα και άλλες "
 "πληροφορίες.\n"
 
-#: modules/gui/qt4/components/info_panels.cpp:417
+#: modules/gui/qt4/components/info_panels.cpp:419
 msgid ""
 "Information about what your media or stream is made of.\n"
 "Muxer, Audio and Video Codecs, Subtitles are shown."
@@ -19574,81 +19573,81 @@ msgstr ""
 "Πληροφορίες σχετικά με το από τι αποτελείται το πολυμέσο ή η ροή δεδομένων "
 "σας. Προβάλλονται ο πολυπλέκτης, τα codecs ήχου & βίντεο και οι υπότιτλοι. "
 
-#: modules/gui/qt4/components/info_panels.cpp:492
+#: modules/gui/qt4/components/info_panels.cpp:494
 msgid "Current media / stream statistics"
 msgstr "Στατιστικά τρέχοντος πολυμέσου / ροής δεδομένων"
 
-#: modules/gui/qt4/components/info_panels.cpp:518
+#: modules/gui/qt4/components/info_panels.cpp:520
 msgid "Input/Read"
 msgstr "Είσοδος/Ανάγνωση"
 
-#: modules/gui/qt4/components/info_panels.cpp:519
+#: modules/gui/qt4/components/info_panels.cpp:521
 msgid "Output/Written/Sent"
 msgstr "Έξοδος/Γραμμένα/Αποσταλμένα"
 
-#: modules/gui/qt4/components/info_panels.cpp:521
+#: modules/gui/qt4/components/info_panels.cpp:523
 msgid "Media data size"
 msgstr "Μέγεθος δεδομένων πολυμέσων"
 
-#: modules/gui/qt4/components/info_panels.cpp:525
+#: modules/gui/qt4/components/info_panels.cpp:527
 msgid "Demuxed data size"
 msgstr "Μέγεθος αποπολυπλεγμένων δεδομένων"
 
-#: modules/gui/qt4/components/info_panels.cpp:526
+#: modules/gui/qt4/components/info_panels.cpp:528
 msgid "Content bitrate"
 msgstr "Ρυθμός μετάδοσης δεδομένων περιεχομένου"
 
-#: modules/gui/qt4/components/info_panels.cpp:528
+#: modules/gui/qt4/components/info_panels.cpp:530
 msgid "Discarded (corrupted)"
 msgstr "Απορρίφθηκαν (φθαρμένα)"
 
-#: modules/gui/qt4/components/info_panels.cpp:530
+#: modules/gui/qt4/components/info_panels.cpp:532
 msgid "Dropped (discontinued)"
 msgstr "Παραλείφθηκαν (ασυνεχή)"
 
-#: modules/gui/qt4/components/info_panels.cpp:533
-#: modules/gui/qt4/components/info_panels.cpp:546
+#: modules/gui/qt4/components/info_panels.cpp:535
+#: modules/gui/qt4/components/info_panels.cpp:548
 msgid "Decoded"
 msgstr "Αποκωδικοποιήθηκαν"
 
-#: modules/gui/qt4/components/info_panels.cpp:534
-#: modules/gui/qt4/components/info_panels.cpp:547
+#: modules/gui/qt4/components/info_panels.cpp:536
+#: modules/gui/qt4/components/info_panels.cpp:549
 msgid "blocks"
 msgstr "ομάδες δεδομένων"
 
-#: modules/gui/qt4/components/info_panels.cpp:535
+#: modules/gui/qt4/components/info_panels.cpp:537
 msgid "Displayed"
 msgstr "Προβλήθηκαν"
 
-#: modules/gui/qt4/components/info_panels.cpp:536
 #: modules/gui/qt4/components/info_panels.cpp:538
+#: modules/gui/qt4/components/info_panels.cpp:540
 msgid "frames"
 msgstr "καρέ"
 
-#: modules/gui/qt4/components/info_panels.cpp:537
-#: modules/gui/qt4/components/info_panels.cpp:550
+#: modules/gui/qt4/components/info_panels.cpp:539
+#: modules/gui/qt4/components/info_panels.cpp:552
 msgid "Lost"
 msgstr "Χάθηκαν"
 
-#: modules/gui/qt4/components/info_panels.cpp:540
-#: modules/gui/qt4/components/info_panels.cpp:541
+#: modules/gui/qt4/components/info_panels.cpp:542
+#: modules/gui/qt4/components/info_panels.cpp:543
 msgid "Sent"
 msgstr "Απεστάλησαν"
 
-#: modules/gui/qt4/components/info_panels.cpp:540
+#: modules/gui/qt4/components/info_panels.cpp:542
 msgid "packets"
 msgstr "πακέτα"
 
-#: modules/gui/qt4/components/info_panels.cpp:543
+#: modules/gui/qt4/components/info_panels.cpp:545
 msgid "Upstream rate"
 msgstr "Ρυθμός ροής δεδομένων ανόδου"
 
-#: modules/gui/qt4/components/info_panels.cpp:548
+#: modules/gui/qt4/components/info_panels.cpp:550
 msgid "Played"
 msgstr "Αναπαράχθηκαν"
 
-#: modules/gui/qt4/components/info_panels.cpp:549
-#: modules/gui/qt4/components/info_panels.cpp:550
+#: modules/gui/qt4/components/info_panels.cpp:551
+#: modules/gui/qt4/components/info_panels.cpp:552
 msgid "buffers"
 msgstr "ενδιάμεσες μνήμες"
 
@@ -19672,28 +19671,28 @@ msgstr "Επιστροφή στην κανονική ταχύτητα αναπα
 msgid "Download cover art"
 msgstr "Κατέβασμα τέχνης εξωφύλλου"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:567
+#: modules/gui/qt4/components/interface_widgets.cpp:572
 #: modules/gui/qt4/dialogs/toolbar.cpp:459
 msgid "Elapsed time"
 msgstr "Χρόνος που πέρασε"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:571
+#: modules/gui/qt4/components/interface_widgets.cpp:576
 #: modules/gui/qt4/dialogs/toolbar.cpp:463
 msgid "Total/Remaining time"
 msgstr "Συνολικός/Απομένων χρόνος"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:573
+#: modules/gui/qt4/components/interface_widgets.cpp:578
 msgid "Click to toggle between total and remaining time"
 msgstr ""
 "Κάντε κλικ για εναλλαγή ανάμεσα στο συνολικό χρόνο και στο χρόνο που απομένει"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:579
+#: modules/gui/qt4/components/interface_widgets.cpp:584
 msgid "Click to toggle between elapsed and remaining time"
 msgstr ""
 "Κάντε κλικ για εναλλαγή ανάμεσα στο χρόνο που πέρασε και στο χρόνο που "
 "απομένει"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:581
+#: modules/gui/qt4/components/interface_widgets.cpp:586
 msgid "Double click to jump to a chosen time position"
 msgstr "Κάντε διπλό κλικ για μεταπήδηση σε μία θέση επιλεγμένου χρόνου"
 
@@ -22647,7 +22646,7 @@ msgstr "Σύλληψη ήχου"
 msgid "Audio capture (PulseAudio)"
 msgstr "Σύλληψη ήχου (PulseAudio)"
 
-#: modules/services_discovery/pulse.c:183 modules/stream_out/es.c:85
+#: modules/services_discovery/pulse.c:186 modules/stream_out/es.c:85
 msgid "Generic"
 msgstr "Γενικά"
 
@@ -23442,7 +23441,7 @@ msgstr ""
 msgid "RTP stream output"
 msgstr "Έξοδος ροής δεδομένων RTP"
 
-#: modules/stream_out/select.c:45 modules/stream_out/switcher.c:95
+#: modules/stream_out/select.c:45 modules/stream_out/switcher.c:97
 msgid "Command UDP port"
 msgstr "Θύρα UDP εντολών"
 
@@ -23654,65 +23653,65 @@ msgstr "Προκαθορισμένη έξοδος ροής δεδομένων"
 # #-#-#-#-#  toutdoux-el.po (toutdoux 1.0)  #-#-#-#-#
 # #-#-#-#-#  gaim-el.po (gaim 0.48)  #-#-#-#-#
 # #-#-#-#-#  gimp-print-el.po (gimp-print 1.0)  #-#-#-#-#
-#: modules/stream_out/switcher.c:86
+#: modules/stream_out/switcher.c:88
 msgid "Files"
 msgstr "Αρχεία"
 
-#: modules/stream_out/switcher.c:88
+#: modules/stream_out/switcher.c:90
 msgid "Full paths of the files separated by colons."
 msgstr "Πλήρεις διαδρομές των αρχείων, χωρισμένες με άνω-κάτω τελείες."
 
 # #-#-#-#-#  libgtop.HEAD.el.po (el)  #-#-#-#-#
 # sysdeps/names/procmem.c:49
-#: modules/stream_out/switcher.c:89
+#: modules/stream_out/switcher.c:91
 msgid "Sizes"
 msgstr "Μεγέθη"
 
-#: modules/stream_out/switcher.c:91
+#: modules/stream_out/switcher.c:93
 msgid "List of sizes separated by colons (720x576:480x576)."
 msgstr "Λίστα μεγεθών διαχωρισμένων με άνω-κάτω τελείες (720x576:480x576)."
 
-#: modules/stream_out/switcher.c:94
+#: modules/stream_out/switcher.c:96
 msgid "Aspect ratio (4:3, 16:9)."
 msgstr "Συντελεστής αναλογίας (4:3, 16:9)."
 
-#: modules/stream_out/switcher.c:97
+#: modules/stream_out/switcher.c:99
 msgid "UDP port to listen to for commands."
 msgstr "Θύρα UDP στην οποία θα γίνεται η ακρόαση για εντολές."
 
-#: modules/stream_out/switcher.c:98
+#: modules/stream_out/switcher.c:100
 msgid "Command"
 msgstr "Εντολή"
 
-#: modules/stream_out/switcher.c:100
+#: modules/stream_out/switcher.c:102
 msgid "Initial command to execute."
 msgstr "Αρχική εντολή προς εκτέλεση."
 
-#: modules/stream_out/switcher.c:101
+#: modules/stream_out/switcher.c:103
 msgid "GOP size"
 msgstr "Μέγεθος GOP"
 
-#: modules/stream_out/switcher.c:103
+#: modules/stream_out/switcher.c:105
 msgid "Number of P frames between two I frames."
 msgstr "Αριθμός καρέ P μεταξύ δύο καρέ l."
 
-#: modules/stream_out/switcher.c:104
+#: modules/stream_out/switcher.c:106
 msgid "Quantizer scale"
 msgstr "Κλίμακα κβαντιστή"
 
-#: modules/stream_out/switcher.c:106
+#: modules/stream_out/switcher.c:108
 msgid "Fixed quantizer scale to use."
 msgstr "Η προκαθορισμένη κλίμακα κβαντιστή που θα χρησιμοποιηθεί."
 
-#: modules/stream_out/switcher.c:107
+#: modules/stream_out/switcher.c:109
 msgid "Mute audio"
 msgstr "Σίγαση ήχου"
 
-#: modules/stream_out/switcher.c:109
+#: modules/stream_out/switcher.c:111
 msgid "Mute audio when command is not 0."
 msgstr "Σίγαση ήχου όταν η εντολή δεν είναι 0."
 
-#: modules/stream_out/switcher.c:112
+#: modules/stream_out/switcher.c:114
 msgid "MPEG2 video switcher stream output"
 msgstr "Έξοδος ροής δεδομένων διακόπτη βίντεο MPEG2"
 

@@ -11,12 +11,11 @@
 # Jamil Ahmed <jamil@ankur.org.bd>, 2010.
 # Israt Jahan <israt@ankur.org.bd>, 2010, 2011.
 #
-#: modules/gui/macosx/prefs.m:490 modules/gui/macosx/simple_prefs.m:451
 msgid ""
 msgstr ""
 "Project-Id-Version: vlc\n"
 "Report-Msgid-Bugs-To: vlc-devel@videolan.org\n"
-"POT-Creation-Date: 2012-12-11 15:56+0100\n"
+"POT-Creation-Date: 2013-05-26 20:55+0200\n"
 "PO-Revision-Date: 2011-04-04 12:45+0600\n"
 "Last-Translator: israt <israt@ankur.org.bd>\n"
 "Language-Team: Bengali <ankur-bd-l10n@googlegroups.com>\n"
@@ -25,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: include/vlc_common.h:1024
+#: include/vlc_common.h:1026
 msgid ""
 "This program comes with NO WARRANTY, to the extent permitted by law.\n"
 "You may redistribute it under the terms of the GNU General Public License;\n"
@@ -85,7 +84,7 @@ msgstr "হট কী সেটিং"
 #: modules/gui/macosx/MainMenu.m:292 modules/gui/macosx/output.m:170
 #: modules/gui/macosx/playlistinfo.m:116 modules/gui/macosx/simple_prefs.m:182
 #: modules/gui/macosx/wizard.m:383
-#: modules/gui/qt4/components/info_panels.cpp:516
+#: modules/gui/qt4/components/info_panels.cpp:518
 #: modules/gui/qt4/components/simple_preferences.cpp:88
 #: modules/services_discovery/mediadirs.c:77 modules/stream_out/es.c:93
 #: modules/stream_out/transcode/transcode.c:191
@@ -141,7 +140,7 @@ msgstr "বিবিধ অডিও সেটিং এবং মডিউল�
 #: modules/gui/macosx/MainMenu.m:305 modules/gui/macosx/output.m:160
 #: modules/gui/macosx/playlistinfo.m:106 modules/gui/macosx/simple_prefs.m:186
 #: modules/gui/macosx/simple_prefs.m:319 modules/gui/macosx/wizard.m:384
-#: modules/gui/qt4/components/info_panels.cpp:517
+#: modules/gui/qt4/components/info_panels.cpp:519
 #: modules/gui/qt4/components/simple_preferences.cpp:90
 #: modules/services_discovery/mediadirs.c:70 modules/stream_out/es.c:101
 #: modules/stream_out/transcode/transcode.c:161
@@ -783,7 +782,7 @@ msgstr ""
 
 #: src/audio_output/common.c:85 src/audio_output/common.c:125
 #: src/input/es_out.c:934 src/libvlc-module.c:697
-#: src/video_output/postprocessing.c:98 modules/gui/macosx/MainWindow.m:2429
+#: src/video_output/postprocessing.c:98 modules/gui/macosx/MainWindow.m:2441
 #: modules/video_filter/postproc.c:228
 msgid "Disable"
 msgstr "নিষ্ক্রিয় করা হবে"
@@ -1042,9 +1041,9 @@ msgid "decoder"
 msgstr "ডিকোডার"
 
 #: src/input/decoder.c:276 src/input/decoder.c:467
-#: modules/codec/avcodec/encoder.c:237 modules/codec/avcodec/encoder.c:245
-#: modules/codec/avcodec/encoder.c:282 modules/codec/avcodec/encoder.c:772
-#: modules/codec/avcodec/encoder.c:781 modules/stream_out/es.c:363
+#: modules/codec/avcodec/encoder.c:276 modules/codec/avcodec/encoder.c:284
+#: modules/codec/avcodec/encoder.c:321 modules/codec/avcodec/encoder.c:814
+#: modules/codec/avcodec/encoder.c:823 modules/stream_out/es.c:363
 #: modules/stream_out/es.c:378
 msgid "Streaming / Transcoding failed"
 msgstr "স্ট্রীমিং/ট্রান্সকোডিং ব্যর্থ"
@@ -1198,20 +1197,20 @@ msgstr "ফ্রেমের রেট"
 msgid "Decoded format"
 msgstr "ডিকোডকৃত"
 
-#: src/input/input.c:2465
+#: src/input/input.c:2467
 msgid "Your input can't be opened"
 msgstr "আপনার ইনপুট খোলা যাচ্ছে না"
 
-#: src/input/input.c:2466
+#: src/input/input.c:2468
 #, c-format
 msgid "VLC is unable to open the MRL '%s'. Check the log for details."
 msgstr "VLC '%s' MRL খুলতে ব্যর্থ। বিস্তারিত তথ্যের জন্য লগ পরীক্ষা করুন।"
 
-#: src/input/input.c:2583
+#: src/input/input.c:2585
 msgid "VLC can't recognize the input's format"
 msgstr "VLC ইনপুটের ফরম্যাট চিনতে পারছে না"
 
-#: src/input/input.c:2584
+#: src/input/input.c:2586
 #, c-format
 msgid ""
 "The format of '%s' cannot be detected. Have a look at the log for details."
@@ -2494,7 +2493,7 @@ msgid "Default"
 msgstr "পূর্বনির্ধারিত"
 
 #: src/libvlc-module.c:697 modules/gui/macosx/AudioEffects.m:66
-#: modules/gui/macosx/MainWindow.m:2427 modules/gui/macosx/wizard.m:357
+#: modules/gui/macosx/MainWindow.m:2439 modules/gui/macosx/wizard.m:357
 msgid "Enable"
 msgstr "সক্রিয় করা"
 
@@ -5911,7 +5910,7 @@ msgstr "ডায়লগ"
 
 #: modules/access/decklink.cpp:91 modules/access/linsys/linsys_hdsdi.c:78
 #: modules/access/linsys/linsys_sdi.c:73 modules/demux/rawvid.c:59
-#: modules/gui/qt4/dialogs/toolbar.cpp:451 modules/stream_out/switcher.c:92
+#: modules/gui/qt4/dialogs/toolbar.cpp:451 modules/stream_out/switcher.c:94
 msgid "Aspect ratio"
 msgstr "দৃশ্যমান অনুপাত"
 
@@ -6938,9 +6937,9 @@ msgid ""
 "HTTP proxy to be used It must be of the form http://[user@]myproxy.mydomain:"
 "myport/ ; if empty, the http_proxy environment variable will be tried."
 msgstr ""
-"যে HTTP প্রক্সি ব্যবহার করা হবে, সেটি অবশ্যই এই বিন্যাসে হতে হবে http://[user@]"
-"myproxy.mydomain:myport/ ; যদি খালি থাকে, http_proxy environment ভেরিয়েবল "
-"ব্যবহারের চেষ্টা করা হবে।"
+"যে HTTP প্রক্সি ব্যবহার করা হবে, সেটি অবশ্যই এই বিন্যাসে হতে হবে http://"
+"[user@]myproxy.mydomain:myport/ ; যদি খালি থাকে, http_proxy environment "
+"ভেরিয়েবল ব্যবহারের চেষ্টা করা হবে।"
 
 #: modules/access/http.c:78
 msgid "HTTP proxy password"
@@ -8038,7 +8037,7 @@ msgstr "পর্দার ইনপুট"
 
 #: modules/access/screen/screen.c:88 modules/access/screen/xcb.c:65
 #: modules/gui/macosx/MainMenu.m:509 modules/gui/macosx/open.m:182
-#: modules/gui/macosx/open.m:424 modules/gui/macosx/open.m:1230
+#: modules/gui/macosx/open.m:424 modules/gui/macosx/open.m:1234
 #: modules/gui/macosx/simple_prefs.m:594
 msgid "Screen"
 msgstr "পর্দা"
@@ -9938,7 +9937,7 @@ msgstr ""
 "আপনার /অ্যাপ্লিকেশন/ইউটিলিটি থেকে \"অডিও মিডি সেটআপ\" ইউটিলিটি দ্বারা স্পিকারের "
 "বহির্বিন্যাস কনফিগার করা উচিত। এখন স্টেরিও মোড ব্যবহার করা হচ্ছে।"
 
-#: modules/audio_output/auhal.c:1048
+#: modules/audio_output/auhal.c:1057
 #, c-format
 msgid "%s (Encoded Output)"
 msgstr "%s (এনকোড করা আউটপুট)"
@@ -10097,11 +10096,11 @@ msgstr "PORTAUDIO অডিও আউটপুট"
 msgid "5.1"
 msgstr "৫.১"
 
-#: modules/audio_output/pulse.c:45
+#: modules/audio_output/pulse.c:48
 msgid "Pulseaudio audio output"
 msgstr "Pulseaudio অডিও আউটপুট"
 
-#: modules/audio_output/pulse.c:957
+#: modules/audio_output/pulse.c:978
 #, fuzzy
 msgid "Audio device"
 msgstr "অডিও ডিভাইস"
@@ -10225,15 +10224,15 @@ msgstr "FFmpeg অডিও/ভিডিও এনকোডার"
 msgid "FFmpeg deinterlace video filter"
 msgstr "FFmpeg ডিইন্টারলেস ভিডিও পরিশোধক"
 
-#: modules/codec/avcodec/avcodec.h:71 modules/codec/avcodec/avcodec.h:73
+#: modules/codec/avcodec/avcodec.h:80 modules/codec/avcodec/avcodec.h:82
 msgid "Direct rendering"
 msgstr "সরাসরি রেন্ডারিং"
 
-#: modules/codec/avcodec/avcodec.h:75
+#: modules/codec/avcodec/avcodec.h:84
 msgid "Error resilience"
 msgstr "ত্রুটি কাটিয়ে উঠা"
 
-#: modules/codec/avcodec/avcodec.h:77
+#: modules/codec/avcodec/avcodec.h:86
 msgid ""
 "FFmpeg can do error resilience.\n"
 "However, with a buggy encoder (such as the ISO MPEG-4 encoder from M$) this "
@@ -10245,11 +10244,11 @@ msgstr ""
 "সমস্যা উৎপন্ন করতে পারে।\n"
 "বৈধ মানের সীমা 0 থেকে 4 পর্যন্ত (0 সব ত্রুটি কাটিয়ে উঠা নিষ্ক্রিয় করে)।"
 
-#: modules/codec/avcodec/avcodec.h:82
+#: modules/codec/avcodec/avcodec.h:91
 msgid "Workaround bugs"
 msgstr "বাগ নিয়ে কাজ করা হবে"
 
-#: modules/codec/avcodec/avcodec.h:84
+#: modules/codec/avcodec/avcodec.h:93
 msgid ""
 "Try to fix some bugs:\n"
 "1  autodetect\n"
@@ -10273,12 +10272,12 @@ msgstr ""
 "এটি মানসমূহের যোগফল হতে হবে। উদাহরণস্বরূপ, \"ac vlc\" এবং \"ump4\" ঠিক করার জন্য "
 "40 প্রবেশ করাতে হবে।"
 
-#: modules/codec/avcodec/avcodec.h:95 modules/codec/avcodec/avcodec.h:204
+#: modules/codec/avcodec/avcodec.h:104 modules/codec/avcodec/avcodec.h:213
 #: modules/demux/rawdv.c:40 modules/stream_out/transcode/transcode.c:139
 msgid "Hurry up"
 msgstr "তাড়াতাড়ি"
 
-#: modules/codec/avcodec/avcodec.h:97
+#: modules/codec/avcodec/avcodec.h:106
 msgid ""
 "The decoder can partially decode or skip frame(s) when there is not enough "
 "time. It's useful with low CPU power but it can produce distorted pictures."
@@ -10286,20 +10285,20 @@ msgstr ""
 "যথেষ্ট সময় না থাকলে ডিকোডার ফ্রেমগুলোকে আংশিকভাবে ডিকোড বা উপেক্ষা করতে পারে। "
 "নিম্ন CPU শক্তির জন্যও এটি কার্যকর কিন্তু এতে বিকৃত ছবি উৎপন্ন হতে পারে।"
 
-#: modules/codec/avcodec/avcodec.h:101
+#: modules/codec/avcodec/avcodec.h:110
 msgid "Allow speed tricks"
 msgstr "গতি সম্পর্কিত কৌশল অনুমোদন করা হবে"
 
-#: modules/codec/avcodec/avcodec.h:103
+#: modules/codec/avcodec/avcodec.h:112
 msgid ""
 "Allow non specification compliant speedup tricks. Faster but error-prone."
 msgstr "স্পেসিফিকেশন বহির্ভূত গতিবর্ধক কৌশল অনুমোদন করা হবে। দ্রুততর কিন্তু ত্রুটিপ্রবণ।"
 
-#: modules/codec/avcodec/avcodec.h:105
+#: modules/codec/avcodec/avcodec.h:114
 msgid "Skip frame (default=0)"
 msgstr "ফ্রেম উপেক্ষা করা হবে (পূর্বনির্ধারিত=0)"
 
-#: modules/codec/avcodec/avcodec.h:107
+#: modules/codec/avcodec/avcodec.h:116
 msgid ""
 "Force skipping of frames to speed up decoding (-1=None, 0=Default, 1=B-"
 "frames, 2=P-frames, 3=B+P frames, 4=all frames)."
@@ -10307,11 +10306,11 @@ msgstr ""
 "ডিকোডিং-এর গতি বাড়ানোর জন্য ফ্রেম উপেক্ষা কার্যকরী করা হবে (-1=None, 0=Default, "
 "1=B-frames, 2=P-frames, 3=B+P frames, 4=all frames)।"
 
-#: modules/codec/avcodec/avcodec.h:110
+#: modules/codec/avcodec/avcodec.h:119
 msgid "Skip idct (default=0)"
 msgstr "idct উপেক্ষা করা হবে (পূর্বনির্ধারিত=0)"
 
-#: modules/codec/avcodec/avcodec.h:112
+#: modules/codec/avcodec/avcodec.h:121
 msgid ""
 "Force skipping of idct to speed up decoding for frame types(-1=None, "
 "0=Default, 1=B-frames, 2=P-frames, 3=B+P frames, 4=all frames)."
@@ -10319,28 +10318,28 @@ msgstr ""
 "ফ্রেম টাইপের ডিকোডিং গতি বাড়ানোর জন্য idct উপেক্ষা কার্যকরী করা হবে (-1=None, "
 "0=Default, 1=B-frames, 2=P-frames, 3=B+P frames, 4=all frames)।"
 
-#: modules/codec/avcodec/avcodec.h:115
+#: modules/codec/avcodec/avcodec.h:124
 msgid "Debug mask"
 msgstr "ডিবাগ মাস্ক"
 
-#: modules/codec/avcodec/avcodec.h:116
+#: modules/codec/avcodec/avcodec.h:125
 msgid "Set FFmpeg debug mask"
 msgstr "FFmpeg ডিবাগ মাস্ক নির্ধারণ করা হবে"
 
-#: modules/codec/avcodec/avcodec.h:118
+#: modules/codec/avcodec/avcodec.h:127
 #, fuzzy
 msgid "Codec name"
 msgstr "কোডেক"
 
-#: modules/codec/avcodec/avcodec.h:119
+#: modules/codec/avcodec/avcodec.h:128
 msgid "Internal libavcodec codec name"
 msgstr ""
 
-#: modules/codec/avcodec/avcodec.h:122
+#: modules/codec/avcodec/avcodec.h:131
 msgid "Visualize motion vectors"
 msgstr "গতিশীল ভেক্টর ভিজুয়ালাইজ করা হবে"
 
-#: modules/codec/avcodec/avcodec.h:124
+#: modules/codec/avcodec/avcodec.h:133
 msgid ""
 "You can overlay the motion vectors (arrows showing how the images move) on "
 "the image. This value is a mask, based on these values:\n"
@@ -10356,11 +10355,11 @@ msgstr ""
 "4 - B ফ্রেমের পূর্ববর্তী অনুমানকৃত MV প্রদর্শন করা হবে\n"
 "সব ভেক্টর প্রদর্শনের জন্য, 7 দিতে হবে।"
 
-#: modules/codec/avcodec/avcodec.h:131
+#: modules/codec/avcodec/avcodec.h:140
 msgid "Low resolution decoding"
 msgstr "নিম্ন রেজল্যুশন ডিকোডিং"
 
-#: modules/codec/avcodec/avcodec.h:132
+#: modules/codec/avcodec/avcodec.h:141
 msgid ""
 "Only decode a low resolution version of the video. This requires less "
 "processing power"
@@ -10368,11 +10367,11 @@ msgstr ""
 "শুধুমাত্র ভিডিওটির একটি নিম্ন রেজল্যুশন সংস্করণ ডিকোড করা হবে। এটিতে কম প্রসেসিং "
 "শক্তি খরচ হয়"
 
-#: modules/codec/avcodec/avcodec.h:135 modules/gui/macosx/simple_prefs.m:262
+#: modules/codec/avcodec/avcodec.h:144 modules/gui/macosx/simple_prefs.m:262
 msgid "Skip the loop filter for H.264 decoding"
 msgstr "H.264 ডিকোডিং এর জন্য পুনরাবৃত্তি পরিশোধক উপেক্ষা করা হবে"
 
-#: modules/codec/avcodec/avcodec.h:136
+#: modules/codec/avcodec/avcodec.h:145
 msgid ""
 "Skipping the loop filter (aka deblocking) usually has a detrimental effect "
 "on quality. However it provides a big speedup for high definition streams."
@@ -10380,76 +10379,76 @@ msgstr ""
 "পুনরাবৃত্তি পরিশোধক (ডিব্লকিং) উপেক্ষা করা হলে সাধারণত গুণগত মানের ওপর খারাপ প্রভাব "
 "পড়ে। যদিও এর ফলে উচ্চ ডেফিনেশন স্ট্রীমের গতি অত্যন্ত বৃদ্ধি পায়।"
 
-#: modules/codec/avcodec/avcodec.h:140
+#: modules/codec/avcodec/avcodec.h:149
 msgid "Hardware decoding"
 msgstr "হার্ডওয়্যার ডিকোডিং"
 
-#: modules/codec/avcodec/avcodec.h:141
+#: modules/codec/avcodec/avcodec.h:150
 msgid "This allows hardware decoding when available."
 msgstr "বিদ্যমান থাকলে এটি হার্ডওয়্যার ডিকোডিং অনুমোদন করে।"
 
-#: modules/codec/avcodec/avcodec.h:143
+#: modules/codec/avcodec/avcodec.h:152
 msgid "Threads"
 msgstr ""
 
-#: modules/codec/avcodec/avcodec.h:144
+#: modules/codec/avcodec/avcodec.h:153
 #, fuzzy
 msgid "Number of threads used for decoding, 0 meaning auto"
 msgstr "ট্রান্সকোডিং এর জন্য ব্যবহৃত থ্রেডের সংখ্যা।"
 
-#: modules/codec/avcodec/avcodec.h:151
+#: modules/codec/avcodec/avcodec.h:160
 msgid "Ratio of key frames"
 msgstr "কী ফ্রেমের অনুপাত"
 
-#: modules/codec/avcodec/avcodec.h:152
+#: modules/codec/avcodec/avcodec.h:161
 msgid "Number of frames that will be coded for one key frame."
 msgstr "একটি কী ফ্রেমের জন্য যতোগুলো ফ্রেমকে কোড করা হবে।"
 
-#: modules/codec/avcodec/avcodec.h:155
+#: modules/codec/avcodec/avcodec.h:164
 msgid "Ratio of B frames"
 msgstr "B ফ্রেমের অনুপাত"
 
-#: modules/codec/avcodec/avcodec.h:156
+#: modules/codec/avcodec/avcodec.h:165
 msgid "Number of B frames that will be coded between two reference frames."
 msgstr "দুটি রেফারেন্স ফ্রেমের মধ্যে কোড করা হবে এমন B ফ্রেমের সংখ্যা।"
 
-#: modules/codec/avcodec/avcodec.h:159
+#: modules/codec/avcodec/avcodec.h:168
 msgid "Video bitrate tolerance"
 msgstr "ভিডিও বিটরেটের সহিষ্ণুতা"
 
-#: modules/codec/avcodec/avcodec.h:160
+#: modules/codec/avcodec/avcodec.h:169
 msgid "Video bitrate tolerance in kbit/s."
 msgstr "কিলোবিট/সেকেন্ডে ভিডিও বিটরেটের সহিষ্ণুতা।"
 
-#: modules/codec/avcodec/avcodec.h:162
+#: modules/codec/avcodec/avcodec.h:171
 msgid "Interlaced encoding"
 msgstr "ইন্টারলেসড এনকোডিং"
 
-#: modules/codec/avcodec/avcodec.h:163
+#: modules/codec/avcodec/avcodec.h:172
 msgid "Enable dedicated algorithms for interlaced frames."
 msgstr "ইন্টারলেস করা ফ্রেমের জন্য ডেডিকেটেড এলগরিদম সক্রিয় করা হবে।"
 
-#: modules/codec/avcodec/avcodec.h:166
+#: modules/codec/avcodec/avcodec.h:175
 msgid "Interlaced motion estimation"
 msgstr "ইন্টারলেসড মোশন এস্টিমেশন"
 
-#: modules/codec/avcodec/avcodec.h:167
+#: modules/codec/avcodec/avcodec.h:176
 msgid "Enable interlaced motion estimation algorithms. This requires more CPU."
 msgstr "ইন্টারলেসড মোশন এস্টিমেশন এলগরিদম সক্রিয় করা হবে। এতে বেশি CPU প্রয়োজন।"
 
-#: modules/codec/avcodec/avcodec.h:170
+#: modules/codec/avcodec/avcodec.h:179
 msgid "Pre-motion estimation"
 msgstr "প্রি-মোশন এস্টিমেশন"
 
-#: modules/codec/avcodec/avcodec.h:171
+#: modules/codec/avcodec/avcodec.h:180
 msgid "Enable the pre-motion estimation algorithm."
 msgstr "প্রি-মোশন এস্টিমেশন এলগরিদম সক্রিয় করা হবে।"
 
-#: modules/codec/avcodec/avcodec.h:174
+#: modules/codec/avcodec/avcodec.h:183
 msgid "Rate control buffer size"
 msgstr "রেট কন্ট্রোল বাফারের আকার"
 
-#: modules/codec/avcodec/avcodec.h:175
+#: modules/codec/avcodec/avcodec.h:184
 msgid ""
 "Rate control buffer size (in kbytes). A bigger buffer will allow for better "
 "rate control, but will cause a delay in the stream."
@@ -10457,19 +10456,19 @@ msgstr ""
 "রেট কন্ট্রোল বাফারের আকার (কিলোবাইটে)। একটি বড় বাফার ভালো রেট কন্ট্রোল করবে, "
 "কিন্তু স্ট্রীমে একটি বিলম্ব তৈরি করবে।"
 
-#: modules/codec/avcodec/avcodec.h:179
+#: modules/codec/avcodec/avcodec.h:188
 msgid "Rate control buffer aggressiveness"
 msgstr "রেট কন্ট্রোল বাফারের আক্রমনাত্মকতা"
 
-#: modules/codec/avcodec/avcodec.h:180
+#: modules/codec/avcodec/avcodec.h:189
 msgid "Rate control buffer aggressiveness."
 msgstr "রেট কন্ট্রোল বাফারের আক্রমনাত্মকতা।"
 
-#: modules/codec/avcodec/avcodec.h:183
+#: modules/codec/avcodec/avcodec.h:192
 msgid "I quantization factor"
 msgstr "I কোয়ান্টাইজেশন ফ্যাক্টর"
 
-#: modules/codec/avcodec/avcodec.h:185
+#: modules/codec/avcodec/avcodec.h:194
 msgid ""
 "Quantization factor of I frames, compared with P frames (for instance 1.0 => "
 "same qscale for I and P frames)."
@@ -10477,12 +10476,12 @@ msgstr ""
 "I ফ্রেমের কোয়ান্টাইজেশন ফ্যাক্টর, P ফ্রেমের সাথে তুলনা করে (উদাহরণস্বরূপ 1.0 => I "
 "এবং P ফ্রেমের জন্য একই qscale)।"
 
-#: modules/codec/avcodec/avcodec.h:188 modules/codec/x264.c:344
+#: modules/codec/avcodec/avcodec.h:197 modules/codec/x264.c:344
 #: modules/demux/mod.c:78
 msgid "Noise reduction"
 msgstr "নয়েজ রিডাকশন"
 
-#: modules/codec/avcodec/avcodec.h:189
+#: modules/codec/avcodec/avcodec.h:198
 msgid ""
 "Enable a simple noise reduction algorithm to lower the encoding length and "
 "bitrate, at the expense of lower quality frames."
@@ -10490,11 +10489,11 @@ msgstr ""
 "এনকোডিং দৈর্ঘ্য এবং বিটরেট কমানোর জন্য একটি সরল নয়েজ রিডাকশন এলগরিদম সক্রিয় করা "
 "হবে, নিম্ন মানের ফ্রেমের বিনিময়ে।"
 
-#: modules/codec/avcodec/avcodec.h:193
+#: modules/codec/avcodec/avcodec.h:202
 msgid "MPEG4 quantization matrix"
 msgstr "MPEG4 কোয়ান্টাইজেশন ম্যাট্রিক্স"
 
-#: modules/codec/avcodec/avcodec.h:194
+#: modules/codec/avcodec/avcodec.h:203
 msgid ""
 "Use the MPEG4 quantization matrix for MPEG2 encoding. This generally yields "
 "a better looking picture, while still retaining the compatibility with "
@@ -10504,11 +10503,11 @@ msgstr ""
 "সাধারণত ভালো ছবি পাওয়া যায়, যদিও স্ট্যান্ডার্ড MPEG2 ডিকোডারের সাথে তখনও "
 "সামঞ্জস্যতা থাকে।"
 
-#: modules/codec/avcodec/avcodec.h:199
+#: modules/codec/avcodec/avcodec.h:208
 msgid "Quality level"
 msgstr "গুণগত মানের স্তর"
 
-#: modules/codec/avcodec/avcodec.h:200
+#: modules/codec/avcodec/avcodec.h:209
 msgid ""
 "Quality level for the encoding of motions vectors (this can slow down the "
 "encoding very much)."
@@ -10516,7 +10515,7 @@ msgstr ""
 "মোশন ভেক্টরের এনকোডিং-এর জন্য গুণগত মানের স্তর (এর ফলে এনকোডিং অত্যন্ত ধীর হয়ে "
 "যেতে পারে)।"
 
-#: modules/codec/avcodec/avcodec.h:205
+#: modules/codec/avcodec/avcodec.h:214
 msgid ""
 "The encoder can make on-the-fly quality tradeoffs if your CPU can't keep up "
 "with the encoding rate. It will disable trellis quantization, then the rate "
@@ -10528,35 +10527,35 @@ msgstr ""
 "(hg) রেট বিকৃতি নিষ্ক্রিয় করে, এবং এনকোডারের কাজ সহজ করার জন্য নয়েজ রিডাকশন "
 "থ্রেশহোল্ড বাড়িয়ে দেয়।"
 
-#: modules/codec/avcodec/avcodec.h:211
+#: modules/codec/avcodec/avcodec.h:220
 msgid "Minimum video quantizer scale"
 msgstr "সর্বনিম্ন ভিডিও কোয়ান্টাইজার স্কেল"
 
-#: modules/codec/avcodec/avcodec.h:212
+#: modules/codec/avcodec/avcodec.h:221
 msgid "Minimum video quantizer scale."
 msgstr "সর্বনিম্ন ভিডিও কোয়ান্টাইজার স্কেল।"
 
-#: modules/codec/avcodec/avcodec.h:215
+#: modules/codec/avcodec/avcodec.h:224
 msgid "Maximum video quantizer scale"
 msgstr "সর্বোচ্চ ভিডিও কোয়ান্টাইজার স্কেল"
 
-#: modules/codec/avcodec/avcodec.h:216
+#: modules/codec/avcodec/avcodec.h:225
 msgid "Maximum video quantizer scale."
 msgstr "সর্বোচ্চ ভিডিও কোয়ান্টাইজার স্কেল।"
 
-#: modules/codec/avcodec/avcodec.h:219
+#: modules/codec/avcodec/avcodec.h:228
 msgid "Trellis quantization"
 msgstr "ট্রেলিস কোয়ান্টাইজেশন"
 
-#: modules/codec/avcodec/avcodec.h:220
+#: modules/codec/avcodec/avcodec.h:229
 msgid "Enable trellis quantization (rate distortion for block coefficients)."
 msgstr "ট্রেলিস কোয়ান্টাইজেশন সক্রিয় করা হবে (ব্লক সহগের জন্য রেট বিকৃতি)।"
 
-#: modules/codec/avcodec/avcodec.h:223
+#: modules/codec/avcodec/avcodec.h:232
 msgid "Fixed quantizer scale"
 msgstr "নির্দিষ্ট কোয়ান্টাইজার স্কেল"
 
-#: modules/codec/avcodec/avcodec.h:224
+#: modules/codec/avcodec/avcodec.h:233
 msgid ""
 "A fixed video quantizer scale for VBR encoding (accepted values: 0.01 to "
 "255.0)."
@@ -10564,11 +10563,11 @@ msgstr ""
 "VBR এনকোডিং এর জন্য একটি নির্দিষ্ট ভিডিও কোয়ান্টাইজার স্কেল (গ্রহণযোগ্য মান: 0.01 "
 "থেকে 255.0)।"
 
-#: modules/codec/avcodec/avcodec.h:227
+#: modules/codec/avcodec/avcodec.h:236
 msgid "Strict standard compliance"
 msgstr "স্ট্রিক্ট স্ট্যান্ডার্ড কমপ্লাইয়েন্স"
 
-#: modules/codec/avcodec/avcodec.h:228
+#: modules/codec/avcodec/avcodec.h:237
 #, fuzzy
 msgid ""
 "Force a strict standard compliance when encoding (accepted values: -2 to 2)."
@@ -10576,27 +10575,27 @@ msgstr ""
 "এনকোডিং করার সময় একটি স্ট্রিক্ট স্ট্যান্ডার্ড কমপ্লাইয়েন্স কার্যকর করা হবে (গ্রহণযোগ্য "
 "মান: -1, 0, 1)।"
 
-#: modules/codec/avcodec/avcodec.h:231
+#: modules/codec/avcodec/avcodec.h:240
 msgid "Luminance masking"
 msgstr "উজ্জ্বল মাস্কিং"
 
-#: modules/codec/avcodec/avcodec.h:232
+#: modules/codec/avcodec/avcodec.h:241
 msgid "Raise the quantizer for very bright macroblocks (default: 0.0)."
 msgstr "অতি উজ্জ্বল ম্যাক্রোব্লকের জন্য কোয়ান্টাইজার বাড়ানো হবে (পূর্বনির্ধারিত: 0.0)।"
 
-#: modules/codec/avcodec/avcodec.h:235
+#: modules/codec/avcodec/avcodec.h:244
 msgid "Darkness masking"
 msgstr "অন্ধকার মাস্কিং"
 
-#: modules/codec/avcodec/avcodec.h:236
+#: modules/codec/avcodec/avcodec.h:245
 msgid "Raise the quantizer for very dark macroblocks (default: 0.0)."
 msgstr "অতি অন্ধকার ম্যাক্রোব্লকের জন্য কোয়ান্টাইজার বাড়ানো হবে (পূর্বনির্ধারিত: 0.0)।"
 
-#: modules/codec/avcodec/avcodec.h:239
+#: modules/codec/avcodec/avcodec.h:248
 msgid "Motion masking"
 msgstr "মোশন মাস্কিং"
 
-#: modules/codec/avcodec/avcodec.h:240
+#: modules/codec/avcodec/avcodec.h:249
 msgid ""
 "Raise the quantizer for macroblocks with a high temporal complexity "
 "(default: 0.0)."
@@ -10604,22 +10603,22 @@ msgstr ""
 "অতি ক্ষনস্থায়ী কমপ্লেক্সিটির সাথে ম্যাক্রোব্লকের জন্য কোয়ান্টাইজার বাড়ানো হবে "
 "(পূর্বনির্ধারিত: 0.0)।"
 
-#: modules/codec/avcodec/avcodec.h:243
+#: modules/codec/avcodec/avcodec.h:252
 msgid "Border masking"
 msgstr "সীমানা মাস্কিং"
 
-#: modules/codec/avcodec/avcodec.h:244
+#: modules/codec/avcodec/avcodec.h:253
 msgid ""
 "Raise the quantizer for macroblocks at the border of the frame (default: "
 "0.0)."
 msgstr ""
 "ফ্রেমের সীমানার ম্যাক্রোব্লকগুলোর জন্য কোয়ান্টাইজার বাড়ানো হবে (পূর্বনির্ধারিত: 0.0)।"
 
-#: modules/codec/avcodec/avcodec.h:247
+#: modules/codec/avcodec/avcodec.h:256
 msgid "Luminance elimination"
 msgstr "উজ্জ্বলতা বাদ দেয়া হবে"
 
-#: modules/codec/avcodec/avcodec.h:248
+#: modules/codec/avcodec/avcodec.h:257
 msgid ""
 "Eliminates luminance blocks when the PSNR isn't much changed (default: 0.0). "
 "The H264 specification recommends -4."
@@ -10627,11 +10626,11 @@ msgstr ""
 "PSNR বেশি পরিবর্তিত না হলে উজ্জ্বলতা ব্লক বাদ দেয়া হয় (পূর্বনির্ধারিত: 0.0)। H264 "
 "স্পেসিফিকেশন -4 নির্ধারণ করার জন্য সুপারিশ করে।"
 
-#: modules/codec/avcodec/avcodec.h:252
+#: modules/codec/avcodec/avcodec.h:261
 msgid "Chrominance elimination"
 msgstr "ক্রমিন্যান্স বাদ দেয়া হবে"
 
-#: modules/codec/avcodec/avcodec.h:253
+#: modules/codec/avcodec/avcodec.h:262
 msgid ""
 "Eliminates chrominance blocks when the PSNR isn't much changed (default: "
 "0.0). The H264 specification recommends 7."
@@ -10639,11 +10638,11 @@ msgstr ""
 "PSNR বেশি পরিবর্তিত না হলে ক্রমিন্যান্স ব্লক বাদ দেয়া হয় (পূর্বনির্ধারিত: 0.0)। H264 "
 "স্পেসিফিকেশন 7 নির্ধারণ করার জন্য সুপারিশ করে।"
 
-#: modules/codec/avcodec/avcodec.h:257
+#: modules/codec/avcodec/avcodec.h:266
 msgid "Specify AAC audio profile to use"
 msgstr "ব্যবহার করার জন্য AAC আউটপুট প্রোফাইল উল্লেখ করা হবে"
 
-#: modules/codec/avcodec/avcodec.h:258
+#: modules/codec/avcodec/avcodec.h:267
 msgid ""
 "Specify the AAC audio profile to use for encoding the audio bitstream. It "
 "takes the following options: main, low, ssr (not supported) and ltp "
@@ -10653,17 +10652,17 @@ msgstr ""
 "করা হবে। এর জন্য নিম্নোক্ত অপশনসমূহ প্রযোজ্য: প্রধান, নিম্ন, ssr (সমর্থিত নয়) এবং ltp "
 "(পূর্বনির্ধারিত: প্রধান)"
 
-#: modules/codec/avcodec/encoder.c:238
+#: modules/codec/avcodec/encoder.c:277
 #, c-format
 msgid "\"%s\" is no video encoder."
 msgstr "\"%s\" কোনো ভিডিও এনকোডার নয়।"
 
-#: modules/codec/avcodec/encoder.c:246
+#: modules/codec/avcodec/encoder.c:285
 #, c-format
 msgid "\"%s\" is no audio encoder."
 msgstr "\"%s\" কোনো অডিও এনকোডার নয়।"
 
-#: modules/codec/avcodec/encoder.c:287
+#: modules/codec/avcodec/encoder.c:326
 #, c-format
 msgid ""
 "It seems your FFMPEG (libavcodec) installation lacks the following encoder:\n"
@@ -10681,7 +10680,7 @@ msgstr ""
 "এটি VLC মিডিয়া প্লেয়ারের অভ্যন্তরের কোনো সমস্যা নয়।\n"
 "এ ব্যাপারে ভিডিওল্যান প্রজেক্টের সাথে যোগাযোগ করবেন না।\n"
 
-#: modules/codec/avcodec/encoder.c:773 modules/codec/avcodec/encoder.c:782
+#: modules/codec/avcodec/encoder.c:815 modules/codec/avcodec/encoder.c:824
 msgid "VLC could not open the encoder."
 msgstr "VLC এনকোডারটি খুলতে পারেনি।"
 
@@ -13202,11 +13201,11 @@ msgstr "VBI এবং টেলিটেক্সট ডিকোডার"
 msgid "VBI & Teletext"
 msgstr "VBI এবং টেলিটেক্সট"
 
-#: modules/control/dbus/dbus.c:138
+#: modules/control/dbus/dbus.c:139
 msgid "DBus"
 msgstr ""
 
-#: modules/control/dbus/dbus.c:140
+#: modules/control/dbus/dbus.c:142
 msgid "D-Bus control interface"
 msgstr "D-Bus কন্ট্রোল ইন্টারফেস"
 
@@ -13290,7 +13289,7 @@ msgstr "ভলিউম নিয়ন্ত্রন"
 msgid "Position Control"
 msgstr "অবস্থান নিয়ন্ত্রন"
 
-#: modules/control/hotkeys.c:97 modules/gui/macosx/intf.m:2062
+#: modules/control/hotkeys.c:97 modules/gui/macosx/intf.m:2067
 msgid "Ignore"
 msgstr "উপেক্ষা করা হবে"
 
@@ -15394,8 +15393,8 @@ msgstr "অতিরিক্ত PMT"
 #: modules/demux/ts.c:89
 msgid "Allows a user to specify an extra pmt (pmt_pid=pid:stream_type[,...])."
 msgstr ""
-"কোনো ব্যবহারকারীকে একটি অতিরিক্ত pmt উল্লেখ করতে দেয় (pmt_pid=pid:stream_type"
-"[,...])।"
+"কোনো ব্যবহারকারীকে একটি অতিরিক্ত pmt উল্লেখ করতে দেয় (pmt_pid=pid:"
+"stream_type[,...])।"
 
 #: modules/demux/ts.c:91
 msgid "Set id of ES to PID"
@@ -16086,32 +16085,32 @@ msgstr ""
 "আর কোনো তথ্য অন্তর্ভুক্ত না করে শুধুমাত্র আপনার পূর্বনির্ধারিত ই-মেইল ঠিকানা জমা দেয়া "
 "হবে।"
 
-#: modules/gui/macosx/intf.m:2021
+#: modules/gui/macosx/intf.m:2026
 msgid "No CrashLog found"
 msgstr "কোনো CrashLog পাওয়া যায়নি"
 
-#: modules/gui/macosx/intf.m:2021 modules/gui/macosx/prefs.m:230
+#: modules/gui/macosx/intf.m:2026 modules/gui/macosx/prefs.m:230
 #: modules/gui/macosx/simple_prefs.m:758
 msgid "Continue"
 msgstr "চালিয়ে যান"
 
-#: modules/gui/macosx/intf.m:2021
+#: modules/gui/macosx/intf.m:2026
 msgid "Couldn't find any trace of a previous crash."
 msgstr "পূর্ববর্তী ক্র্যাশের কোনো প্রমাণ পাওয়া যায়নি।"
 
-#: modules/gui/macosx/intf.m:2060
+#: modules/gui/macosx/intf.m:2065
 msgid "Remove old preferences?"
 msgstr "পুরনো পছন্দসমূহ মুছে ফেলা হবে?"
 
-#: modules/gui/macosx/intf.m:2061
+#: modules/gui/macosx/intf.m:2066
 msgid "We just found an older version of VLC's preferences files."
 msgstr "আমরা এইমাত্র VLC এর পছন্দসমূহ ফাইলের একটি পুরাতন সংস্করন খুজে পেয়েছি।"
 
-#: modules/gui/macosx/intf.m:2062
+#: modules/gui/macosx/intf.m:2067
 msgid "Move To Trash and Relaunch VLC"
 msgstr "ট্র্যাশে সরিয়ে নিন এবং VLC পুনরায় চালু করা"
 
-#: modules/gui/macosx/intf.m:2177
+#: modules/gui/macosx/intf.m:2182
 #, c-format
 msgid "VLC Debug Log (%s).rtfd"
 msgstr "VLC ডিবাগ লগ (%s).rtfd"
@@ -16603,8 +16602,8 @@ msgid "Media Resource Locator (MRL)"
 msgstr "মিডিয়া রিসোর্স লোকেটর (MRL)"
 
 #: modules/gui/macosx/open.m:107 modules/gui/macosx/open.m:163
-#: modules/gui/macosx/open.m:625 modules/gui/macosx/open.m:935
-#: modules/gui/macosx/open.m:1159 modules/gui/macosx/open.m:1412
+#: modules/gui/macosx/open.m:625 modules/gui/macosx/open.m:934
+#: modules/gui/macosx/open.m:1163 modules/gui/macosx/open.m:1416
 #: modules/gui/qt4/components/controller.hpp:114
 msgid "Open"
 msgstr "খুলুন"
@@ -16728,18 +16727,18 @@ msgid "Address"
 msgstr "ঠিকানা"
 
 # অর্থ প্রয়োজন
-#: modules/gui/macosx/open.m:169 modules/gui/macosx/open.m:1055
-#: modules/gui/macosx/open.m:1113
+#: modules/gui/macosx/open.m:169 modules/gui/macosx/open.m:1059
+#: modules/gui/macosx/open.m:1117
 msgid "Unicast"
 msgstr "ইউনিকাস্ট"
 
-#: modules/gui/macosx/open.m:170 modules/gui/macosx/open.m:1070
-#: modules/gui/macosx/open.m:1128
+#: modules/gui/macosx/open.m:170 modules/gui/macosx/open.m:1074
+#: modules/gui/macosx/open.m:1132
 msgid "Multicast"
 msgstr "মাল্টিকাস্ট"
 
 #: modules/gui/macosx/open.m:178 modules/gui/macosx/open.m:436
-#: modules/gui/macosx/open.m:1241
+#: modules/gui/macosx/open.m:1245
 #, fuzzy
 msgid "Capture Device"
 msgstr "ক্যাপচার ডিভাইস (&D)"
@@ -16783,7 +16782,7 @@ msgstr "পূর্ববর্তী চ্যানেল"
 msgid "Next Channel"
 msgstr "পরবর্তী চ্যানেল"
 
-#: modules/gui/macosx/open.m:195 modules/gui/macosx/open.m:1339
+#: modules/gui/macosx/open.m:195 modules/gui/macosx/open.m:1343
 msgid "Retrieving Channel Info..."
 msgstr "চ্যানেলের তথ্য উদ্ধার করা..."
 
@@ -16864,8 +16863,8 @@ msgstr "ফন্টের বৈশিষ্ট্য"
 msgid "Subtitle File"
 msgstr "সাবটাইটেল ফাইল"
 
-#: modules/gui/macosx/open.m:624 modules/gui/macosx/open.m:1158
-#: modules/gui/macosx/open.m:1411
+#: modules/gui/macosx/open.m:624 modules/gui/macosx/open.m:1162
+#: modules/gui/macosx/open.m:1415
 msgid "Open File"
 msgstr "ফাইল খুলুন"
 
@@ -16874,11 +16873,11 @@ msgstr "ফাইল খুলুন"
 msgid "%i tracks"
 msgstr "অডিও ট্র্যাক"
 
-#: modules/gui/macosx/open.m:1345
+#: modules/gui/macosx/open.m:1349
 msgid "Composite input"
 msgstr "জটিল ইনপুট"
 
-#: modules/gui/macosx/open.m:1348
+#: modules/gui/macosx/open.m:1352
 msgid "S-Video input"
 msgstr "S-Video ইনপুট"
 
@@ -16990,7 +16989,7 @@ msgid "Read at media"
 msgstr "মিডিয়াতে পড়ুন"
 
 #: modules/gui/macosx/playlistinfo.m:102
-#: modules/gui/qt4/components/info_panels.cpp:523
+#: modules/gui/qt4/components/info_panels.cpp:525
 msgid "Input bitrate"
 msgstr "ইনপুট বিটরেট"
 
@@ -19002,11 +19001,11 @@ msgstr "এই ডায়লগের মানের হালনাগাদ �
 msgid "Comments"
 msgstr "মন্তব্য"
 
-#: modules/gui/qt4/components/info_panels.cpp:343
+#: modules/gui/qt4/components/info_panels.cpp:345
 msgid "Extra metadata and other information are shown in this panel.\n"
 msgstr "এই প্যানেলে অতিরিক্ত মেটাডাটা এবং অন্যান্য তথ্য প্রদর্শন করা হয়।\n"
 
-#: modules/gui/qt4/components/info_panels.cpp:417
+#: modules/gui/qt4/components/info_panels.cpp:419
 msgid ""
 "Information about what your media or stream is made of.\n"
 "Muxer, Audio and Video Codecs, Subtitles are shown."
@@ -19014,81 +19013,81 @@ msgstr ""
 "আপনার মিডিয়া বা স্ট্রিম কি দিয়ে নির্মিত তার তথ্য।\n"
 "মাক্সার, অডিও এবং ভিডিও কোডেক, সাবটাইটেল প্রদর্শিত হয়।"
 
-#: modules/gui/qt4/components/info_panels.cpp:492
+#: modules/gui/qt4/components/info_panels.cpp:494
 msgid "Current media / stream statistics"
 msgstr "বর্তমান মিডিয়া / স্ট্রীম উপাত্ত"
 
-#: modules/gui/qt4/components/info_panels.cpp:518
+#: modules/gui/qt4/components/info_panels.cpp:520
 msgid "Input/Read"
 msgstr "ইনপুট/পড়া"
 
-#: modules/gui/qt4/components/info_panels.cpp:519
+#: modules/gui/qt4/components/info_panels.cpp:521
 msgid "Output/Written/Sent"
 msgstr "আউটপুট/লিখিত/প্রেরিত"
 
-#: modules/gui/qt4/components/info_panels.cpp:521
+#: modules/gui/qt4/components/info_panels.cpp:523
 msgid "Media data size"
 msgstr "মিডিয়ার ডাটা আকার"
 
-#: modules/gui/qt4/components/info_panels.cpp:525
+#: modules/gui/qt4/components/info_panels.cpp:527
 msgid "Demuxed data size"
 msgstr "ডিমাক্সকৃত ডাটার আকার"
 
-#: modules/gui/qt4/components/info_panels.cpp:526
+#: modules/gui/qt4/components/info_panels.cpp:528
 msgid "Content bitrate"
 msgstr "বিষয়বস্তুর বিটরেট"
 
-#: modules/gui/qt4/components/info_panels.cpp:528
+#: modules/gui/qt4/components/info_panels.cpp:530
 msgid "Discarded (corrupted)"
 msgstr "মুছে ফেলা হয়েছে (ফাইলটি বিকৃত)"
 
-#: modules/gui/qt4/components/info_panels.cpp:530
+#: modules/gui/qt4/components/info_panels.cpp:532
 msgid "Dropped (discontinued)"
 msgstr "ড্রপ করা হয়েছে (অনিয়মিত)"
 
-#: modules/gui/qt4/components/info_panels.cpp:533
-#: modules/gui/qt4/components/info_panels.cpp:546
+#: modules/gui/qt4/components/info_panels.cpp:535
+#: modules/gui/qt4/components/info_panels.cpp:548
 msgid "Decoded"
 msgstr "ডিকোডকৃত"
 
-#: modules/gui/qt4/components/info_panels.cpp:534
-#: modules/gui/qt4/components/info_panels.cpp:547
+#: modules/gui/qt4/components/info_panels.cpp:536
+#: modules/gui/qt4/components/info_panels.cpp:549
 msgid "blocks"
 msgstr "ব্লক"
 
-#: modules/gui/qt4/components/info_panels.cpp:535
+#: modules/gui/qt4/components/info_panels.cpp:537
 msgid "Displayed"
 msgstr "প্রদর্শিত"
 
-#: modules/gui/qt4/components/info_panels.cpp:536
 #: modules/gui/qt4/components/info_panels.cpp:538
+#: modules/gui/qt4/components/info_panels.cpp:540
 msgid "frames"
 msgstr "ফ্রেম"
 
-#: modules/gui/qt4/components/info_panels.cpp:537
-#: modules/gui/qt4/components/info_panels.cpp:550
+#: modules/gui/qt4/components/info_panels.cpp:539
+#: modules/gui/qt4/components/info_panels.cpp:552
 msgid "Lost"
 msgstr "হারিয়ে যাওয়া"
 
-#: modules/gui/qt4/components/info_panels.cpp:540
-#: modules/gui/qt4/components/info_panels.cpp:541
+#: modules/gui/qt4/components/info_panels.cpp:542
+#: modules/gui/qt4/components/info_panels.cpp:543
 msgid "Sent"
 msgstr "প্রেরিত"
 
-#: modules/gui/qt4/components/info_panels.cpp:540
+#: modules/gui/qt4/components/info_panels.cpp:542
 msgid "packets"
 msgstr "প্যাকেট"
 
-#: modules/gui/qt4/components/info_panels.cpp:543
+#: modules/gui/qt4/components/info_panels.cpp:545
 msgid "Upstream rate"
 msgstr "আপস্ট্রিমের হার"
 
-#: modules/gui/qt4/components/info_panels.cpp:548
+#: modules/gui/qt4/components/info_panels.cpp:550
 msgid "Played"
 msgstr "চালানো"
 
-#: modules/gui/qt4/components/info_panels.cpp:549
-#: modules/gui/qt4/components/info_panels.cpp:550
+#: modules/gui/qt4/components/info_panels.cpp:551
+#: modules/gui/qt4/components/info_panels.cpp:552
 msgid "buffers"
 msgstr "বাফার"
 
@@ -19112,27 +19111,27 @@ msgstr "সাধারন চালানোর গতি পূর্বাব
 msgid "Download cover art"
 msgstr "প্রচ্ছদ চিত্র ডাউনলোড করা হবে"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:567
+#: modules/gui/qt4/components/interface_widgets.cpp:572
 #: modules/gui/qt4/dialogs/toolbar.cpp:459
 #, fuzzy
 msgid "Elapsed time"
 msgstr "রিফ্রেশের সময়"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:571
+#: modules/gui/qt4/components/interface_widgets.cpp:576
 #: modules/gui/qt4/dialogs/toolbar.cpp:463
 msgid "Total/Remaining time"
 msgstr ""
 
-#: modules/gui/qt4/components/interface_widgets.cpp:573
+#: modules/gui/qt4/components/interface_widgets.cpp:578
 #, fuzzy
 msgid "Click to toggle between total and remaining time"
 msgstr "অতিবাহিত এবং অবশিষ্ট সময়ের মধ্যে টগল করতে ক্লিক করুন"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:579
+#: modules/gui/qt4/components/interface_widgets.cpp:584
 msgid "Click to toggle between elapsed and remaining time"
 msgstr "অতিবাহিত এবং অবশিষ্ট সময়ের মধ্যে টগল করতে ক্লিক করুন"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:581
+#: modules/gui/qt4/components/interface_widgets.cpp:586
 msgid "Double click to jump to a chosen time position"
 msgstr "পছন্দনীয় সময় অবস্থানে যেতে ডাবল ক্লিক করুন"
 
@@ -21996,7 +21995,7 @@ msgstr "অডিও ক্যাপচার"
 msgid "Audio capture (PulseAudio)"
 msgstr "অডিও ক্যাপচার (ALSA)"
 
-#: modules/services_discovery/pulse.c:183 modules/stream_out/es.c:85
+#: modules/services_discovery/pulse.c:186 modules/stream_out/es.c:85
 msgid "Generic"
 msgstr "সামগ্রিক"
 
@@ -22763,7 +22762,7 @@ msgstr ""
 msgid "RTP stream output"
 msgstr "RTP স্ট্রীম আউটপুট"
 
-#: modules/stream_out/select.c:45 modules/stream_out/switcher.c:95
+#: modules/stream_out/select.c:45 modules/stream_out/switcher.c:97
 msgid "Command UDP port"
 msgstr "কমান্ড UDP পোর্ট"
 
@@ -22973,63 +22972,63 @@ msgstr ""
 msgid "Standard stream output"
 msgstr "স্ট্যান্ডার্ড স্ট্রীম আউটপুট"
 
-#: modules/stream_out/switcher.c:86
+#: modules/stream_out/switcher.c:88
 msgid "Files"
 msgstr "ফাইলসমূহ"
 
-#: modules/stream_out/switcher.c:88
+#: modules/stream_out/switcher.c:90
 msgid "Full paths of the files separated by colons."
 msgstr "কোলন দ্বারা পৃথকীকৃত ফাইলসমূহের সম্পূর্ণ পাথ।"
 
-#: modules/stream_out/switcher.c:89
+#: modules/stream_out/switcher.c:91
 msgid "Sizes"
 msgstr "আকার"
 
-#: modules/stream_out/switcher.c:91
+#: modules/stream_out/switcher.c:93
 msgid "List of sizes separated by colons (720x576:480x576)."
 msgstr "কোলন দিয়ে পৃথকীকৃত আকারের তালিকা (720x576:480x576)।"
 
-#: modules/stream_out/switcher.c:94
+#: modules/stream_out/switcher.c:96
 msgid "Aspect ratio (4:3, 16:9)."
 msgstr "দৃশ্যমান অনুপাত (৪:৩, ১৬:৯)।"
 
-#: modules/stream_out/switcher.c:97
+#: modules/stream_out/switcher.c:99
 msgid "UDP port to listen to for commands."
 msgstr "UDP পোর্টে কমান্ডের জন্য লিসেন করা হবে"
 
-#: modules/stream_out/switcher.c:98
+#: modules/stream_out/switcher.c:100
 msgid "Command"
 msgstr "কমান্ড"
 
-#: modules/stream_out/switcher.c:100
+#: modules/stream_out/switcher.c:102
 msgid "Initial command to execute."
 msgstr "কার্যকর করার প্রাথমিক কমান্ড।"
 
-#: modules/stream_out/switcher.c:101
+#: modules/stream_out/switcher.c:103
 msgid "GOP size"
 msgstr "GOP আকার"
 
-#: modules/stream_out/switcher.c:103
+#: modules/stream_out/switcher.c:105
 msgid "Number of P frames between two I frames."
 msgstr "দুটি I ফ্রেমের মধ্যে P ফ্রেমের সংখ্যা।"
 
-#: modules/stream_out/switcher.c:104
+#: modules/stream_out/switcher.c:106
 msgid "Quantizer scale"
 msgstr "কোয়ান্টাইজার স্কেল"
 
-#: modules/stream_out/switcher.c:106
+#: modules/stream_out/switcher.c:108
 msgid "Fixed quantizer scale to use."
 msgstr "ব্যবহার করার জন্য নির্দিষ্ট কোয়ান্টাইজার স্কেল।"
 
-#: modules/stream_out/switcher.c:107
+#: modules/stream_out/switcher.c:109
 msgid "Mute audio"
 msgstr "অডিও মিউট করা হবে"
 
-#: modules/stream_out/switcher.c:109
+#: modules/stream_out/switcher.c:111
 msgid "Mute audio when command is not 0."
 msgstr "যখন কমান্ড 0 নয় তখন অডিও মিউট করা হবে।"
 
-#: modules/stream_out/switcher.c:112
+#: modules/stream_out/switcher.c:114
 msgid "MPEG2 video switcher stream output"
 msgstr "MPEG2 ভিডিও পরিবর্তনকারী স্ট্রীম আউটপুট"
 

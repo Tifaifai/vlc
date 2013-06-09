@@ -4,12 +4,11 @@
 # Eduard Babayan <edo248@gmail.com>, 2010.
 #
 #
-#: modules/gui/macosx/prefs.m:490 modules/gui/macosx/simple_prefs.m:451
 msgid ""
 msgstr ""
 "Project-Id-Version: vlc\n"
 "Report-Msgid-Bugs-To: vlc-devel@videolan.org\n"
-"POT-Creation-Date: 2012-12-11 15:56+0100\n"
+"POT-Creation-Date: 2013-05-26 20:55+0200\n"
 "PO-Revision-Date: 2010-09-21 15:58+0400\n"
 "Last-Translator: Eduard Babayan <edo248@gmail.com>\n"
 "Language-Team: VLC Armenian <edo248@gmail.com>\n"
@@ -21,7 +20,7 @@ msgstr ""
 "X-Poedit-Language: Armenian\n"
 "X-Poedit-Country: ARMENIA\n"
 
-#: include/vlc_common.h:1024
+#: include/vlc_common.h:1026
 #, fuzzy
 msgid ""
 "This program comes with NO WARRANTY, to the extent permitted by law.\n"
@@ -87,7 +86,7 @@ msgstr "Կոճակների կարգավորումներ"
 #: modules/gui/macosx/MainMenu.m:292 modules/gui/macosx/output.m:170
 #: modules/gui/macosx/playlistinfo.m:116 modules/gui/macosx/simple_prefs.m:182
 #: modules/gui/macosx/wizard.m:383
-#: modules/gui/qt4/components/info_panels.cpp:516
+#: modules/gui/qt4/components/info_panels.cpp:518
 #: modules/gui/qt4/components/simple_preferences.cpp:88
 #: modules/services_discovery/mediadirs.c:77 modules/stream_out/es.c:93
 #: modules/stream_out/transcode/transcode.c:191
@@ -144,7 +143,7 @@ msgstr "Տարբեր ձայնային կարգավորումներ եւ մոդո
 #: modules/gui/macosx/MainMenu.m:305 modules/gui/macosx/output.m:160
 #: modules/gui/macosx/playlistinfo.m:106 modules/gui/macosx/simple_prefs.m:186
 #: modules/gui/macosx/simple_prefs.m:319 modules/gui/macosx/wizard.m:384
-#: modules/gui/qt4/components/info_panels.cpp:517
+#: modules/gui/qt4/components/info_panels.cpp:519
 #: modules/gui/qt4/components/simple_preferences.cpp:90
 #: modules/services_discovery/mediadirs.c:70 modules/stream_out/es.c:101
 #: modules/stream_out/transcode/transcode.c:161
@@ -844,7 +843,7 @@ msgstr ""
 
 #: src/audio_output/common.c:85 src/audio_output/common.c:125
 #: src/input/es_out.c:934 src/libvlc-module.c:697
-#: src/video_output/postprocessing.c:98 modules/gui/macosx/MainWindow.m:2429
+#: src/video_output/postprocessing.c:98 modules/gui/macosx/MainWindow.m:2441
 #: modules/video_filter/postproc.c:228
 msgid "Disable"
 msgstr "Անջատել"
@@ -1110,9 +1109,9 @@ msgid "decoder"
 msgstr "դեկոդեր"
 
 #: src/input/decoder.c:276 src/input/decoder.c:467
-#: modules/codec/avcodec/encoder.c:237 modules/codec/avcodec/encoder.c:245
-#: modules/codec/avcodec/encoder.c:282 modules/codec/avcodec/encoder.c:772
-#: modules/codec/avcodec/encoder.c:781 modules/stream_out/es.c:363
+#: modules/codec/avcodec/encoder.c:276 modules/codec/avcodec/encoder.c:284
+#: modules/codec/avcodec/encoder.c:321 modules/codec/avcodec/encoder.c:814
+#: modules/codec/avcodec/encoder.c:823 modules/stream_out/es.c:363
 #: modules/stream_out/es.c:378
 #, fuzzy
 msgid "Streaming / Transcoding failed"
@@ -1272,23 +1271,23 @@ msgstr "Կադրերի արագութուն"
 msgid "Decoded format"
 msgstr "Ապակոդավորված"
 
-#: src/input/input.c:2465
+#: src/input/input.c:2467
 msgid "Your input can't be opened"
 msgstr "Ձեր գրածը չի կարող բացվել"
 
-#: src/input/input.c:2466
+#: src/input/input.c:2468
 #, fuzzy, c-format
 msgid "VLC is unable to open the MRL '%s'. Check the log for details."
 msgstr ""
 "VLC չի կարողանում բացել MRL '%s'. Ստուգեք տեղեկամատյանում Մանրամասների համար"
 "\"."
 
-#: src/input/input.c:2583
+#: src/input/input.c:2585
 #, fuzzy
 msgid "VLC can't recognize the input's format"
 msgstr "VLC չի կարող ճանաչել մուտքագրման ի ֆորմատ"
 
-#: src/input/input.c:2584
+#: src/input/input.c:2586
 #, fuzzy, c-format
 msgid ""
 "The format of '%s' cannot be detected. Have a look at the log for details."
@@ -2714,7 +2713,7 @@ msgid "Default"
 msgstr "Հիմնական"
 
 #: src/libvlc-module.c:697 modules/gui/macosx/AudioEffects.m:66
-#: modules/gui/macosx/MainWindow.m:2427 modules/gui/macosx/wizard.m:357
+#: modules/gui/macosx/MainWindow.m:2439 modules/gui/macosx/wizard.m:357
 msgid "Enable"
 msgstr "Միացնել"
 
@@ -6396,7 +6395,7 @@ msgstr "Պատուհան"
 
 #: modules/access/decklink.cpp:91 modules/access/linsys/linsys_hdsdi.c:78
 #: modules/access/linsys/linsys_sdi.c:73 modules/demux/rawvid.c:59
-#: modules/gui/qt4/dialogs/toolbar.cpp:451 modules/stream_out/switcher.c:92
+#: modules/gui/qt4/dialogs/toolbar.cpp:451 modules/stream_out/switcher.c:94
 msgid "Aspect ratio"
 msgstr "Չափերի հարաբերությունը"
 
@@ -8693,7 +8692,7 @@ msgstr "Էկրանի մուտք"
 
 #: modules/access/screen/screen.c:88 modules/access/screen/xcb.c:65
 #: modules/gui/macosx/MainMenu.m:509 modules/gui/macosx/open.m:182
-#: modules/gui/macosx/open.m:424 modules/gui/macosx/open.m:1230
+#: modules/gui/macosx/open.m:424 modules/gui/macosx/open.m:1234
 #: modules/gui/macosx/simple_prefs.m:594
 msgid "Screen"
 msgstr "Էկրան"
@@ -10771,7 +10770,7 @@ msgstr ""
 "\"օգտակար է / Ծրագրեր / կոմունալ ծառայությունները. Stereo ռեժիմում է "
 "օգտագործվում, հիմա\"."
 
-#: modules/audio_output/auhal.c:1048
+#: modules/audio_output/auhal.c:1057
 #, c-format
 msgid "%s (Encoded Output)"
 msgstr "%s (կոդավորված ելք)"
@@ -10949,12 +10948,12 @@ msgstr "PORTAUDIO աուդիո ելքային"
 msgid "5.1"
 msgstr "5.1"
 
-#: modules/audio_output/pulse.c:45
+#: modules/audio_output/pulse.c:48
 #, fuzzy
 msgid "Pulseaudio audio output"
 msgstr "Pulseaudio աուդիո ելքային"
 
-#: modules/audio_output/pulse.c:957
+#: modules/audio_output/pulse.c:978
 #, fuzzy
 msgid "Audio device"
 msgstr "Ձայնային Սարք"
@@ -11089,17 +11088,17 @@ msgstr "FFmpeg Աուդիո / վիդեո կոդավորիչ"
 msgid "FFmpeg deinterlace video filter"
 msgstr "FFmpeg deinterlace վիդեո զտիչ"
 
-#: modules/codec/avcodec/avcodec.h:71 modules/codec/avcodec/avcodec.h:73
+#: modules/codec/avcodec/avcodec.h:80 modules/codec/avcodec/avcodec.h:82
 #, fuzzy
 msgid "Direct rendering"
 msgstr "Ուղղակի թարգմանելը"
 
-#: modules/codec/avcodec/avcodec.h:75
+#: modules/codec/avcodec/avcodec.h:84
 #, fuzzy
 msgid "Error resilience"
 msgstr "Սխալ առաձգականություն"
 
-#: modules/codec/avcodec/avcodec.h:77
+#: modules/codec/avcodec/avcodec.h:86
 #, fuzzy
 msgid ""
 "FFmpeg can do error resilience.\n"
@@ -11112,12 +11111,12 @@ msgstr ""
 "$), դա կարող է արտադրել շատ սխալներով. \n"
 " Valid արժեքները տեսականի - ից 0 4 (0 disables բոլոր սխալների ճկունություն). "
 
-#: modules/codec/avcodec/avcodec.h:82
+#: modules/codec/avcodec/avcodec.h:91
 #, fuzzy
 msgid "Workaround bugs"
 msgstr "Workaround bugs"
 
-#: modules/codec/avcodec/avcodec.h:84
+#: modules/codec/avcodec/avcodec.h:93
 #, fuzzy
 msgid ""
 "Try to fix some bugs:\n"
@@ -11142,12 +11141,12 @@ msgstr ""
 " Սա պետք է լինի գումարը արժեքները. Օրինակ, ամրագրել  \"ac vlc \" եւ  \"ump4 "
 "\", մուտքագրեք 40."
 
-#: modules/codec/avcodec/avcodec.h:95 modules/codec/avcodec/avcodec.h:204
+#: modules/codec/avcodec/avcodec.h:104 modules/codec/avcodec/avcodec.h:213
 #: modules/demux/rawdv.c:40 modules/stream_out/transcode/transcode.c:139
 msgid "Hurry up"
 msgstr "Շտապել"
 
-#: modules/codec/avcodec/avcodec.h:97
+#: modules/codec/avcodec/avcodec.h:106
 #, fuzzy
 msgid ""
 "The decoder can partially decode or skip frame(s) when there is not enough "
@@ -11157,11 +11156,11 @@ msgstr ""
 "առկա է ոչ բավարար ժամանակ. Այն օգտակար է ցածր պրոցեսորի իշխանություն, բայց "
 "դա կարող է արտադրել աղավաղված նկարներ."
 
-#: modules/codec/avcodec/avcodec.h:101
+#: modules/codec/avcodec/avcodec.h:110
 msgid "Allow speed tricks"
 msgstr "Թույլ տալ արագության հնարքներ"
 
-#: modules/codec/avcodec/avcodec.h:103
+#: modules/codec/avcodec/avcodec.h:112
 #, fuzzy
 msgid ""
 "Allow non specification compliant speedup tricks. Faster but error-prone."
@@ -11169,11 +11168,11 @@ msgstr ""
 "Թույլ տալ ոչ հստակեցում համապատասխանում speedup հնարքներ. Ավելի արագ, բայց "
 "error-փռված."
 
-#: modules/codec/avcodec/avcodec.h:105
+#: modules/codec/avcodec/avcodec.h:114
 msgid "Skip frame (default=0)"
 msgstr "Շրջանցել կադրը (լռությամբ = 0)"
 
-#: modules/codec/avcodec/avcodec.h:107
+#: modules/codec/avcodec/avcodec.h:116
 #, fuzzy
 msgid ""
 "Force skipping of frames to speed up decoding (-1=None, 0=Default, 1=B-"
@@ -11183,12 +11182,12 @@ msgstr ""
 "= Լռությամբ, 1 = B-շրջանակներ, 2 = P-շրջանակներ, 3 = B + P շրջանակներում, 4 "
 "= բոլոր շրջանակներում)."
 
-#: modules/codec/avcodec/avcodec.h:110
+#: modules/codec/avcodec/avcodec.h:119
 #, fuzzy
 msgid "Skip idct (default=0)"
 msgstr "Շրջանցել idct (լռությամբ = 0)"
 
-#: modules/codec/avcodec/avcodec.h:112
+#: modules/codec/avcodec/avcodec.h:121
 #, fuzzy
 msgid ""
 "Force skipping of idct to speed up decoding for frame types(-1=None, "
@@ -11198,30 +11197,30 @@ msgstr ""
 "(-1 = Ոչ մեկը, 0 = Լռությամբ, 1 = B-շրջանակներ, 2 = P-շրջանակներ, 3 = B + P "
 "շրջանակներում, 4 = բոլոր շրջանակների). "
 
-#: modules/codec/avcodec/avcodec.h:115
+#: modules/codec/avcodec/avcodec.h:124
 #, fuzzy
 msgid "Debug mask"
 msgstr "Debug դիմակ"
 
-#: modules/codec/avcodec/avcodec.h:116
+#: modules/codec/avcodec/avcodec.h:125
 #, fuzzy
 msgid "Set FFmpeg debug mask"
 msgstr "Set FFmpeg debug դիմակ"
 
-#: modules/codec/avcodec/avcodec.h:118
+#: modules/codec/avcodec/avcodec.h:127
 #, fuzzy
 msgid "Codec name"
 msgstr "կոդեկ Անունը"
 
-#: modules/codec/avcodec/avcodec.h:119
+#: modules/codec/avcodec/avcodec.h:128
 msgid "Internal libavcodec codec name"
 msgstr ""
 
-#: modules/codec/avcodec/avcodec.h:122
+#: modules/codec/avcodec/avcodec.h:131
 msgid "Visualize motion vectors"
 msgstr "Ցուցադրել շարժման վեկտորները"
 
-#: modules/codec/avcodec/avcodec.h:124
+#: modules/codec/avcodec/avcodec.h:133
 #, fuzzy
 msgid ""
 "You can overlay the motion vectors (arrows showing how the images move) on "
@@ -11239,12 +11238,12 @@ msgstr ""
 " 4 - պատկերացնել հետամնաց կանխատեսել MVs Բ շրջանակներում \n"
 " Դեպի պատկերացնել բոլոր վեկտորներ, արժեքը պետք է լինի 7."
 
-#: modules/codec/avcodec/avcodec.h:131
+#: modules/codec/avcodec/avcodec.h:140
 #, fuzzy
 msgid "Low resolution decoding"
 msgstr "Հանգիստ բանաձեւի ապակոդավորման"
 
-#: modules/codec/avcodec/avcodec.h:132
+#: modules/codec/avcodec/avcodec.h:141
 #, fuzzy
 msgid ""
 "Only decode a low resolution version of the video. This requires less "
@@ -11253,12 +11252,12 @@ msgstr ""
 "Միայն վերծանել ցածր լուծման տարբերակը վիդեո. Դրա համար անհրաժեշտ է ավելի քիչ "
 "մշակման իշխանություն"
 
-#: modules/codec/avcodec/avcodec.h:135 modules/gui/macosx/simple_prefs.m:262
+#: modules/codec/avcodec/avcodec.h:144 modules/gui/macosx/simple_prefs.m:262
 #, fuzzy
 msgid "Skip the loop filter for H.264 decoding"
 msgstr "Շրջանցել է հանգույցով ամրացնել զտիչ համար H.264 ապակոդավորման"
 
-#: modules/codec/avcodec/avcodec.h:136
+#: modules/codec/avcodec/avcodec.h:145
 #, fuzzy
 msgid ""
 "Skipping the loop filter (aka deblocking) usually has a detrimental effect "
@@ -11268,99 +11267,99 @@ msgstr ""
 "ազդեցություն որակի. Սակայն այն տրամադրում է մի մեծ speedup համար բարձր "
 "սահմանումը հոսանքներին."
 
-#: modules/codec/avcodec/avcodec.h:140
+#: modules/codec/avcodec/avcodec.h:149
 #, fuzzy
 msgid "Hardware decoding"
 msgstr "Սարքավորումներ ապակոդավորման"
 
-#: modules/codec/avcodec/avcodec.h:141
+#: modules/codec/avcodec/avcodec.h:150
 #, fuzzy
 msgid "This allows hardware decoding when available."
 msgstr ""
 "Սա թույլ է տրվում - թույլատրված է տալիս համակարգչի ապակոդավորման, երբ "
 "հասանելի."
 
-#: modules/codec/avcodec/avcodec.h:143
+#: modules/codec/avcodec/avcodec.h:152
 #, fuzzy
 msgid "Threads"
 msgstr "Շեմը"
 
-#: modules/codec/avcodec/avcodec.h:144
+#: modules/codec/avcodec/avcodec.h:153
 #, fuzzy
 msgid "Number of threads used for decoding, 0 meaning auto"
 msgstr "Միավորների թեմաները համար օգտագործվող transcoding\"."
 
-#: modules/codec/avcodec/avcodec.h:151
+#: modules/codec/avcodec/avcodec.h:160
 #, fuzzy
 msgid "Ratio of key frames"
 msgstr "հարաբերակցությամբ բանալի շրջանակներ"
 
-#: modules/codec/avcodec/avcodec.h:152
+#: modules/codec/avcodec/avcodec.h:161
 #, fuzzy
 msgid "Number of frames that will be coded for one key frame."
 msgstr ""
 "Միավորների շրջանակներ, որոնք պետք է կոդավորված համար մեկ բանալի շրջանակ."
 
-#: modules/codec/avcodec/avcodec.h:155
+#: modules/codec/avcodec/avcodec.h:164
 #, fuzzy
 msgid "Ratio of B frames"
 msgstr "հարաբերակցությամբ B շրջանակներ"
 
-#: modules/codec/avcodec/avcodec.h:156
+#: modules/codec/avcodec/avcodec.h:165
 #, fuzzy
 msgid "Number of B frames that will be coded between two reference frames."
 msgstr ""
 "Միավորների B շրջանակներ, որոնք պետք է կոդավորված միջեւ երկու հղում "
 "շրջանակներ."
 
-#: modules/codec/avcodec/avcodec.h:159
+#: modules/codec/avcodec/avcodec.h:168
 #, fuzzy
 msgid "Video bitrate tolerance"
 msgstr "Վիդեո բիթրեյթ հանդուրժողականության"
 
-#: modules/codec/avcodec/avcodec.h:160
+#: modules/codec/avcodec/avcodec.h:169
 #, fuzzy
 msgid "Video bitrate tolerance in kbit/s."
 msgstr "Վիդեո բիթրեյթ հանդուրժողականության kbit / s."
 
-#: modules/codec/avcodec/avcodec.h:162
+#: modules/codec/avcodec/avcodec.h:171
 #, fuzzy
 msgid "Interlaced encoding"
 msgstr "Interlaced կոդավորում"
 
-#: modules/codec/avcodec/avcodec.h:163
+#: modules/codec/avcodec/avcodec.h:172
 #, fuzzy
 msgid "Enable dedicated algorithms for interlaced frames."
 msgstr "Միացնել նվիրված ալգորիթմների համար interlaced շրջանակներ."
 
-#: modules/codec/avcodec/avcodec.h:166
+#: modules/codec/avcodec/avcodec.h:175
 #, fuzzy
 msgid "Interlaced motion estimation"
 msgstr "Interlaced շարժման գնահատական"
 
-#: modules/codec/avcodec/avcodec.h:167
+#: modules/codec/avcodec/avcodec.h:176
 #, fuzzy
 msgid "Enable interlaced motion estimation algorithms. This requires more CPU."
 msgstr ""
 "Միացնել interlaced միջնորդությունը գնահատմամբ ալգորիթմները. Դրա համար "
 "անհրաժեշտ է ավելի պրոցեսորի\"."
 
-#: modules/codec/avcodec/avcodec.h:170
+#: modules/codec/avcodec/avcodec.h:179
 #, fuzzy
 msgid "Pre-motion estimation"
 msgstr "նախընտրական շարժման գնահատական"
 
-#: modules/codec/avcodec/avcodec.h:171
+#: modules/codec/avcodec/avcodec.h:180
 #, fuzzy
 msgid "Enable the pre-motion estimation algorithm."
 msgstr "Միացնել նախընտրական միջնորդությունը գնահատմամբ ալգորիթմը."
 
-#: modules/codec/avcodec/avcodec.h:174
+#: modules/codec/avcodec/avcodec.h:183
 #, fuzzy
 msgid "Rate control buffer size"
 msgstr "Գնահատել վերահսկողության բուֆերի չափը`"
 
-#: modules/codec/avcodec/avcodec.h:175
+#: modules/codec/avcodec/avcodec.h:184
 #, fuzzy
 msgid ""
 "Rate control buffer size (in kbytes). A bigger buffer will allow for better "
@@ -11369,22 +11368,22 @@ msgstr ""
 "Գնահատել վերահսկողության բուֆերի չափը (in kbytes). A bigger բուֆերային թույլ "
 "կտա ավելի լավ փոխարժեքով կոնտրոլ, բայց կառաջացնի հետաձգում է հոսքի\"."
 
-#: modules/codec/avcodec/avcodec.h:179
+#: modules/codec/avcodec/avcodec.h:188
 #, fuzzy
 msgid "Rate control buffer aggressiveness"
 msgstr "Գնահատել վերահսկողության բուֆերի ագրեսիվության"
 
-#: modules/codec/avcodec/avcodec.h:180
+#: modules/codec/avcodec/avcodec.h:189
 #, fuzzy
 msgid "Rate control buffer aggressiveness."
 msgstr "Գնահատել վերահսկողության բուֆերային ագրեսիվության\"."
 
-#: modules/codec/avcodec/avcodec.h:183
+#: modules/codec/avcodec/avcodec.h:192
 #, fuzzy
 msgid "I quantization factor"
 msgstr "Ես քվանտացում գործակից"
 
-#: modules/codec/avcodec/avcodec.h:185
+#: modules/codec/avcodec/avcodec.h:194
 #, fuzzy
 msgid ""
 "Quantization factor of I frames, compared with P frames (for instance 1.0 => "
@@ -11393,12 +11392,12 @@ msgstr ""
 "Քվանտացում գործակից եմ շրջանակներում, ի համեմատ P շրջանակներում (օրինակ 1.0 "
 "=> նույն qscale համար եմ եւ P շրջանակներում)."
 
-#: modules/codec/avcodec/avcodec.h:188 modules/codec/x264.c:344
+#: modules/codec/avcodec/avcodec.h:197 modules/codec/x264.c:344
 #: modules/demux/mod.c:78
 msgid "Noise reduction"
 msgstr "Աղմուկի նվազեցում"
 
-#: modules/codec/avcodec/avcodec.h:189
+#: modules/codec/avcodec/avcodec.h:198
 #, fuzzy
 msgid ""
 "Enable a simple noise reduction algorithm to lower the encoding length and "
@@ -11407,12 +11406,12 @@ msgstr ""
 "Միացնել մի պարզ աղմուկի նվազեցման ալգորիթմը իջեցնեն կոդավորումը երկարություն "
 "եւ բիթրեյթ, հաշվին ավելի ցածր որակի շրջանակում\"."
 
-#: modules/codec/avcodec/avcodec.h:193
+#: modules/codec/avcodec/avcodec.h:202
 #, fuzzy
 msgid "MPEG4 quantization matrix"
 msgstr "MPEG4 քվանտացում matrix"
 
-#: modules/codec/avcodec/avcodec.h:194
+#: modules/codec/avcodec/avcodec.h:203
 #, fuzzy
 msgid ""
 "Use the MPEG4 quantization matrix for MPEG2 encoding. This generally yields "
@@ -11423,11 +11422,11 @@ msgstr ""
 "առմամբ, զիջում է ավելի լավ փնտրում պատկերը, միաժամանակ պահպանելով "
 "համատեղելիությունը ստանդարտ MPEG2 ապակոդավորիչներ\"."
 
-#: modules/codec/avcodec/avcodec.h:199
+#: modules/codec/avcodec/avcodec.h:208
 msgid "Quality level"
 msgstr "Որակի մակարդակ"
 
-#: modules/codec/avcodec/avcodec.h:200
+#: modules/codec/avcodec/avcodec.h:209
 #, fuzzy
 msgid ""
 "Quality level for the encoding of motions vectors (this can slow down the "
@@ -11436,7 +11435,7 @@ msgstr ""
 "Որակի մակարդակի համար կոդավորումը է միջնորդություններ վեկտորներ (այն կարող է "
 "դանդաղեցնել կոդավորումը, շատ)."
 
-#: modules/codec/avcodec/avcodec.h:205
+#: modules/codec/avcodec/avcodec.h:214
 #, fuzzy
 msgid ""
 "The encoder can make on-the-fly quality tradeoffs if your CPU can't keep up "
@@ -11449,44 +11448,44 @@ msgstr ""
 "վանդակ քվանտացում, ապա տոկոսադրույքը խեղաթյուրումը է շարժման վեկտորներ (HQ), "
 "եւ բարձրացնել աղմուկի նվազեցման շեմին մեղմել է կոդավորիչ խնդիրը \"."
 
-#: modules/codec/avcodec/avcodec.h:211
+#: modules/codec/avcodec/avcodec.h:220
 #, fuzzy
 msgid "Minimum video quantizer scale"
 msgstr "Նվազագույն վիդեո quantizer ձգման"
 
-#: modules/codec/avcodec/avcodec.h:212
+#: modules/codec/avcodec/avcodec.h:221
 #, fuzzy
 msgid "Minimum video quantizer scale."
 msgstr "Նվազագույն վիդեո quantizer սանդղակի."
 
-#: modules/codec/avcodec/avcodec.h:215
+#: modules/codec/avcodec/avcodec.h:224
 #, fuzzy
 msgid "Maximum video quantizer scale"
 msgstr " առավելագույն վիդեո quantizer ձգման "
 
-#: modules/codec/avcodec/avcodec.h:216
+#: modules/codec/avcodec/avcodec.h:225
 #, fuzzy
 msgid "Maximum video quantizer scale."
 msgstr " առավելագույն վիդեո quantizer սանդղակի."
 
-#: modules/codec/avcodec/avcodec.h:219
+#: modules/codec/avcodec/avcodec.h:228
 #, fuzzy
 msgid "Trellis quantization"
 msgstr "վանդակ քվանտացում"
 
-#: modules/codec/avcodec/avcodec.h:220
+#: modules/codec/avcodec/avcodec.h:229
 #, fuzzy
 msgid "Enable trellis quantization (rate distortion for block coefficients)."
 msgstr ""
 "Միացնել վանդակ քվանտացում (տոկոսադրույքը աղավաղման համար թաղամաս "
 "գործակիցները)."
 
-#: modules/codec/avcodec/avcodec.h:223
+#: modules/codec/avcodec/avcodec.h:232
 #, fuzzy
 msgid "Fixed quantizer scale"
 msgstr "Հաստատագրված quantizer ձգման"
 
-#: modules/codec/avcodec/avcodec.h:224
+#: modules/codec/avcodec/avcodec.h:233
 #, fuzzy
 msgid ""
 "A fixed video quantizer scale for VBR encoding (accepted values: 0.01 to "
@@ -11495,12 +11494,12 @@ msgstr ""
 "Ա ֆիքսված վիդեո quantizer մասշտաբների համար VBR կոդավորման (ընդունված "
 "արժեքները` 0.01 մինչեւ 255.0). "
 
-#: modules/codec/avcodec/avcodec.h:227
+#: modules/codec/avcodec/avcodec.h:236
 #, fuzzy
 msgid "Strict standard compliance"
 msgstr "Խիստ ստանդարտի համապատասխանության"
 
-#: modules/codec/avcodec/avcodec.h:228
+#: modules/codec/avcodec/avcodec.h:237
 #, fuzzy
 msgid ""
 "Force a strict standard compliance when encoding (accepted values: -2 to 2)."
@@ -11508,31 +11507,31 @@ msgstr ""
 "Force խիստ ստանդարտներ համապատասխան երբ կոդավորման (ընդունված արժեքները` -1, "
 "0, 1). "
 
-#: modules/codec/avcodec/avcodec.h:231
+#: modules/codec/avcodec/avcodec.h:240
 #, fuzzy
 msgid "Luminance masking"
 msgstr "Luminance քողարկման"
 
-#: modules/codec/avcodec/avcodec.h:232
+#: modules/codec/avcodec/avcodec.h:241
 #, fuzzy
 msgid "Raise the quantizer for very bright macroblocks (default: 0.0)."
 msgstr "բարձրացնել quantizer համար շատ պայծառ macroblocks (լռությամբ` 0.0). "
 
-#: modules/codec/avcodec/avcodec.h:235
+#: modules/codec/avcodec/avcodec.h:244
 #, fuzzy
 msgid "Darkness masking"
 msgstr "մգության քողարկման"
 
-#: modules/codec/avcodec/avcodec.h:236
+#: modules/codec/avcodec/avcodec.h:245
 #, fuzzy
 msgid "Raise the quantizer for very dark macroblocks (default: 0.0)."
 msgstr "բարձրացնել quantizer համար շատ մութ macroblocks (լռությամբ` 0.0). "
 
-#: modules/codec/avcodec/avcodec.h:239
+#: modules/codec/avcodec/avcodec.h:248
 msgid "Motion masking"
 msgstr "Շարժման քողարկում"
 
-#: modules/codec/avcodec/avcodec.h:240
+#: modules/codec/avcodec/avcodec.h:249
 #, fuzzy
 msgid ""
 "Raise the quantizer for macroblocks with a high temporal complexity "
@@ -11541,11 +11540,11 @@ msgstr ""
 "բարձրացնել quantizer համար macroblocks հետ բարձր անցողիկ բարդությունը "
 "(լռությամբ` 0.0). "
 
-#: modules/codec/avcodec/avcodec.h:243
+#: modules/codec/avcodec/avcodec.h:252
 msgid "Border masking"
 msgstr "Եզրի քողարկում"
 
-#: modules/codec/avcodec/avcodec.h:244
+#: modules/codec/avcodec/avcodec.h:253
 #, fuzzy
 msgid ""
 "Raise the quantizer for macroblocks at the border of the frame (default: "
@@ -11554,12 +11553,12 @@ msgstr ""
 "բարձրացնել quantizer համար macroblocks է սահմանը շրջանակներում (նախնական` "
 "0.0). "
 
-#: modules/codec/avcodec/avcodec.h:247
+#: modules/codec/avcodec/avcodec.h:256
 #, fuzzy
 msgid "Luminance elimination"
 msgstr "Luminance վերացման"
 
-#: modules/codec/avcodec/avcodec.h:248
+#: modules/codec/avcodec/avcodec.h:257
 #, fuzzy
 msgid ""
 "Eliminates luminance blocks when the PSNR isn't much changed (default: 0.0). "
@@ -11568,12 +11567,12 @@ msgstr ""
 "վերացնում luminance բլոկների, երբ PSNR չէ շատ փոխված է (լռությամբ` 0.0). ՀՀ "
 "H264 հստակեցում խորհուրդ է տալիս -4 \"."
 
-#: modules/codec/avcodec/avcodec.h:252
+#: modules/codec/avcodec/avcodec.h:261
 #, fuzzy
 msgid "Chrominance elimination"
 msgstr "Chrominance վերացման"
 
-#: modules/codec/avcodec/avcodec.h:253
+#: modules/codec/avcodec/avcodec.h:262
 #, fuzzy
 msgid ""
 "Eliminates chrominance blocks when the PSNR isn't much changed (default: "
@@ -11582,12 +11581,12 @@ msgstr ""
 "վերացնում chrominance բլոկների, երբ PSNR չէ շատ փոխված է (լռությամբ` 0.0). "
 "ՀՀ H264 հստակեցում խորհուրդ է տալիս 7."
 
-#: modules/codec/avcodec/avcodec.h:257
+#: modules/codec/avcodec/avcodec.h:266
 #, fuzzy
 msgid "Specify AAC audio profile to use"
 msgstr "Նշեք ՀԱԵ աուդիո անձնագիր օգտագործել`"
 
-#: modules/codec/avcodec/avcodec.h:258
+#: modules/codec/avcodec/avcodec.h:267
 #, fuzzy
 msgid ""
 "Specify the AAC audio profile to use for encoding the audio bitstream. It "
@@ -11598,17 +11597,17 @@ msgstr ""
 "Այն է ունենում հետեւյալ տարբերակները` հիմնական, ցածր, ՀԽՍՀ (չի ապահովում) եւ "
 "ԼՏՊ (լռությամբ `հիմնական)"
 
-#: modules/codec/avcodec/encoder.c:238
+#: modules/codec/avcodec/encoder.c:277
 #, fuzzy, c-format
 msgid "\"%s\" is no video encoder."
 msgstr "\"%s  \"չկա վիդեո կոդավորիչ\"."
 
-#: modules/codec/avcodec/encoder.c:246
+#: modules/codec/avcodec/encoder.c:285
 #, fuzzy, c-format
 msgid "\"%s\" is no audio encoder."
 msgstr "\"%s  \"չկա ձայն կոդավորիչ\"."
 
-#: modules/codec/avcodec/encoder.c:287
+#: modules/codec/avcodec/encoder.c:326
 #, fuzzy, c-format
 msgid ""
 "It seems your FFMPEG (libavcodec) installation lacks the following encoder:\n"
@@ -11626,7 +11625,7 @@ msgstr ""
 " Սա ոչ թե սխալ ներսում VLC մեդիա նվագարկիչ. \n"
 " չեն դիմել VideoLAN ծրագրի մասին: Այս հարցը. \n"
 
-#: modules/codec/avcodec/encoder.c:773 modules/codec/avcodec/encoder.c:782
+#: modules/codec/avcodec/encoder.c:815 modules/codec/avcodec/encoder.c:824
 msgid "VLC could not open the encoder."
 msgstr "VLCն չի կարող բացել  կոդավորիչը"
 
@@ -14439,11 +14438,11 @@ msgstr "VBI եւ Տելետեքստի ապակոդավորիչ"
 msgid "VBI & Teletext"
 msgstr "VBI և Տելետեքստ"
 
-#: modules/control/dbus/dbus.c:138
+#: modules/control/dbus/dbus.c:139
 msgid "DBus"
 msgstr ""
 
-#: modules/control/dbus/dbus.c:140
+#: modules/control/dbus/dbus.c:142
 #, fuzzy
 msgid "D-Bus control interface"
 msgstr "D-Bus վերահսկողության ինտերֆեյսի"
@@ -14537,7 +14536,7 @@ msgstr "Ձայնի վերահսկում"
 msgid "Position Control"
 msgstr "Դիրքի Վերահսկում"
 
-#: modules/control/hotkeys.c:97 modules/gui/macosx/intf.m:2062
+#: modules/control/hotkeys.c:97 modules/gui/macosx/intf.m:2067
 msgid "Ignore"
 msgstr "Անտեսել"
 
@@ -17658,36 +17657,36 @@ msgstr ""
 "Միայն ձեր նախնական E-Mail հասցեն կներկայացվի, այդ թվում, ոչ մի լրացուցիչ "
 "տեղեկություն."
 
-#: modules/gui/macosx/intf.m:2021
+#: modules/gui/macosx/intf.m:2026
 msgid "No CrashLog found"
 msgstr "CrashLog չի հայտնաբերվել"
 
-#: modules/gui/macosx/intf.m:2021 modules/gui/macosx/prefs.m:230
+#: modules/gui/macosx/intf.m:2026 modules/gui/macosx/prefs.m:230
 #: modules/gui/macosx/simple_prefs.m:758
 msgid "Continue"
 msgstr "Շարունակել"
 
-#: modules/gui/macosx/intf.m:2021
+#: modules/gui/macosx/intf.m:2026
 #, fuzzy
 msgid "Couldn't find any trace of a previous crash."
 msgstr " msgstr \"Հնարավոր չէ գտնել որեւէ հետք է նախորդ վթարի."
 
-#: modules/gui/macosx/intf.m:2060
+#: modules/gui/macosx/intf.m:2065
 msgid "Remove old preferences?"
 msgstr "Ջնջե՞լ հին նախընտրանքները"
 
-#: modules/gui/macosx/intf.m:2061
+#: modules/gui/macosx/intf.m:2066
 #, fuzzy
 msgid "We just found an older version of VLC's preferences files."
 msgstr ""
 "Մենք պարզապես գտել ավելի հին տարբերակ է VLC ի նախընտրությունների ֆայլեր."
 
-#: modules/gui/macosx/intf.m:2062
+#: modules/gui/macosx/intf.m:2067
 #, fuzzy
 msgid "Move To Trash and Relaunch VLC"
 msgstr "Թափոն փոխադրել եւ Relaunch VLC"
 
-#: modules/gui/macosx/intf.m:2177
+#: modules/gui/macosx/intf.m:2182
 #, fuzzy, c-format
 msgid "VLC Debug Log (%s).rtfd"
 msgstr "VLC Debug Մուտք (%s). Rtfd`"
@@ -18200,8 +18199,8 @@ msgid "Media Resource Locator (MRL)"
 msgstr "Media Resource Locator (MRL)"
 
 #: modules/gui/macosx/open.m:107 modules/gui/macosx/open.m:163
-#: modules/gui/macosx/open.m:625 modules/gui/macosx/open.m:935
-#: modules/gui/macosx/open.m:1159 modules/gui/macosx/open.m:1412
+#: modules/gui/macosx/open.m:625 modules/gui/macosx/open.m:934
+#: modules/gui/macosx/open.m:1163 modules/gui/macosx/open.m:1416
 #: modules/gui/qt4/components/controller.hpp:114
 msgid "Open"
 msgstr "Բացել"
@@ -18328,20 +18327,20 @@ msgstr "Պրոտոկոլ"
 msgid "Address"
 msgstr "Հասցե"
 
-#: modules/gui/macosx/open.m:169 modules/gui/macosx/open.m:1055
-#: modules/gui/macosx/open.m:1113
+#: modules/gui/macosx/open.m:169 modules/gui/macosx/open.m:1059
+#: modules/gui/macosx/open.m:1117
 #, fuzzy
 msgid "Unicast"
 msgstr "Unicast"
 
-#: modules/gui/macosx/open.m:170 modules/gui/macosx/open.m:1070
-#: modules/gui/macosx/open.m:1128
+#: modules/gui/macosx/open.m:170 modules/gui/macosx/open.m:1074
+#: modules/gui/macosx/open.m:1132
 #, fuzzy
 msgid "Multicast"
 msgstr "Multicast"
 
 #: modules/gui/macosx/open.m:178 modules/gui/macosx/open.m:436
-#: modules/gui/macosx/open.m:1241
+#: modules/gui/macosx/open.m:1245
 #, fuzzy
 msgid "Capture Device"
 msgstr "Նկարող &Սարք"
@@ -18385,7 +18384,7 @@ msgstr "Նախորդ կանալ"
 msgid "Next Channel"
 msgstr "Հաջորդ կանալ"
 
-#: modules/gui/macosx/open.m:195 modules/gui/macosx/open.m:1339
+#: modules/gui/macosx/open.m:195 modules/gui/macosx/open.m:1343
 msgid "Retrieving Channel Info..."
 msgstr "Ստացվում են կանալի տվյալները..."
 
@@ -18470,8 +18469,8 @@ msgstr "Տառատեսակի հատկություններ"
 msgid "Subtitle File"
 msgstr "Ենթագրերով Ֆայլ"
 
-#: modules/gui/macosx/open.m:624 modules/gui/macosx/open.m:1158
-#: modules/gui/macosx/open.m:1411
+#: modules/gui/macosx/open.m:624 modules/gui/macosx/open.m:1162
+#: modules/gui/macosx/open.m:1415
 msgid "Open File"
 msgstr "Բացել Ֆայլ"
 
@@ -18480,11 +18479,11 @@ msgstr "Բացել Ֆայլ"
 msgid "%i tracks"
 msgstr "Ձայնային գիծ"
 
-#: modules/gui/macosx/open.m:1345
+#: modules/gui/macosx/open.m:1349
 msgid "Composite input"
 msgstr "Խառը մուտք"
 
-#: modules/gui/macosx/open.m:1348
+#: modules/gui/macosx/open.m:1352
 msgid "S-Video input"
 msgstr "S-Video մուտք"
 
@@ -18603,7 +18602,7 @@ msgid "Read at media"
 msgstr "Կարդացեք է լրատվամիջոցներին`"
 
 #: modules/gui/macosx/playlistinfo.m:102
-#: modules/gui/qt4/components/info_panels.cpp:523
+#: modules/gui/qt4/components/info_panels.cpp:525
 msgid "Input bitrate"
 msgstr "Մուտքային բիթրեյթ"
 
@@ -20713,14 +20712,14 @@ msgstr "սահմանել թարմացվել է այս երկխոսություն
 msgid "Comments"
 msgstr "Մեկնաբանություններ"
 
-#: modules/gui/qt4/components/info_panels.cpp:343
+#: modules/gui/qt4/components/info_panels.cpp:345
 #, fuzzy
 msgid "Extra metadata and other information are shown in this panel.\n"
 msgstr ""
 "Էքստրա մետատվյալները եւ այլ տեղեկություններ են ցուցադրված այս վահանակի "
 "վրա. \n"
 
-#: modules/gui/qt4/components/info_panels.cpp:417
+#: modules/gui/qt4/components/info_panels.cpp:419
 #, fuzzy
 msgid ""
 "Information about what your media or stream is made of.\n"
@@ -20729,88 +20728,88 @@ msgstr ""
 "Տեղեկատվական մասին, թե ինչ ձեր մեդիա կամ հոսքի կատարվում է. \n"
 " Մուլտիպլեքսոր, Ձայնային եւ պատկերային Կոդեկներ, Ենթագրեր  ցուցադրվում են\"."
 
-#: modules/gui/qt4/components/info_panels.cpp:492
+#: modules/gui/qt4/components/info_panels.cpp:494
 msgid "Current media / stream statistics"
 msgstr "Ընթացիկ մեդիայի / հոսքի վիճակագրություն"
 
-#: modules/gui/qt4/components/info_panels.cpp:518
+#: modules/gui/qt4/components/info_panels.cpp:520
 msgid "Input/Read"
 msgstr "Մուտք/Ընթերցում"
 
-#: modules/gui/qt4/components/info_panels.cpp:519
+#: modules/gui/qt4/components/info_panels.cpp:521
 #, fuzzy
 msgid "Output/Written/Sent"
 msgstr "Ելքային / գրավոր / Ուղարկված է`"
 
-#: modules/gui/qt4/components/info_panels.cpp:521
+#: modules/gui/qt4/components/info_panels.cpp:523
 #, fuzzy
 msgid "Media data size"
 msgstr "Մեդիա տվյալների չափսի"
 
-#: modules/gui/qt4/components/info_panels.cpp:525
+#: modules/gui/qt4/components/info_panels.cpp:527
 #, fuzzy
 msgid "Demuxed data size"
 msgstr "Դեմուլտիպլեքսավորված տվյալների չափսի"
 
-#: modules/gui/qt4/components/info_panels.cpp:526
+#: modules/gui/qt4/components/info_panels.cpp:528
 #, fuzzy
 msgid "Content bitrate"
 msgstr "բովանդակության բիթրեյթ"
 
-#: modules/gui/qt4/components/info_panels.cpp:528
+#: modules/gui/qt4/components/info_panels.cpp:530
 #, fuzzy
 msgid "Discarded (corrupted)"
 msgstr "Discarded (վնասվելու)"
 
-#: modules/gui/qt4/components/info_panels.cpp:530
+#: modules/gui/qt4/components/info_panels.cpp:532
 #, fuzzy
 msgid "Dropped (discontinued)"
 msgstr "իջել (կարճվել է)"
 
-#: modules/gui/qt4/components/info_panels.cpp:533
-#: modules/gui/qt4/components/info_panels.cpp:546
+#: modules/gui/qt4/components/info_panels.cpp:535
+#: modules/gui/qt4/components/info_panels.cpp:548
 msgid "Decoded"
 msgstr "Ապակոդավորված"
 
-#: modules/gui/qt4/components/info_panels.cpp:534
-#: modules/gui/qt4/components/info_panels.cpp:547
+#: modules/gui/qt4/components/info_panels.cpp:536
+#: modules/gui/qt4/components/info_panels.cpp:549
 msgid "blocks"
 msgstr "բլոկներ"
 
-#: modules/gui/qt4/components/info_panels.cpp:535
+#: modules/gui/qt4/components/info_panels.cpp:537
 msgid "Displayed"
 msgstr "Ցուցադրված"
 
-#: modules/gui/qt4/components/info_panels.cpp:536
 #: modules/gui/qt4/components/info_panels.cpp:538
+#: modules/gui/qt4/components/info_panels.cpp:540
 msgid "frames"
 msgstr "կադրեր"
 
-#: modules/gui/qt4/components/info_panels.cpp:537
-#: modules/gui/qt4/components/info_panels.cpp:550
+#: modules/gui/qt4/components/info_panels.cpp:539
+#: modules/gui/qt4/components/info_panels.cpp:552
 msgid "Lost"
 msgstr "Կորցված"
 
-#: modules/gui/qt4/components/info_panels.cpp:540
-#: modules/gui/qt4/components/info_panels.cpp:541
+#: modules/gui/qt4/components/info_panels.cpp:542
+#: modules/gui/qt4/components/info_panels.cpp:543
 msgid "Sent"
 msgstr "Ուղարկված"
 
-#: modules/gui/qt4/components/info_panels.cpp:540
+#: modules/gui/qt4/components/info_panels.cpp:542
 msgid "packets"
 msgstr "փաթեթներ"
 
-#: modules/gui/qt4/components/info_panels.cpp:543
+#: modules/gui/qt4/components/info_panels.cpp:545
 #, fuzzy
 msgid "Upstream rate"
 msgstr "հոսանքին հակառակ փոխարժեքի"
 
-#: modules/gui/qt4/components/info_panels.cpp:548
+#: modules/gui/qt4/components/info_panels.cpp:550
 msgid "Played"
 msgstr "Խաղացված"
 
-#: modules/gui/qt4/components/info_panels.cpp:549
-#: modules/gui/qt4/components/info_panels.cpp:550
+#: modules/gui/qt4/components/info_panels.cpp:551
+#: modules/gui/qt4/components/info_panels.cpp:552
 #, fuzzy
 msgid "buffers"
 msgstr "buffers"
@@ -20838,27 +20837,27 @@ msgstr "Վերադառնալ նորմալ խաղալ արագություն"
 msgid "Download cover art"
 msgstr "Download ծածկելու արվեստի"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:567
+#: modules/gui/qt4/components/interface_widgets.cpp:572
 #: modules/gui/qt4/dialogs/toolbar.cpp:459
 #, fuzzy
 msgid "Elapsed time"
 msgstr "Թարմացման ժամանակ"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:571
+#: modules/gui/qt4/components/interface_widgets.cpp:576
 #: modules/gui/qt4/dialogs/toolbar.cpp:463
 msgid "Total/Remaining time"
 msgstr ""
 
-#: modules/gui/qt4/components/interface_widgets.cpp:573
+#: modules/gui/qt4/components/interface_widgets.cpp:578
 #, fuzzy
 msgid "Click to toggle between total and remaining time"
 msgstr "Սեղմել լրացած կամ մնացած ժամանակի ցուցադրումը միացնելու համար"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:579
+#: modules/gui/qt4/components/interface_widgets.cpp:584
 msgid "Click to toggle between elapsed and remaining time"
 msgstr "Սեղմել լրացած կամ մնացած ժամանակի ցուցադրումը միացնելու համար"
 
-#: modules/gui/qt4/components/interface_widgets.cpp:581
+#: modules/gui/qt4/components/interface_widgets.cpp:586
 #, fuzzy
 msgid "Double click to jump to a chosen time position"
 msgstr "Double click to Անցնել, ընտրյալ ժամանակ դիրքորոշումը`"
@@ -23930,7 +23929,7 @@ msgstr "Ձայնի գրանցում"
 msgid "Audio capture (PulseAudio)"
 msgstr "Ձայնի գրանցում (ALSA)"
 
-#: modules/services_discovery/pulse.c:183 modules/stream_out/es.c:85
+#: modules/services_discovery/pulse.c:186 modules/stream_out/es.c:85
 msgid "Generic"
 msgstr "Ընդհանուր"
 
@@ -24801,7 +24800,7 @@ msgstr ""
 msgid "RTP stream output"
 msgstr "RTP հոսք ելքային"
 
-#: modules/stream_out/select.c:45 modules/stream_out/switcher.c:95
+#: modules/stream_out/select.c:45 modules/stream_out/switcher.c:97
 #, fuzzy
 msgid "Command UDP port"
 msgstr "գլխավոր հրամանատարության հրամանով, UDP պորտից"
@@ -25029,71 +25028,71 @@ msgstr ""
 msgid "Standard stream output"
 msgstr "Ստանդարտ հոսք ելքային"
 
-#: modules/stream_out/switcher.c:86
+#: modules/stream_out/switcher.c:88
 msgid "Files"
 msgstr "Ֆայլեր"
 
-#: modules/stream_out/switcher.c:88
+#: modules/stream_out/switcher.c:90
 #, fuzzy
 msgid "Full paths of the files separated by colons."
 msgstr "Full ճանապարհներով են ֆայլերի առանձնացված colons\"."
 
-#: modules/stream_out/switcher.c:89
+#: modules/stream_out/switcher.c:91
 msgid "Sizes"
 msgstr "Չափեր"
 
-#: modules/stream_out/switcher.c:91
+#: modules/stream_out/switcher.c:93
 #, fuzzy
 msgid "List of sizes separated by colons (720x576:480x576)."
 msgstr "պանակ չափերի առանձնացված colons (720x576: 480x576)."
 
-#: modules/stream_out/switcher.c:94
+#: modules/stream_out/switcher.c:96
 msgid "Aspect ratio (4:3, 16:9)."
 msgstr "Չափերի հարաբերությունը (4.3, 16:9):"
 
-#: modules/stream_out/switcher.c:97
+#: modules/stream_out/switcher.c:99
 msgid "UDP port to listen to for commands."
 msgstr "UDP պորտ հրամաններիը լսելու համար "
 
-#: modules/stream_out/switcher.c:98
+#: modules/stream_out/switcher.c:100
 msgid "Command"
 msgstr "Հրաման"
 
-#: modules/stream_out/switcher.c:100
+#: modules/stream_out/switcher.c:102
 #, fuzzy
 msgid "Initial command to execute."
 msgstr "Սկզբնական հրաման կատարել\"."
 
-#: modules/stream_out/switcher.c:101
+#: modules/stream_out/switcher.c:103
 msgid "GOP size"
 msgstr "GOP size"
 
-#: modules/stream_out/switcher.c:103
+#: modules/stream_out/switcher.c:105
 #, fuzzy
 msgid "Number of P frames between two I frames."
 msgstr "Միավորների P շրջանակների միջեւ երկու եմ շրջանակներ."
 
-#: modules/stream_out/switcher.c:104
+#: modules/stream_out/switcher.c:106
 #, fuzzy
 msgid "Quantizer scale"
 msgstr "Quantizer ձգման"
 
-#: modules/stream_out/switcher.c:106
+#: modules/stream_out/switcher.c:108
 #, fuzzy
 msgid "Fixed quantizer scale to use."
 msgstr "Հաստատագրված quantizer ձգման օգտագործել\"."
 
-#: modules/stream_out/switcher.c:107
+#: modules/stream_out/switcher.c:109
 #, fuzzy
 msgid "Mute audio"
 msgstr "խլացնելը աուդիո"
 
-#: modules/stream_out/switcher.c:109
+#: modules/stream_out/switcher.c:111
 #, fuzzy
 msgid "Mute audio when command is not 0."
 msgstr "խլացնելը աուդիո, երբ հրաման չի 0\"."
 
-#: modules/stream_out/switcher.c:112
+#: modules/stream_out/switcher.c:114
 #, fuzzy
 msgid "MPEG2 video switcher stream output"
 msgstr "MPEG2 վիդեո switcher հոսք ելքային"
