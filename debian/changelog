@@ -11,6 +11,30 @@ vlc (2.0.7-1~bpo60+1) squeeze-backports-sloppy; urgency=low
 
  -- Edward Wang <edward.c.wang@compdigitec.com>  Sun, 09 Jun 2013 15:14:52 -0400
 
+vlc (2.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update watch file.
+
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 04 Jun 2013 00:19:49 +0200
+
+vlc (2.0.6-1) unstable; urgency=low
+
+  * New upstream release (LP: #1166189).
+  * Drop backported man page patch.
+
+ -- Benjamin Drung <bdrung@debian.org>  Mon, 08 Apr 2013 15:47:10 +0200
+
+vlc (2.0.5-2) unstable; urgency=low
+
+  * Bump Standards-Version to 3.9.4 (no changes needed).
+  * Override false positive hardening-no-fortify-functions lintian warnings.
+  * Fix build failure on powerpcspe. Thanks to Roland Stigge. (Closes: #701830)
+  * Backport man page update to correct title DVD syntax. (Closes: #691957)
+  * Fix apport hook. Thanks to Dmitry Shachnev. (Closes: #702942)
+
+ -- Benjamin Drung <bdrung@debian.org>  Fri, 22 Mar 2013 13:37:54 +0100
+
 vlc (2.0.5-1~bpo60+1) squeeze-backports-sloppy; urgency=low
 
   [ Benjamin Drung ]
@@ -38,6 +62,44 @@ vlc (2.0.5-1~bpo60+1) squeeze-backports-sloppy; urgency=low
   * Revert "debian/rules: Use xz compression for binary packages."
 
  -- Reinhard Tartler <siretart@tauware.de>  Tue, 19 Mar 2013 08:28:03 +0100
+
+vlc (2.0.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Don't let libvlc-dev depend on libvlccore-dev.
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 13 Dec 2012 11:07:35 +0100
+
+vlc (2.0.4-1) unstable; urgency=low
+
+  * New upstream release.
+    - Fix crashes (LP: #947156, #958462, #960020, #979490, #1033682)
+    - Correct default encoding for Hebrew subtitles (LP: #1051552)
+  * Drop backported bp-fix-hang-caused-by-notify.patch.
+  * Build the sftp access and Opus codec plugin and add them to vlc-nox.
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 18 Oct 2012 18:59:03 +0200
+
+vlc (2.0.3-3) unstable; urgency=low
+
+  * debian/vlc.postinst: Fix directory to symlink upgrade in postinst.
+    Thanks to David Prévot <taffit@debian.org> (Closes: #687657)
+  * debian/vlc.preinst: Remove insufficient fix to #613121 (similar issue).
+    Thanks to David Prévot for the patch.
+  * Cherry-pick fix for VLC hang caused by the notify plugin. (Closes: #662628,
+    LP: #970447)
+  * Drop alternative dependency on transitional ttf-freefont.
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 04 Oct 2012 20:59:21 +0200
+
+vlc (2.0.3-2) unstable; urgency=low
+
+  * debian/rules: Use xz compression for binary packages.
+    Thanks to Ansgar Burchardt <ansgar@debian.org> (Closes: #683836)
+  * Add version to vlc-nox dependency of vlc-plugin-sdl (consistent with other
+    plug-ins).
+
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 18 Aug 2012 17:45:01 +0200
 
 vlc (2.0.3-1~bpo60+1) squeeze-backports; urgency=low
 
