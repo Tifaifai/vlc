@@ -1,3 +1,9 @@
+vlc (2.0.3-5+deb7u3) wheezy-security; urgency=high
+
+  * Fix CVE-2016-5108. (Closes: #825728)
+
+ -- Mateusz Łukasik <mati75@linuxmint.pl>  Thu, 02 Jun 2016 21:40:24 +0200
+
 vlc (2.0.3-5+deb7u2) wheezy-security; urgency=high
 
   * Fix multiple vulnerabilities (Closes: #775866):
