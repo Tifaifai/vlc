@@ -1,3 +1,10 @@
+vlc (2.2.8-0+deb8u1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+    - Fix AVI invalid pointer dereference.
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Wed, 21 Feb 2018 21:54:50 +0100
+
 vlc (2.2.7-1~deb8u1) jessie-security; urgency=high
 
   * New upstream release.
